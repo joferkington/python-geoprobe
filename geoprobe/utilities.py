@@ -69,6 +69,15 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     return subVolume
 
+def coherence(data, window, rescale):
+    """Calculates a coherence volume from a 3D numpy array. This method
+    of calculating coherence implicitly assumes that the array consists
+    of perodic data with a mean of 0."""
+    if data.dtype in [np.uint8, np.int8]:
+        data = data.astype(np.int16)
+    ndimage.gaussian_filter(data**2, window, output=data, mode='constant', cval=0)
+    return data
+
 def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resampleRatio=10, rescale=False):
     """Plots a "wiggle" trace
     Input:
