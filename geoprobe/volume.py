@@ -193,42 +193,48 @@ class volume(object):
     #------------------------------------------------------------------------------------------
 
 
-    #-- xmin, xmax, etc (read only properities) -------------------------------------------
+    #-- xmin, xmax, etc -----------------------------------------------------------------------
     def _getVolumeBound(self, axis, max=True): 
         n = [self.nx, self.ny, self.nz][axis]
         d = [self.dx, self.dy, self.dz][axis]
         offset = [self.x0, self.y0, self.z0][axis]
         stop = offset + d * (n-1)
         start = offset
-        if (max & (d>0)) or (not max & (d<0)): return stop
-        else: return start
-    @property
-    def xmin(self):
-        """Mininum x model coordinate"""
-        return self._getVolumeBound(axis=0, max=False)
-    @property
-    def xmax(self):
-        """Maximum x model coordinate"""
-        return self._getVolumeBound(axis=0, max=True)
-    @property
-    def ymin(self):
-        """Mininum y model coordinate"""
-        return self._getVolumeBound(axis=1, max=False)
-    @property
-    def ymax(self):
-        """Maximum y model coordinate"""
-        return self._getVolumeBound(axis=1, max=True)
-    @property
-    def zmin(self):
-        """Mininum z model coordinate"""
-        return self._getVolumeBound(axis=2, max=False)
-    @property
-    def zmax(self):
-        """Maximum z model coordinate"""
-        return self._getVolumeBound(axis=2, max=True)
+        if ((max is True) & (d>0)) or ((max is False) & (d<0)): 
+            return stop
+        else: 
+            return start
+    def _setVolumeBound(self, value, axis, max=True):
+        axisLetter = ['x','y','z'][axis]
+        n = [self.nx, self.ny, self.nz][axis]
+        d = [self.dx, self.dy, self.dz][axis]
+        offset = [self.x0, self.y0, self.z0][axis]
+        if ((max is True) & (d>0)) or ((max is False) & (d<0)):
+            value = value + (n-1) * d
+        setattr(self, axisLetter+'0', value)
+
+    xmin = property(lambda self: self._getVolumeBound(axis=0, max=False), 
+                    lambda self, value: self._setVolumeBound(value, 0, max=False),
+                    doc="Mininum x model coordinate")
+    ymin = property(lambda self: self._getVolumeBound(axis=1, max=False), 
+                    lambda self, value: self._setVolumeBound(value, axis=1, max=False),
+                    doc="Mininum y model coordinate")
+    zmin = property(lambda self: self._getVolumeBound(axis=1, max=False), 
+                    lambda self, value: self._setVolumeBound(value, axis=1, max=False),
+                    doc="Mininum z model coordinate")
+    xmax = property(lambda self: self._getVolumeBound(axis=0, max=True), 
+                    lambda self, value: self._setVolumeBound(value, 0, max=True),
+                    doc="Maximum x model coordinate")
+    ymax = property(lambda self: self._getVolumeBound(axis=1, max=True), 
+                    lambda self, value: self._setVolumeBound(value, 1, max=True),
+                    doc="Maximum y model coordinate")
+    zmax = property(lambda self: self._getVolumeBound(axis=2, max=True), 
+                    lambda self, value: self._setVolumeBound(value, 2, max=True),
+                    doc="Maximum z model coordinate")
     #-----------------------------------------------------------------------------------
 
 
+    #-- nx, ny, nz ---------------------------------------------------------------------
     @property
     def nx(self):
         return self.data.shape[0]
@@ -238,6 +244,7 @@ class volume(object):
     @property
     def nz(self):
         return self.data.shape[2]
+    #-----------------------------------------------------------------------------------
 
 
     # Need to fix these... should be 3x2 instead of 2x3... fix transform when I do.

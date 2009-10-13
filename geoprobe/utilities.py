@@ -2,8 +2,6 @@
 07/2009"""
 
 import numpy as np
-import scipy as sp
-from matplotlib import pyplot as plt
 
 from volume import volume
 
@@ -69,11 +67,24 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     return subVolume
 
-def coherence(data, window, rescale):
-    """Calculates a coherence volume from a 3D numpy array. This method
-    of calculating coherence implicitly assumes that the array consists
-    of perodic data with a mean of 0."""
-    if data.dtype in [np.uint8, np.int8]:
+def coherence(data, window=(0.3, 0.3, 2.0)):
+    """Calculates a coherence volume from a 3D numpy array using a
+    gaussian-shaped moving window. This method of calculating coherence 
+    implicitly assumes that the array consistsof perodic data with a 
+    mean of 0. If the data consists of 8-bit values, it will be 
+    converted to 16-bit to avoid overflow (and centered on 0, if the 
+    data are unsigned integers)
+    Input:
+        data: Input data (a 3d numpy array)
+        window: A tuple of (xlength, ylength, zlength) describing the
+                size of the gaussian window. Fractional values _are_
+                allowed.
+    """
+    from scipy import ndimage
+    # To avoid overflow, if we're dealing with an 8-bit array, convert it to 16-bit
+    if data.dtype == np.uint8:
+        data = data.astype(np.int16) - 127
+    elif data.dtype == np.int8:
         data = data.astype(np.int16)
     ndimage.gaussian_filter(data**2, window, output=data, mode='constant', cval=0)
     return data
@@ -90,6 +101,8 @@ def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resamp
     Output:
         a matplotlib plot on the current axes
     """
+    from matplotlib import pyplot as plt
+    from scipy.signal import cspline1d, cspline1d_eval
 
     # Rescale so that x ranges from -1 to 1
     if rescale:
@@ -100,7 +113,6 @@ def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resamp
         x -= 1
 
     # Interpolate at 10x the previous density
-    from scipy.signal import cspline1d, cspline1d_eval
     y = np.arange(0,x.size,1)
     newy = np.arange(0,x.size,1/float(resampleRatio))
     cj = cspline1d(x)
@@ -129,6 +141,8 @@ def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', negFill=None,
     Output:
         a matplotlib plot on the current axes
     """
+    from matplotlib import pyplot as plt
+
     # Rescale so that the grid ranges from -1 to 1
     if rescale:
         grid = grid.astype(np.float)
@@ -297,7 +311,15 @@ def fitPlane(x,y,z,independent=None):
 
 def normal2SD(x,y,z):
     """Converts a normal vector to a plane (given as x,y,z)
-    to a strike and dip of the plane using the Right-Hand-Rule"""
+    to a strike and dip of the plane using the Right-Hand-Rule.
+    Input:
+        x: The x-component of the normal vector
+        y: The y-component of the normal vector
+        z: The z-component of the normal vector
+    Output:
+        strike: The strike of the plane, in degrees clockwise from north
+        dip: The dip of the plane, in degrees downward from horizontal
+    """
     from math import acos, asin, atan2,  sqrt, degrees
 
     # Due to geologic conventions, positive angles are downwards
@@ -329,8 +351,23 @@ def normal2SD(x,y,z):
     return strike, dip
 
 
-def roseDiagram(data, title='North', nbins=30, bidirectional=True):
-    data = np.array(data)
+def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
+    """Plots a circular histogram or "rose diagram"
+    Input: 
+        data: A list or 1D array of orientation data that the histogram 
+            will be made from. The data should be an in degrees clockwise
+            from north.
+        nbins (default: 30): The number of bins in the histogram
+        bidirectional (default: True): Whether or not to treat the input data
+            as bi-directional. (i.e. if True, the rose diagram will be 
+            symmetric)
+        title (default: 'North'): The title of the plot
+    """
+    # TODO: This needs to pass kwargs on to the plotting routines
+    # TODO: (also, take the title parameter out) 
+    # TODO: (or just remove this function entirely? It shouldn't really be here)
+    from matplotlib import pyplot as plt
+    data = np.asarray(data)
     n = data.size
 
     if bidirectional:
