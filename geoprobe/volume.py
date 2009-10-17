@@ -355,7 +355,8 @@ class volume(object):
             X,Y,Z = volume.index2model(XI,YI,ZI)
             Z = volume.index2model(ZI, axis=2) # (or axis='z')
         """
-        return self._modelIndex(*coords, inverse=True, **kwargs)
+        kwargs['inverse'] = True
+        return self._modelIndex(*coords, **kwargs)
 
     def _modelIndex(self, *coords, **kwargs):
         """
