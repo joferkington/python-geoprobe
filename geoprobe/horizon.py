@@ -294,7 +294,7 @@ class _horizonFile(file):
                         lineInfo = self.lineInfo()
                         currentPoints = self.readPoints()
                         points[i:i+len(currentPoints)] = currentPoints
-                        lines.append(self._line(lineInfo, points[i:i+len(currentPoints)]))
+                        lines.append((lineInfo, points[i:i+len(currentPoints)]))
                         i += len(currentPoints)
         except EOFError:
                 pass
