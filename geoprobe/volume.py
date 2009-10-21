@@ -498,11 +498,18 @@ class volume(object):
 
 
 
+#-- Raw reading and writing -------------------------------------------
 class _volumeFile(file):
+    """Raw reading and writing of values in the volume header"""
     def __init__(self, *args, **kwargs):
+        """Initialization is the same as a normal file object
+        %s""" % file.__doc__
         file.__init__(self, *args, **kwargs)
 
     def readBinary(self,fmt):
+        """Read and unpack a binary value from the file based
+        on string fmt (see the struct module for details).
+        """
         size = struct.calcsize(fmt)
         data = self.read(size)
         data = struct.unpack(fmt, data)
@@ -518,6 +525,7 @@ class _volumeFile(file):
         return data
 
     def writeBinary(self, fmt, dat):
+        """Pack and write data to the file according to string fmt."""
         # If it's a string, pad with \x00 to the appropriate length
         if 's' in fmt:
             length = int(fmt.replace('s',''))
@@ -530,6 +538,9 @@ class _volumeFile(file):
         self.write(dat)
 
     def readHeader(self):
+        """Read header values from a geoprobe volume file.  Reads
+        values based on the dict defined in _header.py. Returns
+        a dict of name:value pairs."""
         headerValues = {}
         for value, props in _headerDef.iteritems():
             offset = props['offset']
@@ -539,6 +550,8 @@ class _volumeFile(file):
         return headerValues
 
     def writeHeader(self, volInstance):
+        """Write the header values contained in a volume instance
+        "volInstance" at the offsets defined in _header.py.""" 
         for key, props in _headerDef.iteritems():
             default = props['default']
             fmt = props['type']
