@@ -26,7 +26,6 @@ def isGeoprobeVolume(filename):
 class volume(object):
     """Reads and writes geoprobe volumes"""
 
-    # TODO: Seperate raw reading and writing into a seperate class
     # TODO: Implement a clip method
 
     def __init__(self, input, copyFrom=None, rescale=True):
