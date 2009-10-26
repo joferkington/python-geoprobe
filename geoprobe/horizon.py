@@ -1,10 +1,5 @@
 import numpy as np
 import struct
-import time
-import pylab
-#import osgeo.osr as osr
-#import osgeo.gdal as gdal
-import sys
 
 from geoprobe import utilities
 from volume import volume
@@ -14,35 +9,21 @@ Geoprobe horizons
   Reverse engineered by JDK, Feb. 2009
 Format descrip:
     1 ascii line w/ version (terminated with newline)
-    section # (>I) 19=surface, 34=lines, 28=lines(?) 
-                (Lots of different values correspond to lines...)
-                (Are they different pick types? I don't know...)
+    There are two "sections" in every file. 
+    The first section contains x,y,z points making a "filled" surface
+        (This is basically a sparse matrix)
+    The second section contains lines (manual picks)
+    Both section types have a 4 byte header (seems to be >I?)
+        The actual values in this header seem to be complelely meaningless (??)
     subsections
         if surface:
             info: (>I) Number of points
         if line:
             info: (>4fI) xdir,ydir,zdir,ID,numPoints
-    Point Format: (>4f3B)
+    Point Format in all sections: (>4f3B)
         x,y,z,confidence,type,heridity,tileSize
 """
-""" Ok... We need: horizon.xmin
-    horizon.ymin
-    horizon.zmin
-    horizon.xmax
-    horizon.ymax
-    horizon.zmax
-    horizon.extents (?)
-    
-    data in:
-    horizon.grid
-    horizon.points (a np.recarray)
-    horizon.lines  (an iterator of recarrays? Or just views?)
-
-    methods:
-        toGeotiff
-        view (?)
-"""
-        
+       
 _pointFormat = 'f, f, f, f, B, B, B' # Big-endian byte-order!
 _pointNames = 'x, y, z, conf, type, herid, tileSize'
 
