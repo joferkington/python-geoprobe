@@ -236,7 +236,6 @@ class _horizonFile(file):
         self.seek(numPoints*pointSize, 1) 
         return numPoints
 
-
     def sectionType(self):
         # No idea what the difference between #34 and #28, #2, etc is... (pos, neg, 0, pick??)
         secFmt = '>I'
@@ -252,19 +251,18 @@ class _horizonFile(file):
         try: 
             return self._numpoints
         except AttributeError:
+            # Transverse file structure and sum up total number of points
             self.readHeader()
             numPoints = 0; secType = None
-            # Transverse file structure and sum up total number of points
-            try:
-                while secType != 'End':
-                    secType = self.sectionType()
-                    # Read headers or break if EOF reached
-                    if secType == 'Points':
-                        numPoints += self.skipPoints()
-                    if secType == 'Lines':
-                        while True:
-                            self.lineInfo()
-                            numPoints += self.skipPoints()
+            # Read points section
+            secType = self.sectionType() 
+            numPoints += self.skipPoints() 
+            # Read Lines section
+            try:  
+                secType = self.sectionType() 
+                while True:
+                    self.lineInfo()
+                    numPoints += self.skipPoints()
             except EOFError:
                 pass
             self._numpoints = numPoints
@@ -282,20 +280,22 @@ class _horizonFile(file):
         lines = [] # To store line objects in
         i = 0; secType = None
         self.readHeader() # Jump to start of file, past header
+
+        # Read points section
+        secType = self.sectionType()
+        currentPoints = self.readPoints()
+        points[i:i+len(currentPoints)] = currentPoints
+        i += len(currentPoints)
+
+        # Read lines section
         try:
-            while secType != 'End':
-                secType = self.sectionType()
-                if secType == 'Points':
-                    currentPoints = self.readPoints()
-                    points[i:i+len(currentPoints)] = currentPoints
-                    i += len(currentPoints)
-                elif secType == 'Lines':
-                    while True:
-                        lineInfo = self.lineInfo()
-                        currentPoints = self.readPoints()
-                        points[i:i+len(currentPoints)] = currentPoints
-                        lines.append((lineInfo, points[i:i+len(currentPoints)]))
-                        i += len(currentPoints)
+            secType = self.sectionType() 
+            while True:
+                lineInfo = self.lineInfo()
+                currentPoints = self.readPoints()
+                points[i:i+len(currentPoints)] = currentPoints
+                lines.append((lineInfo, points[i:i+len(currentPoints)]))
+                i += len(currentPoints)
         except EOFError:
                 pass
         self.lines = lines
