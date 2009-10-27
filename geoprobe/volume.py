@@ -236,12 +236,15 @@ class volume(object):
     #-- nx, ny, nz ---------------------------------------------------------------------
     @property
     def nx(self):
+        """The number of x values in the array (read-only)"""
         return self.data.shape[0]
     @property
     def ny(self):
+        """The number of y values in the array (read-only)"""
         return self.data.shape[1]
     @property
     def nz(self):
+        """The number of z values in the array (read-only)"""
         return self.data.shape[2]
     #-----------------------------------------------------------------------------------
 
@@ -458,7 +461,7 @@ class volume(object):
     
     @property
     def transform(self):
-        """A 3x2 numpy array describing an affine transformation between 
+        """A 2x3 numpy array describing an affine transformation between 
         model and world coordinates."""
         # Detailed explanation of inversion...
         # Ok:
@@ -485,7 +488,7 @@ class volume(object):
 
     @property
     def invtransform(self):
-        """A 3x2 numpy array to transform between world and 
+        """A 2x3 numpy array to transform between world and 
         model coordinates."""
         # See explanation in self.transform
         G = np.vstack((self.worldCoords, [1,1,1]))
