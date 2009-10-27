@@ -253,6 +253,10 @@ class volume(object):
 
     #-- worldCoords property-------------------------------------
     def _getWorldCoords(self):
+        """A 2x3 array containing 3 points in world coordinates corresponding
+        to the points in modelCoords.
+        [[x1, x2, x3],
+         [y2, y2, y3]]"""
         return np.asarray(self.georef[:6]).reshape(2,3)
     def _setWorldCoords(self, newValues):
         self.georef[:6] = np.asarray(newValues).flatten()
@@ -263,6 +267,10 @@ class volume(object):
     #   georef format: Xw1,Xw2,Xw3,Yw1,Yw2,Yw3,Ym1,Ym2,Ym3,Xm1,Xm2,Xm3
     #   This means that we need to flipud the modelCoords!! (looks suspicious, double-check)
     def _getModelCoords(self):
+        """A 2x3 array containing 3 points in model coordinates corresponding
+        to the points in worldCoords.
+        [[x1, x2, x3],
+         [y2, y2, y3]]"""
         return np.flipud( np.asarray(self.georef[6:]).reshape(2,3) )
     def _setModelCoords(self, newValues):
         self.georef[6:] = np.asarray(newValues).flatten()
