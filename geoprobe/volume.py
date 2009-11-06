@@ -470,7 +470,8 @@ class volume(object):
     @property
     def transform(self):
         """A 2x3 numpy array describing an affine transformation between 
-        model and world coordinates."""
+        model and world coordinates. (Read only property. Calculated from
+        volume.modelCoords and volume.worldCoords.)"""
         # Detailed explanation of inversion...
         # Ok:
         #  Ax_m + By_m + C = x_w
@@ -497,7 +498,8 @@ class volume(object):
     @property
     def invtransform(self):
         """A 2x3 numpy array to transform between world and 
-        model coordinates."""
+        model coordinates. (Read only property. Calculated from
+        volume.modelCoords and volume.worldCoords.)"""
         # See explanation in self.transform
         G = np.vstack((self.worldCoords, [1,1,1]))
         d = self.modelCoords
