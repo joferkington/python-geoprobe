@@ -32,7 +32,7 @@ headerDef = {
         'v0':               {'offset':352,  'type':'>f',    'default':0    },       # Voxel value calibration factor
         'x0':               {'offset':356,  'type':'>f',    'default':0    },       # X-axis calibration factor (e.g. x = i*dx + x0, where i is the index value)
         'y0':               {'offset':360,  'type':'>f',    'default':0    },       # Y-axis calibration factor
-        'z0':               {'offset':364,  'type':'>f',    'default':0    },       # Z-axis calibration factor
+        'z0':               {'offset':364,  'type':'>f',    'default':None },       # Z-axis calibration factor
         'dv':               {'offset':368,  'type':'>f',    'default':1    },       # Voxel value scaling factor
         'dx':               {'offset':372,  'type':'>f',    'default':1    },       # X-axis scaling factor
         'dy':               {'offset':376,  'type':'>f',    'default':1    },       # Y-axis scaling factor
