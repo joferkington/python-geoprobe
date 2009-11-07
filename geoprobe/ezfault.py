@@ -177,7 +177,7 @@ class ezfault(object):
         if vol is not None:
             # Interpolate ezfault at volume indicies
             if type(vol) == type('String'): vol = volume(vol)
-            dx, dy = np.abs(vol.dx), np.abs(vol.dy)
+            dx, dy = abs(vol.dx), abs(vol.dy)
 
             # Make sure we start at a volume index
             xstart, xstop = [vol.index2model(vol.model2index(item)) for item in [xstart, xstop] ] 
