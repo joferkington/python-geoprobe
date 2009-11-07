@@ -392,7 +392,7 @@ class volume(object):
             # Select the proper starting point and step value
             axis = axis % 3 # This is to allow some odd but useful stuff... E.g. converting Y,Z pairs
             mins = [self.xmin, self.ymin, self.zmin]
-            Ds = [np.abs(self.dx), np.abs(self.dy), np.abs(self.dz)]
+            Ds = [abs(self.dx), abs(self.dy), abs(self.dz)]
             min, d = mins[axis], Ds[axis]
 
             # Convert the coordinates
