@@ -53,7 +53,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     
     # convert z coords of horizion to volume indexes
     depth = depth - vol.zmin
-    depth = depth / np.abs(vol.dz)
+    depth = depth / abs(vol.dz)
     depth = np.array(depth, dtype=int)
 
     # Make indicies to extract a window around the horizion
