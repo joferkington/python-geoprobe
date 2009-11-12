@@ -81,7 +81,7 @@ class volume(object):
         else:
             # Set default attributes
             for id, values in _headerDef.iteritems():
-                self.headerValues[id] = values['default']
+                setattr(self, id, values['default'])
             (self.originalNx, self.originalNy, self.originalNz) = data.shape
 
         data = np.asarray(data)
