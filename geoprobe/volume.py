@@ -105,17 +105,10 @@ class volume(object):
         if self.dx < 0:
             data = data[::-1,:,:]
         return data
-         
+
     def load(self):
         """Reads an entire Geoprobe volume into memory and returns 
         a numpy array contining the volume."""
-
-        #Read data into memory
-        dat = np.empty((self.nx, self.ny, self.nz), dtype=np.uint8)
-        dat[:,:,:] = self.data
-        return dat
-
-    def load2(self):
         dat = np.fromfile(self._filename, dtype=np.uint8)
         dat = dat[_headerLength:]
         dat = dat.reshape((self.nz, self.ny, self.nx)).T
@@ -149,10 +142,9 @@ class volume(object):
         except AttributeError:
             #If not, we're reading from a file, so make a memory-mapped-file numpy array
             dat = np.memmap(filename=self._filename, mode='r',
-                offset=_headerLength, order='C', 
-                shape=(self._nz, self._ny, self._nx) 
+                offset=_headerLength, order='F', 
+                shape=(self._nx, self._ny, self._nz) 
                 )
-            dat = dat.transpose()
             dat = self._fixAxes(dat)
             self._data = dat
         return dat
