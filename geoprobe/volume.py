@@ -70,6 +70,8 @@ class volume(object):
         """Takes a numpy array and makes a geoprobe volume. This
         volume can then be written to disk using the write() method."""
 
+        data = np.asarray(data)
+
         #Set up the header Dictionary
         if copyFrom:
             if isinstance(copyFrom, str): # Assume the string is the filname of a geoprobe volume
@@ -83,12 +85,6 @@ class volume(object):
             for id, values in _headerDef.iteritems():
                 setattr(self, id, values['default'])
             (self.originalNx, self.originalNy, self.originalNz) = data.shape
-
-        data = np.asarray(data)
-        try: 
-            (self._nx, self._ny, self._nz) = data.shape
-        except ValueError:
-            raise ValueError('Input data must be a 3D numpy array (or convertable into one)')
 
         if rescale:
             self.v0 = data.min()
@@ -119,6 +115,12 @@ class volume(object):
         dat[:,:,:] = self.data
         return dat
 
+    def load2(self):
+        dat = np.fromfile(self._filename, dtype=np.uint8)
+        dat = dat[_headerLength:]
+        dat = dat.reshape((self.nz, self.ny, self.nx)).T
+        return dat
+
     def write(self, filename):
         """Writes a geoprobe volume to disk using memmapped arrays"""
         self._infile = _volumeFile(filename, 'w')
@@ -147,9 +149,10 @@ class volume(object):
         except AttributeError:
             #If not, we're reading from a file, so make a memory-mapped-file numpy array
             dat = np.memmap(filename=self._filename, mode='r',
-                offset=_headerLength, order='F', 
-                shape=(self._nx, self._ny, self._nz) 
+                offset=_headerLength, order='C', 
+                shape=(self._nz, self._ny, self._nx) 
                 )
+            dat = dat.transpose()
             dat = self._fixAxes(dat)
             self._data = dat
         return dat
@@ -162,7 +165,7 @@ class volume(object):
         # We don't update dv and d0 here.  This is to avoid overwriting the "real"
         # dv and d0 when you're manipulating the data in some way. When making a 
         # new volume object from an existing numpy array (in _newVolume), dv and d0 are set
-        self._data = newData.astype(np.uint8)
+        self._data = newData
     data = property(_getData, _setData)
     #-------------------------------------------------------------------
 
