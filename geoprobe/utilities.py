@@ -86,7 +86,8 @@ def coherence(data, window=(0.3, 0.3, 2.0)):
         data = data.astype(np.int16) - 127
     elif data.dtype == np.int8:
         data = data.astype(np.int16)
-    ndimage.gaussian_filter(data**2, window, output=data, mode='constant', cval=0)
+    ndimage.gaussian_filter(data, window, output=data, mode='constant', cval=0)
+    data = np.sqrt(data)
     return data
 
 def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resampleRatio=10, rescale=False):
