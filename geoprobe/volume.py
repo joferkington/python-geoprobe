@@ -412,7 +412,7 @@ class volume(object):
             axis = {'X':0, 'Y':1, 'Z':2}[axis]
 
         # Handle calling f(x), f(x,y), f(x,y,z), f(z,axis=2), etc 
-        converted = [convert(x, i, inverse) for i,x in enumerate(coords, start=axis)]
+        converted = [convert(x, i+axis, inverse) for i,x in enumerate(coords)]
 
         # If there's just one value, return it, otherwise return a tuple
         if len(converted) == 1: return converted[0]
