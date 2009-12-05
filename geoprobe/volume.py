@@ -214,7 +214,7 @@ class volume(object):
                     lambda self, value: self._setVolumeBound(value, axis=1, max=False),
                     doc="Mininum y model coordinate")
     zmin = property(lambda self: self._getVolumeBound(axis=2, max=False), 
-                    lambda self, value: self._setVolumeBound(value, axis=1, max=False),
+                    lambda self, value: self._setVolumeBound(value, axis=2, max=False),
                     doc="Mininum z model coordinate")
     xmax = property(lambda self: self._getVolumeBound(axis=0, max=True), 
                     lambda self, value: self._setVolumeBound(value, 0, max=True),
