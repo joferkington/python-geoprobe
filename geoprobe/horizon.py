@@ -118,23 +118,17 @@ class horizon(object):
                 specified, and vol.dz is negative, this defaults to -1.  Otherwise
                 this defaults to 1.
         """
-        try: import osgeo.gdal as gdal 
-        except ImportError: 
-            raise ImportError('Gdal not found! To use horizon.toGeotiff, gdal and the python bindings to gdal must be installed')
-            
-        if filename[-4:] in ['.tif','tiff']:
-            format = 'GTiff'
-        elif filename[-3:] == 'img':
-            format = 'HFA'
-        else: 
-            # Assume geotiff and append ".tif"
-            format = 'GTiff'
-            outputFilename += '.tif'
-
         if vol is not None:
-            if type(vol) == type('string'): vol = volume(vol)
+            if type(vol) == type('string'): 
+                vol = volume(vol)
+            Xoffset, Yoffset = vol.model2world(self.xmin, self.ymin)
+            transform = vol
+        else:
+            Xoffset, Yoffset = 0,0
+            transform = None
 
-        if nodata==None: nodata = self.nodata
+        if nodata==None: 
+            nodata = self.nodata
 
         # Zscale is not 1 by default, as I want the default to be set by vol.dz 
         # and any specified value to override the default
@@ -143,29 +137,11 @@ class horizon(object):
             elif vol.dz > 0: zscale = 1
             elif vol.dz < 0: zscale = -1
 
-        ysize,xsize = self.grid.shape
-        Xoffset, Yoffset = self.xmin, self.ymin
-
-        #-- Create and write output file
-        driver = gdal.GetDriverByName(format)
-        dataset = driver.Create(filename,xsize,ysize,1,gdal.GDT_Float32) #One band, stored as floats
-
-        # Georeference volume if vol is given
-        if vol is not None:
-            Xoffset, Yoffset = vol.model2world(Xoffset, Yoffset)
-            tran = vol.transform
-            dataset.SetGeoTransform( [Xoffset[0], tran[0,0], tran[0,1], 
-                                      Yoffset[0], tran[1,0], tran[1,1]] )
-        # If there's a nodata value, set it
-        if nodata: 
-            dataset.GetRasterBand(1).SetNoDataValue(nodata)
-        # Write dataset
         data = self.grid
         if nodata != self.nodata: data[data == self.nodata] = nodata
         data[data != nodata] *= zscale
-        dataset.GetRasterBand(1).WriteArray(data)
 
-
+        utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
 #-- This is currently very sloppy code... Need to clean up and document
 class _horizonFile(file):
