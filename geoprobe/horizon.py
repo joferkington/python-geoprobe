@@ -83,7 +83,7 @@ class horizon(object):
             return grid
     def _set_grid(self, value):
         self._grid = value
-    grid = property(self._get_grid, self._set_grid)
+    grid = property(_get_grid, _set_grid)
     #----------------------------------------------------
 
     def strikeDip(self, vol=None, velocity=None, independent='z'):
