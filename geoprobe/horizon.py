@@ -113,7 +113,7 @@ class horizon(object):
                 data in the volume header (and will therefore be in same projection
                 as the volume's world coordinates).  Otherwise the geotiff is created
                 using the model coordinates stored in the geoprobe horizon file.
-            nodata (default=-9999): Value to use for NoData.
+            nodata (default=self.nodata (-9999)): Value to use for NoData.
             zscale (optional): Scaling factor to use for the Z-values.  If vol is
                 specified, and vol.dz is negative, this defaults to -1.  Otherwise
                 this defaults to 1.
