@@ -67,6 +67,77 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     return subVolume
 
+def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
+    """
+    Write a geotiff file called "filename" from the numpy array "data".
+    Input:
+        data: A 2D numpy array with shape (nx,ny)
+        filename: The filename of the output geotiff
+        nodata:  The nodata value of the array (defaults to -9999)
+        transform (optional): Either a 3x2 numpy array describing 
+            an affine transformation to georeference the geotiff 
+            with, or an object that has a transform attribute 
+            containing such an array (e.g. a geoprobe.volume object)
+        extents (optional): Either a 2-tuple of the coords of the 
+            lower left corner of "data" (xmin, ymin) or an object 
+            with xmin, xmax, ymin, ymax attributes (e.g. a geoprobe 
+            volume object). This overrides the x and y offsets in 
+            "transform". If transform is not given, it is ignored.
+            Note that if you're using a horizon object as input to
+            "extents", you'll need to call volume.model2world on
+            horizon.xmin & ymin, as a horizon's coordinates are
+            stored in model (inline, crossline) space.
+    """
+    try: import osgeo.gdal as gdal 
+    except ImportError: 
+        raise ImportError('Gdal not found! To use horizon.toGeotiff, gdal and the python bindings to gdal must be installed')
+
+    if transform is not None:
+        try:
+            transform = transform.transform
+        except AttribueError:
+            # Else, assume it's already 2x3 array containg an affine transformation
+            pass
+    if extents is not None:
+        try:
+            xmin,ymin = extents
+        except:
+            try:
+                xmin, ymin = extents.xmin, extents.ymin
+            except AttributeError:
+                raise ValueError('Extents must be either a 2-tuple of xmin,ymin or an object with xmin,ymin properities')
+    else:
+        xmin, ymin = 0,0
+            
+    # Determine output format from filename
+    if filename[-4:] in ['.tif','tiff']:
+        format = 'GTiff'
+    elif filename[-3:] == 'img':
+        format = 'HFA'
+    else: 
+        # Assume geotiff and append ".tif"
+        format = 'GTiff'
+        outputFilename += '.tif'
+
+    # Need to change horizon.grid, and change this when I do... 
+    # Everything should probably expect a x by y array to maintain consistency with volume.data
+    ysize,xsize = data.shape
+
+    #-- Create and write output file
+    driver = gdal.GetDriverByName(format)
+    dataset = driver.Create(filename,xsize,ysize,1,gdal.GDT_Float32) #One band, stored as floats
+
+    # Georeference volume if vol is given
+    if transform is not None:
+        print xmin, ymin
+        dataset.SetGeoTransform( [xmin, transform[0,0], transform[0,1], 
+                                  ymin, transform[1,0], transform[1,1]] )
+    # Set the nodata value
+    dataset.GetRasterBand(1).SetNoDataValue(nodata)
+    # Write dataset
+    dataset.GetRasterBand(1).WriteArray(data)
+
+
 def coherence(data, window=(0.3, 0.3, 2.0)):
     """Calculates a coherence volume from a 3D numpy array using a
     gaussian-shaped moving window. This method of calculating coherence 
