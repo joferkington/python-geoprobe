@@ -66,9 +66,12 @@ class horizon(object):
         self.numpoints = self._file.numpoints
         self.data = self._file.readAllPoints()
 
-    @property
-    def grid(self):
-        try: return self._grid
+    #-- Grid Property ----------------------------------
+    def _get_grid(self):
+        """An nx by ny numpy array (dtype=float32) of the z values contained
+        in the horizon file"""
+        try: 
+            return self._grid
         except AttributeError:
             grid = self.nodata*np.ones((self.data.y.ptp()+1,self.data.x.ptp()+1),dtype=np.float32)
             I = np.array(self.x-self.xmin,np.int)
@@ -78,6 +81,10 @@ class horizon(object):
                 grid[j,i] = d
             self._grid = grid
             return grid
+    def _set_grid(self, value):
+        self._grid = value
+    grid = property(self._get_grid, self._set_grid)
+    #----------------------------------------------------
 
     def strikeDip(self, vol=None, velocity=None, independent='z'):
         """
