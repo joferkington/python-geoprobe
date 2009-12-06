@@ -63,7 +63,6 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     # Extract the subVolume
     subVolume = data[idxI,idxJ,idxK]
-    subVolume = subVolume.astype(np.float)
 
     return subVolume
 
