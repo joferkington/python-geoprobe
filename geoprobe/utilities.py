@@ -26,10 +26,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     if type(vol) == type('String'):
         vol = volume(vol)
 
-    # Set nodata points to be something useable
-    depth = hor.grid
-    depth[depth==hor.nodata] = lower
-    depth = depth.T #Gah, changed the way hor.grid works... Should probably change it back
+    #Gah, changed the way hor.grid works... Should probably change it back
+    depth = hor.grid.T 
 
     # If extents are not set, use the full extent of the horizion (assumes horizion is smaller than volume)
     if region == None: 
@@ -52,8 +50,9 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     nx,ny,nz = data.shape
     
     # convert z coords of horizion to volume indexes
-    depth = depth - vol.zmin
-    depth = depth / abs(vol.dz)
+    nodata = depth != hor.nodata
+    depth[nodata] -= vol.zmin
+    depth[nodata] /= abs(vol.dz)
     depth = depth.astype(np.int)
 
     # Using fancy indexing to do this uses tons of memory...
@@ -72,6 +71,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
     for i in xrange(nx):
         for j in xrange(ny):
+            if depth[i,j] == hor.nodata:
+                break
             # Where are we in data indicies
             z = depth[i,j] + offset
             top = z - upper 
