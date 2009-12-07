@@ -68,13 +68,24 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     """
 
     # As it turns out, simple iteration is much, much more memory efficient, and almost as fast
-    subVolume = np.zeros((nx,ny,upper+lower), dtype=np.uint8)
+    window_size = upper + lower + 1
+    subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
     for i in xrange(nx):
         for j in xrange(ny):
+            # Where are we in data indicies
             z = depth[i,j] + offset
-            top = max([z-lower, 0])
-            bottom = min([z+upper, nz]) 
-            subVolume[i,j,:] = data[i,j,top:bottom]
+            top = z - upper 
+            bottom = z + lower + 1
+
+            # Be careful to extract the right vertical region in cases where the 
+            # window goes outside the data bounds (find region of overlap)
+            data_top = max([top, 0]) 
+            data_bottom = min([bottom, nz]) 
+            window_top = max([0, window_size - bottom])
+            window_bottom = min([window_size, nz - top])
+
+            # Extract the window out of data and store it in subVolume
+            subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
 
     return subVolume
 
