@@ -17,8 +17,6 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     Output:
         returns a numpy volume "flattened" along the horizion
     """
-    # TODO: Something in this is using lots more memory than it should...
-    
     # If the lower window isn't specified, assume it's equal to the upper window
     if lower == None: lower=upper
 
@@ -39,13 +37,13 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     else:
         xmin, xmax, ymin, ymax = region
 
-    # Convert start and stop coords to volume coords
+    # Convert start and stop coords to volume indicies
     xstart, ystart = xmin - vol.xmin, ymin - vol.ymin
     xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
     # Select only the volume data within the region of interest
     data = vol.data[xstart:xstop, ystart:ystop, :]
 
-    # Convert start and stop coords to horizion grid coords
+    # Convert start and stop coords to horizion grid indicies
     xstart, ystart = xmin - hor.xmin, ymin - hor.ymin
     xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
     # Select only the volume data within the region of interest
@@ -58,8 +56,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     depth = depth / abs(vol.dz)
     depth = depth.astype(np.int)
 
-    # I'm leaving the extraction-by-fancy-indexing in but commented out
-    # Using fancy indexing uses tons of memory...
+    # Using fancy indexing to do this uses tons of memory...
     """
     # Make indicies to extract a window around the horizion
     idxI = np.arange(nx)[:,np.newaxis,np.newaxis]
