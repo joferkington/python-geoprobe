@@ -17,6 +17,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     Output:
         returns a numpy volume "flattened" along the horizion
     """
+    # TODO: Something in this is using lots more memory than it should...
     
     # If the lower window isn't specified, assume it's equal to the upper window
     if lower == None: lower=upper
@@ -49,13 +50,17 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
     # Select only the volume data within the region of interest
     depth = depth[xstart:xstop, ystart:ystop]
-    nx, ny = depth.shape
+
+    nx,ny,nz = data.shape
     
     # convert z coords of horizion to volume indexes
     depth = depth - vol.zmin
     depth = depth / abs(vol.dz)
-    depth = np.array(depth, dtype=int)
+    depth = depth.astype(np.int)
 
+    # I'm leaving the extraction-by-fancy-indexing in but commented out
+    # Using fancy indexing uses tons of memory...
+    """
     # Make indicies to extract a window around the horizion
     idxI = np.arange(nx)[:,np.newaxis,np.newaxis]
     idxJ = np.arange(ny)[np.newaxis,:,np.newaxis]
@@ -63,6 +68,16 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     # Extract the subVolume
     subVolume = data[idxI,idxJ,idxK]
+    """
+
+    # As it turns out, simple iteration is much, much more memory efficient, and almost as fast
+    subVolume = np.zeros((nx,ny,upper+lower), dtype=np.uint8)
+    for i in xrange(nx):
+        for j in xrange(ny):
+            z = depth[i,j] + offset
+            top = max([z-lower, 0])
+            bottom = min([z+upper, nz]) 
+            subVolume[i,j,:] = data[i,j,top:bottom]
 
     return subVolume
 
