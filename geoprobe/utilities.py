@@ -151,7 +151,6 @@ def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
 
     # Georeference volume if vol is given
     if transform is not None:
-        print xmin, ymin
         dataset.SetGeoTransform( [xmin, transform[0,0], transform[0,1], 
                                   ymin, transform[1,0], transform[1,1]] )
     # Set the nodata value
