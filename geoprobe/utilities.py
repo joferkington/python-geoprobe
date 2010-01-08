@@ -35,13 +35,14 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     else:
         xmin, xmax, ymin, ymax = region
 
-    # Convert start and stop coords to volume indicies
+    #-- Select region of overlap between volume and horizon
+    # Convert region to volume indicies
     xstart, ystart = xmin - vol.xmin, ymin - vol.ymin
     xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
     # Select only the volume data within the region of interest
     data = vol.data[xstart:xstop, ystart:ystop, :]
 
-    # Convert start and stop coords to horizion grid indicies
+    # Convert region to horizion grid indicies
     xstart, ystart = xmin - hor.xmin, ymin - hor.ymin
     xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
     # Select only the volume data within the region of interest
@@ -56,37 +57,26 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     depth = depth.astype(np.int)
 
     # Using fancy indexing to do this uses tons of memory...
-    """
-    # Make indicies to extract a window around the horizion
-    idxI = np.arange(nx)[:,np.newaxis,np.newaxis]
-    idxJ = np.arange(ny)[np.newaxis,:,np.newaxis]
-    idxK = depth[:,:,np.newaxis] + np.arange(-lower, upper) + offset 
-
-    # Extract the subVolume
-    subVolume = data[idxI,idxJ,idxK]
-    """
-
     # As it turns out, simple iteration is much, much more memory efficient, and almost as fast
     window_size = upper + lower + 1
     subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
     for i in xrange(nx):
         for j in xrange(ny):
-            if depth[i,j] == hor.nodata:
-                break
-            # Where are we in data indicies
-            z = depth[i,j] + offset
-            top = z - upper 
-            bottom = z + lower + 1
+            if depth[i,j] != hor.nodata:
+                # Where are we in data indicies
+                z = depth[i,j] + offset
+                top = z - upper 
+                bottom = z + lower + 1
 
-            # Be careful to extract the right vertical region in cases where the 
-            # window goes outside the data bounds (find region of overlap)
-            data_top = max([top, 0]) 
-            data_bottom = min([bottom, nz]) 
-            window_top = max([0, window_size - bottom])
-            window_bottom = min([window_size, nz - top])
+                # Be careful to extract the right vertical region in cases where the 
+                # window goes outside the data bounds (find region of overlap)
+                data_top = max([top, 0]) 
+                data_bottom = min([bottom, nz]) 
+                window_top = max([0, window_size - bottom])
+                window_bottom = min([window_size, nz - top])
 
-            # Extract the window out of data and store it in subVolume
-            subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
+                # Extract the window out of data and store it in subVolume
+                subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
 
     return subVolume
 
