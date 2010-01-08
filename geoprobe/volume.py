@@ -383,6 +383,7 @@ class volume(object):
 
         def convert(value,axis,inverse):
             """Actually convert the coordinates"""
+            value = np.asarray(value)
 
             # Select the proper starting point and step value
             axis = axis % 3 # This is to allow some odd but useful stuff... E.g. converting Y,Z pairs
@@ -394,7 +395,8 @@ class volume(object):
             if inverse:  # index2model
                 return value * d + min
             else: # model2index
-                return int((value - min) / d)
+                idx = (value - min) / d
+                return idx.astype(np.int)
 
         #-- Handle user input ------------------------------------------------------ 
 
