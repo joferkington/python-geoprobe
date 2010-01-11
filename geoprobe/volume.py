@@ -11,7 +11,7 @@ from _header import headerDef as _headerDef
 from _header import headerLength as _headerLength
     
 
-def isGeoprobeVolume(filename):
+def isValidVolume(filename):
     try: testvol = vol(filename)
     except: return False
     
