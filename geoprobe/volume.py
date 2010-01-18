@@ -7,8 +7,8 @@ import struct, os, array
 import numpy as np
 
 #Dictonary of header values and offsets for a geoprobe volume
-from _header import headerDef as _headerDef
-from _header import headerLength as _headerLength
+from _volHeader import headerDef as _headerDef
+from _volHeader import headerLength as _headerLength
     
 
 def isValidVolume(filename):
