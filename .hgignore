@@ -4,3 +4,4 @@ syntax: glob
 *~
 dist/
 documentation/.build/
+geoprobe/sync.sh
