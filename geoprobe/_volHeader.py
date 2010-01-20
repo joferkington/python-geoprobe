@@ -28,7 +28,6 @@ headerDef = {
         '_nx':              {'offset':336,  'type':'>I',    'default':None },       # Number of x-values. This is _nx to allow the property volume.nx, which returns vol.data.shape[0]
         '_ny':              {'offset':340,  'type':'>I',    'default':None },       # Number of y-values. (see above)
         '_nz':              {'offset':344,  'type':'>I',    'default':None },       # Number of z-values. (see above)
-        '_unknown3':        {'offset':348,  'type':'>i',    'default':0    },       # Unknown, padding??
         'v0':               {'offset':352,  'type':'>f',    'default':0    },       # Voxel value calibration factor
         'x0':               {'offset':356,  'type':'>f',    'default':0    },       # X-axis calibration factor (e.g. x = i*dx + x0, where i is the index value)
         'y0':               {'offset':360,  'type':'>f',    'default':0    },       # Y-axis calibration factor
@@ -45,15 +44,18 @@ headerDef = {
         'xDescrip':         {'offset':464,  'type':'16s',   'default':'Unknown' },  # X-axis description
         'yDescrip':         {'offset':480,  'type':'16s',   'default':'Unknown' },  # Y-axis description
         'zDescrip':         {'offset':496,  'type':'16s',   'default':'Unknown' },  # Z-axis description
-        '_unknown4':        {'offset':512,  'type':'>536i', 'default':536*[0] },    # Padding??
-        '_unknown5':        {'offset':2584, 'type':'8s',    'default':'\xaa\xff\xff#\xaa\x00\x00#' }, #Probably important!  No idea what it is, though...
+        '_unknown3':        {'offset':2584, 'type':'8s',    'default':'\xaa\xff\xff#\xaa\x00\x00#' }, #Probably important!  No idea what it is, though...
         'georef':           {'offset':2592, 'type':'>12d',  'default':[0,0,1,0,1,1,0,1,1,0,0,1] },    # 3 sets of points for georeferencing. Order: worldX1, worldX2, worldX3, worldY1, worldY2, worldY3, modelY1, modelY2, modelY3, modelX1, modelX2, modelX3
-        '_unknown6':        {'offset':2688, 'type':'>14i',  'default':14*[0] },     # Padding??
         'originalNx':       {'offset':2744, 'type':'>I',    'default':None },       # Original dimensions of the x-axis. No idea why these are here
         'originalNy':       {'offset':2748, 'type':'>I',    'default':None },       # Original dimensions of the y-axis
         'originalNz':       {'offset':2752, 'type':'>I',    'default':None },       # Original dimensions of the z-axis
-        '_unknown7':        {'offset':2756, 'type':'>6i',   'default':6*[0] },      # Padding??
         'segmentName':      {'offset':2762, 'type':'50s',   'default':50*" " },     # Seems to be the pathname relative to the base geoprobe project directory
-        '_unknown8':        {'offset':2812, 'type':'>i',    'default':0      },     # Padding??
         'seisworksProject': {'offset':2816, 'type':'256s',  'default':None }        # Name of the associated seisworks project (?)
 }
+
+# The following are almost definitely padding. I'm preserving them here in case the locations are ever needed...
+        # '_padding1':        {'offset':348,  'type':'>i',    'default':0    },       # Unknown, padding??
+        # '_padding2':        {'offset':512,  'type':'>536i', 'default':536*[0] },    # Padding??
+        # '_padding3':        {'offset':2688, 'type':'>14i',  'default':14*[0] },     # Padding??
+        # '_padding4':        {'offset':2812, 'type':'>i',    'default':0      },     # Padding??
+        # '_padding5':        {'offset':2756, 'type':'>6i',   'default':6*[0] },      # Padding??
