@@ -25,9 +25,9 @@ headerDef = {
         '_unknown1':        {'offset':4,    'type':'>4i',   'default':[1,0,0,0] },  # Unknown, important?
         'path':             {'offset':20,   'type':'300s',  'default':300*" " },    # Path of geoprobe volume (why is this in here?)
         '_unknown2':        {'offset':320,  'type':'>4i',   'default':[8,0,0,8] },  # Unknown, important? (8bit? But why two of them?)
-        '_nx':              {'offset':336,  'type':'>i',    'default':None },       # Number of x-values. This is _nx to allow the property volume.nx, which returns vol.data.shape[0]
-        '_ny':              {'offset':340,  'type':'>i',    'default':None },       # Number of y-values. (see above)
-        '_nz':              {'offset':344,  'type':'>i',    'default':None },       # Number of z-values. (see above)
+        '_nx':              {'offset':336,  'type':'>I',    'default':None },       # Number of x-values. This is _nx to allow the property volume.nx, which returns vol.data.shape[0]
+        '_ny':              {'offset':340,  'type':'>I',    'default':None },       # Number of y-values. (see above)
+        '_nz':              {'offset':344,  'type':'>I',    'default':None },       # Number of z-values. (see above)
         '_unknown3':        {'offset':348,  'type':'>i',    'default':0    },       # Unknown, padding??
         'v0':               {'offset':352,  'type':'>f',    'default':0    },       # Voxel value calibration factor
         'x0':               {'offset':356,  'type':'>f',    'default':0    },       # X-axis calibration factor (e.g. x = i*dx + x0, where i is the index value)
@@ -49,9 +49,9 @@ headerDef = {
         '_unknown5':        {'offset':2584, 'type':'8s',    'default':'\xaa\xff\xff#\xaa\x00\x00#' }, #Probably important!  No idea what it is, though...
         'georef':           {'offset':2592, 'type':'>12d',  'default':[0,0,1,0,1,1,0,1,1,0,0,1] },    # 3 sets of points for georeferencing. Order: worldX1, worldX2, worldX3, worldY1, worldY2, worldY3, modelY1, modelY2, modelY3, modelX1, modelX2, modelX3
         '_unknown6':        {'offset':2688, 'type':'>14i',  'default':14*[0] },     # Padding??
-        'originalNx':       {'offset':2744, 'type':'>i',    'default':None },       # Original dimensions of the x-axis. No idea why these are here
-        'originalNy':       {'offset':2748, 'type':'>i',    'default':None },       # Original dimensions of the y-axis
-        'originalNz':       {'offset':2752, 'type':'>i',    'default':None },       # Original dimensions of the z-axis
+        'originalNx':       {'offset':2744, 'type':'>I',    'default':None },       # Original dimensions of the x-axis. No idea why these are here
+        'originalNy':       {'offset':2748, 'type':'>I',    'default':None },       # Original dimensions of the y-axis
+        'originalNz':       {'offset':2752, 'type':'>I',    'default':None },       # Original dimensions of the z-axis
         '_unknown7':        {'offset':2756, 'type':'>6i',   'default':6*[0] },      # Padding??
         'segmentName':      {'offset':2762, 'type':'50s',   'default':50*" " },     # Seems to be the pathname relative to the base geoprobe project directory
         '_unknown8':        {'offset':2812, 'type':'>i',    'default':0      },     # Padding??
