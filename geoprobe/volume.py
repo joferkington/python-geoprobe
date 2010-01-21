@@ -6,10 +6,12 @@ __author__    = "Joe Kington <jkington@wisc.edu>"
 import struct, os, array 
 import numpy as np
 
-#Dictonary of header values and offsets for a geoprobe volume
+# Dictonary of header values and offsets for a geoprobe volume
 from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
+# Common methods
+from common import BinaryFile
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
@@ -63,10 +65,13 @@ class volume(object):
     
         #Probably best to let the calling program handle IO errors
         self._filename = filename
-        self._infile = _volumeFile(filename,'rb')
+        self._infile = BinaryFile(filename,'rb')
 
-        #--Set up proper attributes (setting headerValues handles this)
-        self.headerValues = self._infile.readHeader()
+        #--Set up proper attributes based on the header
+        for varname, info in _headerDef.iteritems():
+            self._infile.seek(info['offset'])
+            value = self._infile.readBinary(info['type'])
+            setattr(self, varname, value)
        
     def _newVolume(self,data,copyFrom=None,rescale=True):
         """Takes a numpy array and makes a geoprobe volume. This
@@ -84,8 +89,8 @@ class volume(object):
                 raise TypeError('This does not appear to be a valid geoprobe volume object')
         else:
             # Set default attributes
-            for id, values in _headerDef.iteritems():
-                setattr(self, id, values['default'])
+            for varname, info in _headerDef.iteritems():
+                setattr(self, varname, info['default'])
             (self.originalNx, self.originalNy, self.originalNz) = data.shape
 
         if rescale:
@@ -95,6 +100,7 @@ class volume(object):
             data /= self.dv
 
         self.data = self._fixAxes(data)
+
 
     def _fixAxes(self,data):
         """Transposes the axes of geoprobe volume numpy
@@ -118,8 +124,11 @@ class volume(object):
 
     def write(self, filename):
         """Writes a geoprobe volume to disk using memmapped arrays"""
-        self._infile = _volumeFile(filename, 'w')
-        self._infile.writeHeader(self)
+        # Write header values
+        self._infile = BinaryFile(filename, 'w')
+        for varname, info in _headerDef.iteritems():
+            value = getattr(self, varname, info['default'])
+            self._infile.writeBinary(info['type'], value)
         self._infile.close()
 
         self._filemap = np.memmap(filename, offset=_headerLength, 
@@ -504,71 +513,3 @@ class volume(object):
         d = self.modelCoords
         m = np.dot(d,np.linalg.inv(G))
         return m
-   
-
-
-
-
-#-- Raw reading and writing -------------------------------------------
-class _volumeFile(file):
-    """Raw reading and writing of values in the volume header"""
-    def __init__(self, *args, **kwargs):
-        """Initialization is the same as a normal file object
-        %s""" % file.__doc__
-        file.__init__(self, *args, **kwargs)
-
-    def readBinary(self,fmt):
-        """Read and unpack a binary value from the file based
-        on string fmt (see the struct module for details).
-        """
-        size = struct.calcsize(fmt)
-        data = self.read(size)
-        data = struct.unpack(fmt, data)
-
-        # Unpack the tuple if it only has one value
-        if len(data) == 1: data = data[0]
-
-        # Join strings and strip trailing zeros
-        if 's' in fmt:
-            data = ''.join(data)
-            data = data.strip('\x00')
-
-        return data
-
-    def writeBinary(self, fmt, dat):
-        """Pack and write data to the file according to string fmt."""
-        # If it's a string, pad with \x00 to the appropriate length
-        if 's' in fmt:
-            length = int(fmt.replace('s',''))
-            dat.ljust(length, '\x00')
-            dat = struct.pack(fmt, dat)
-        # Hackish, but it works...
-        else:
-            try: dat = struct.pack(fmt, *dat) 
-            except TypeError: dat = struct.pack(fmt, dat) # If it's not a sequence, don't expand
-        self.write(dat)
-
-    def readHeader(self):
-        """Read header values from a geoprobe volume file.  Reads
-        values based on the dict defined in _header.py. Returns
-        a dict of name:value pairs."""
-        headerValues = {}
-        for value, props in _headerDef.iteritems():
-            offset = props['offset']
-            fmt = props['type']
-            self.seek(offset)
-            headerValues[value] = self.readBinary(fmt)
-        return headerValues
-
-    def writeHeader(self, volInstance):
-        """Write the header values contained in a volume instance
-        "volInstance" at the offsets defined in _header.py.""" 
-        for key, props in _headerDef.iteritems():
-            default = props['default']
-            fmt = props['type']
-            offset = props['offset']
-            currentValue = getattr(volInstance, key, default)
-            self.seek(offset)
-            self.writeBinary(fmt, currentValue)
-
-    
