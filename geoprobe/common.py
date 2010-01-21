@@ -21,6 +21,9 @@ class BinaryFile(file):
         """
         size = struct.calcsize(fmt)
         data = self.read(size)
+        # Reading beyond the end of the file just returns ''
+        if len(data) != size:
+            raise EOFError('End of file reached')
         data = struct.unpack(fmt, data)
 
         for item in data:
