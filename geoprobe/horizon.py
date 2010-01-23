@@ -23,9 +23,10 @@ Format descrip:
     Point Format in all sections: (>4f3B)
         x,y,z,confidence,type,heridity,tileSize
 """
-       
-_pointFormat = 'f, f, f, f, B, B, B' # Big-endian byte-order!
-_pointNames = 'x, y, z, conf, type, herid, tileSize'
+
+_pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
+_pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
+_lineHdrFmt = '>4f'
 
 class horizon(object):
     def __init__(self, input):
@@ -158,10 +159,13 @@ class _horizonFile(BinaryFile):
         # Initalize the file object as normal
         file.__init__(self, *args, **kwargs)
 
-        # Initalize attributes unique to this class...
-        self._pointFormat = 'f, f, f, f, B, B, B' # Big-endian byte-order!
-        self._pointNames = 'x, y, z, conf, type, herid, tileSize'
-        self._lineHdrFmt = '>4f'
+        # Build a dtype definition 
+        self._dtype = []
+        for name, fmt in zip(_pointNames, _pointFormat):
+            self._dtype.append((name,fmt))
+
+        # Size in Bytes of a point (x,y,z,conf,type,...etc)
+        self._pointSize = struct.calcsize(''.join(_pointFormat))
 
     def readHeader(self):
         self.seek(0)
@@ -170,10 +174,7 @@ class _horizonFile(BinaryFile):
     def readPoints(self):
         numPoints = self.readBinary('>I')
         if numPoints > 0:
-            points = np.rec.fromfile(self,
-                    shape = numPoints,
-                    formats = self._pointFormat,
-                    byteorder = '>')
+            points = np.fromfile(self, count=numPoints, dtype=self._dtype)
             return points
         # apparently, len(points) is not 0 when numPoints is 0...
         else: 
@@ -182,10 +183,8 @@ class _horizonFile(BinaryFile):
     def skipPoints(self):
         # Read number of points
         numPoints = self.readBinary('>I')
-        # Slightly ugly bit to calculate the size (in bytes) of 1 point
-        pointSize = struct.calcsize(self._pointFormat.replace(',',''))
         # Jump to next section
-        self.seek(numPoints*pointSize, 1) 
+        self.seek(numPoints * self._pointSize, 1) 
         return numPoints
 
     def sectionType(self):
@@ -222,13 +221,13 @@ class _horizonFile(BinaryFile):
 
 
     def lineInfo(self):
-        xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
+        xdir,ydir,zdir,ID = self.readBinary(_lineHdrFmt)
         return xdir, ydir, zdir, ID
 
     def readAllPoints(self):
         self.readHeader()
         # Initalize an empty recarray to store things in
-        points = np.recarray(shape=self.numpoints, formats=self._pointFormat, names=self._pointNames, byteorder = '>')
+        points = np.empty(self.numpoints, dtype=self._dtype)
         lines = [] # To store line objects in
         i = 0; secType = None
         self.readHeader() # Jump to start of file, past header
