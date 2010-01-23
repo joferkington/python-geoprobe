@@ -151,7 +151,7 @@ class horizon(object):
         utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
 #-- This is currently very sloppy code... Need to clean up and document
-class _horizonFile(file):
+class _horizonFile(BinaryFile):
     """Basic geoprobe horizon binary file format reader"""
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
@@ -163,17 +163,6 @@ class _horizonFile(file):
         self._pointNames = 'x, y, z, conf, type, herid, tileSize'
         self._lineHdrFmt = '>4f'
 
-    def readBinary(self,fmt):
-        size = struct.calcsize(fmt)
-        dat = self.read(size)
-        if len(dat) < size: #EOF Reached
-            raise EOFError('End of File Reached')
-        data = struct.unpack(fmt, dat)
-
-        # Don't return a tuple if it only has one value
-        if len(data) == 1: data = data[0]
-        return data
-
     def readHeader(self):
         self.seek(0)
         return self.readline()
@@ -184,7 +173,6 @@ class _horizonFile(file):
             points = np.rec.fromfile(self,
                     shape = numPoints,
                     formats = self._pointFormat,
-                    names = self._pointNames,
                     byteorder = '>')
             return points
         # apparently, len(points) is not 0 when numPoints is 0...
