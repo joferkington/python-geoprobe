@@ -1,5 +1,6 @@
 #! /usr/bin/python
 import sys, os
+import struct
 import numpy as np
 
 #-- Raw reading and writing -------------------------------------------
