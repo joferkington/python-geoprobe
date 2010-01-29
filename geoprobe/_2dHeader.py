@@ -53,6 +53,7 @@ headerDef = {
         'lastModifiedUser': {'offset':484,  'type':'32s',   'default':None },       # File last modified by username
         'lastModifiedDate': {'offset':516,  'type':'>I',    'default':None },       # Unix-style timestamp of last modified on date
         'histogram':        {'offset':520,  'type':'>255Q', 'default':255*(0,) },   # Histogram of amplitude values, bins are 0-255 (or -127 to +127) 
-        '_unknown':         {'offset':2560, 'type':'5140B', 'default':5140*(0,) },  # Appears to be padding...
         'comments':         {'offset':7700, 'type':'772s',  'default':'Created by python-geoprobe' }  # Arbitrary comments.
 }
+        # Almost definitely padding. No need to store this
+        #'_unknown':         {'offset':2560, 'type':'5140B', 'default':5140*(0,) },  # Appears to be padding...
