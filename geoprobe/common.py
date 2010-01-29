@@ -30,7 +30,7 @@ class BinaryFile(file):
         for item in data:
             # Strip trailing zeros in strings 
             if isinstance(item, str):
-                data = data.strip('\x00')
+                item = item.strip('\x00')
 
         # Unpack the tuple if it only has one value
         if len(data) == 1: data = data[0]
