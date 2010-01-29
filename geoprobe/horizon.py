@@ -3,6 +3,7 @@ import struct
 
 from geoprobe import utilities
 from volume import volume
+from common import BinaryFile
 
 """
 Geoprobe horizons
