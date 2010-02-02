@@ -75,7 +75,7 @@ class horizon(object):
         try: 
             return self._grid
         except AttributeError:
-            grid = self.nodata*np.ones((self.data.y.ptp()+1,self.data.x.ptp()+1),dtype=np.float32)
+            grid = self.nodata*np.ones((self.y.ptp()+1,self.x.ptp()+1),dtype=np.float32)
             I = np.array(self.x-self.xmin,np.int)
             J = np.array(self.y-self.ymin,np.int)
             for k in xrange(I.size):
