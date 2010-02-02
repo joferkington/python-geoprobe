@@ -166,7 +166,7 @@ class _horizonFile(BinaryFile):
             self._dtype.append((name,fmt))
 
         # Size in Bytes of a point (x,y,z,conf,type,...etc)
-        self._pointSize = struct.calcsize(''.join(_pointFormat))
+        self._pointSize = sum(map(struct.calcsize, _pointFormat))
 
     def readHeader(self):
         self.seek(0)
