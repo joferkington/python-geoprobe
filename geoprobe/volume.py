@@ -15,8 +15,7 @@ from common import BinaryFile
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
-    try: testvol = vol(filename)
-    except: return False
+    testvol = volume(filename)
     
     volID = testvol.magicNum
     volSize = os.stat(filename).st_size
