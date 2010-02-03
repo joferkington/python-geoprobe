@@ -18,7 +18,7 @@ def isValidVolume(filename):
     try: testvol = vol(filename)
     except: return False
     
-    volID = testvol.magic
+    volID = testvol.magicNum
     volSize = os.stat(filename).st_size
     predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
 
