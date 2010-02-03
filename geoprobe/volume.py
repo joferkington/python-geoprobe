@@ -127,6 +127,7 @@ class volume(object):
         self._infile = BinaryFile(filename, 'w')
         for varname, info in _headerDef.iteritems():
             value = getattr(self, varname, info['default'])
+            self._infile.seek(info['offset'])
             self._infile.writeBinary(info['type'], value)
 
         self._infile.seek(_headerLength)
