@@ -42,8 +42,9 @@ class BinaryFile(file):
         # Try expanding input arguments (struct.pack won't take a tuple)
         try: 
             dat = struct.pack(fmt, *dat) 
-        except TypeError: 
-            # If it's not a sequence, don't expand
+        except (TypeError, struct.error): 
+            # If it's not a sequence (TypeError), or if it's a 
+            # string (struct.error), don't expand.
             dat = struct.pack(fmt, dat) 
         self.write(dat)
 
