@@ -101,7 +101,6 @@ class volume(object):
 
         self.data = self._fixAxes(data)
 
-
     def _fixAxes(self,data):
         """Transposes the axes of geoprobe volume numpy
         array so that axis1=x, axis2=y, and axis3=z. Also
@@ -129,17 +128,10 @@ class volume(object):
         for varname, info in _headerDef.iteritems():
             value = getattr(self, varname, info['default'])
             self._infile.writeBinary(info['type'], value)
+
+        self._infile.seek(_headerLength)
+        self.data.ravel('F').tofile(self._infile, format='B')
         self._infile.close()
-
-        self._filemap = np.memmap(filename, offset=_headerLength, 
-                dtype=np.uint8, mode='r+', shape=(self.nx,self.ny,self.nz), 
-                order='Fortran')
-
-        # Reverse the various axes, if necessary
-        #data = self._fixAxes(self.data)
-
-        self._filemap[:,:,:] = self.data[:,:,:]
-        self._filemap.flush()
 
     #-- data property ------------------------------------------------
     def _getData(self):
