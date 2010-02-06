@@ -50,7 +50,7 @@ headerDef = {
         'originalNy':       {'offset':2748, 'type':'>I',    'default':None },       # Original dimensions of the y-axis
         'originalNz':       {'offset':2752, 'type':'>I',    'default':None },       # Original dimensions of the z-axis
         'segmentName':      {'offset':2762, 'type':'50s',   'default':50*" " },     # Seems to be the pathname relative to the base geoprobe project directory
-        'seisworksProject': {'offset':2816, 'type':'256s',  'default':None }        # Name of the associated seisworks project (?)
+        'seisworksProject': {'offset':2816, 'type':'256s',  'default':'' }          # Name of the associated seisworks project (?)
 }
 
 # The following are almost definitely padding. I'm preserving them here in case the locations are ever needed...
