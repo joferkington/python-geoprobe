@@ -98,7 +98,7 @@ class volume(object):
             data -= self.v0
             data /= self.dv
 
-        self.data = self._fixAxes(data)
+        self.data = self._fixAxes(data.astype(np.uint8))
 
     def _fixAxes(self,data):
         """Transposes the axes of geoprobe volume numpy
