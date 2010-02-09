@@ -118,6 +118,7 @@ class volume(object):
         dat = np.fromfile(self._filename, dtype=np.uint8)
         dat = dat[_headerLength:]
         dat = dat.reshape((self.nz, self.ny, self.nx)).T
+        dat = self._fixAxes(dat)
         return dat
 
     def write(self, filename):
