@@ -211,7 +211,7 @@ class volume(object):
         setattr(self, axisLetter+'0', value)
 
     xmin = property(lambda self: self._getVolumeBound(axis=0, max=False), 
-                    lambda self, value: self._setVolumeBound(value, 0, max=False),
+                    lambda self, value: self._setVolumeBound(value, axis=0, max=False),
                     doc="Mininum x model coordinate")
     ymin = property(lambda self: self._getVolumeBound(axis=1, max=False), 
                     lambda self, value: self._setVolumeBound(value, axis=1, max=False),
@@ -220,13 +220,13 @@ class volume(object):
                     lambda self, value: self._setVolumeBound(value, axis=2, max=False),
                     doc="Mininum z model coordinate")
     xmax = property(lambda self: self._getVolumeBound(axis=0, max=True), 
-                    lambda self, value: self._setVolumeBound(value, 0, max=True),
+                    lambda self, value: self._setVolumeBound(value, axis=0, max=True),
                     doc="Maximum x model coordinate")
     ymax = property(lambda self: self._getVolumeBound(axis=1, max=True), 
-                    lambda self, value: self._setVolumeBound(value, 1, max=True),
+                    lambda self, value: self._setVolumeBound(value, axis=1, max=True),
                     doc="Maximum y model coordinate")
     zmax = property(lambda self: self._getVolumeBound(axis=2, max=True), 
-                    lambda self, value: self._setVolumeBound(value, 2, max=True),
+                    lambda self, value: self._setVolumeBound(value, axis=2, max=True),
                     doc="Maximum z model coordinate")
     #-----------------------------------------------------------------------------------
 
