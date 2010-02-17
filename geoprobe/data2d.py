@@ -5,7 +5,12 @@ from _2dHeader import headerDef as _headerDef
 from _2dHeader import headerLength as _headerLength
 
 class data2d(object):
+    """Reads geoprobe 2D data files."""
     def __init__(self, filename):
+        """
+        Input:
+            filename: The name of the 2D data file
+        """
         self._infile = BinaryFile(filename, 'r')
         self._readHeader()
         self._readTraces()
