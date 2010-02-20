@@ -5,7 +5,10 @@ from _2dHeader import headerDef as _headerDef
 from _2dHeader import headerLength as _headerLength
 
 class data2d(object):
-    """Reads geoprobe 2D data files."""
+    """Reads geoprobe 2D data files.
+    data2d.data is a 2D numpy array containg the seismic data
+    data2d.x is a list of the x-coordinates of each trace
+    data2d.y is a list of the y-coordinates of each trace"""
     def __init__(self, filename):
         """
         Input:
@@ -33,5 +36,5 @@ class data2d(object):
                 traces[i:i+self._numSamples] = trace
             except MemoryError, struct.error:
                 break
-        self.traces = traces
+        self.data = traces
     
