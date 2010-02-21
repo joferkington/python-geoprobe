@@ -32,4 +32,11 @@ class data2d(object):
         self.x = data['x']
         self.y = data['y']
         self.data = data['traces']
-    
+
+    @property
+    def numTraces(self):
+        return self.data.shape[0]
+
+    @property
+    def numSamples(self):
+        return self.data.shape[1]
