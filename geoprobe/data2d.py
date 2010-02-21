@@ -17,12 +17,14 @@ class data2d(object):
         self._infile = BinaryFile(filename, 'r')
         self._readHeader()
         self._readTraces()
+
     def _readHeader(self):
         for varname, props in _headerDef.iteritems():
             offset, fmt = props['offset'], props['type']
             self._infile.seek(offset)
             var = self._infile.readBinary(fmt)
             setattr(self, varname, var)
+
     def _readTraces(self):
         dtype = [('x', '>f4'), ('y', '>f4'), ('traces', '%i>u1'%self._numSamples)]
         self._infile.seek(_headerLength)
