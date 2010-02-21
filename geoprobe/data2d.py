@@ -24,17 +24,10 @@ class data2d(object):
             var = self._infile.readBinary(fmt)
             setattr(self, varname, var)
     def _readTraces(self):
+        dtype = [('x', '>f4'), ('y', '>f4'), ('traces', '%i>u1'%self._numSamples)]
         self._infile.seek(_headerLength)
-        self.x, self.y = [], []
-        traces = np.zeros((self._numTraces, self._numSamples), dtype=np.uint8)
-        for i in xrange(self._numTraces):
-            try:
-                x,y,traceNum = self._infile.readBinary('>3f')
-                self.x.append(x)
-                self.y.append(y)
-                trace = np.fromfile(self._infile, dtype=np.uint8, count=self._numSamples)
-                traces[i:i+self._numSamples] = trace
-            except MemoryError, struct.error:
-                break
-        self.data = traces
+        data = np.fromfile(self._infile, dtype=dtype, count=self._numTraces)
+        self.x = data['x']
+        self.y = data['y']
+        self.data = data['traces']
     
