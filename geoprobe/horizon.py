@@ -228,16 +228,13 @@ class HorizonFile(BinaryFile):
     def readAllPoints(self):
         self.readHeader()
         # Initalize an empty recarray to store things in
-        points = np.empty(self.numpoints, dtype=self.point_dtype)
         lines = [] # To store line objects in
-        i = 0; secType = None
+        secType = None
         self.readHeader() # Jump to start of file, past header
 
         # Read points section
         secType = self.sectionType()
-        currentPoints = self.readPoints()
-        points[i:i+len(currentPoints)] = currentPoints
-        i += len(currentPoints)
+        points = self.readPoints()
 
         # Read lines section
         try:
@@ -245,9 +242,8 @@ class HorizonFile(BinaryFile):
             while True:
                 lineInfo = self.lineInfo()
                 currentPoints = self.readPoints()
-                points[i:i+len(currentPoints)] = currentPoints
-                lines.append((lineInfo, points[i:i+len(currentPoints)]))
-                i += len(currentPoints)
+                lines.append((lineInfo, currentPoints))
+                np.append(points, currentPoints)
         except EOFError:
                 pass
         self.lines = lines
