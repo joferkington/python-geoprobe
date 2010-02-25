@@ -6,7 +6,8 @@ JDK 08/03/09"""
 
 import numpy as np
 
-from geoprobe import utilities
+# Local files
+import utilities
 from common import StaticCache
 
 class ezfault(object):
