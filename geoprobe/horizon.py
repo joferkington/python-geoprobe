@@ -5,31 +5,18 @@ from geoprobe import utilities
 from volume import volume
 from common import BinaryFile
 
-"""
-Geoprobe horizons
-  Reverse engineered by JDK, Feb. 2009
-Format descrip:
-    1 ascii line w/ version (terminated with newline)
-    There are two "sections" in every file. 
-    The first section contains x,y,z points making a "filled" surface
-        (This is basically a sparse matrix)
-    The second section contains lines (manual picks)
-    Both section types have a 4 byte header (seems to be >I?)
-        The actual values in this header seem to be complelely meaningless (??)
-    subsections
-        if surface:
-            info: (>I) Number of points
-        if line:
-            info: (>4fI) xdir,ydir,zdir,ID,numPoints
-    Point Format in all sections: (>4f3B)
-        x,y,z,confidence,type,heridity,tileSize
-"""
-
-_pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
-_pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
-_lineHdrFmt = '>4f'
-
 class horizon(object):
+    """Reads a geoprobe horizon from disk.
+
+    horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
+    stored in the horizon file.  
+
+    horizon.grid is a 2d numpy array of the z-values in the horizon filled
+    with horizon.nodata in regions where there aren't any z-values
+
+    horizon.{x,y,z}min and horizon.{x,y,z}max are the min's and max's 
+    of horizon.grid
+    """
     def __init__(self, input):
         """Takes either a filename or a numpy array"""
 
@@ -155,9 +142,34 @@ class horizon(object):
 
         utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
+
+
 #-- This is currently very sloppy code... Need to clean up and document
 class HorizonFile(BinaryFile):
-    """Basic geoprobe horizon binary file format reader"""
+    """Basic geoprobe horizon binary file format reader
+
+        Disk layout of Geoprobe horizons
+          Reverse engineered by JDK, Feb. 2009
+        Format descrip:
+            1 ascii line w/ version (terminated with newline)
+            There are two "sections" in every file. 
+            The first section contains x,y,z points making a "filled" surface
+                (This is basically a sparse matrix)
+            The second section contains lines (manual picks)
+            Both section types have a 4 byte header (seems to be >I?)
+                The actual values in this header seem to be complelely meaningless (??)
+            subsections
+                if surface:
+                    info: (>I) Number of points
+                if line:
+                    info: (>4fI) xdir,ydir,zdir,ID,numPoints
+            Point Format in all sections: (>4f3B)
+                x,y,z,confidence,type,heridity,tileSize
+    """
+    _pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
+    _pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
+    _lineHdrFmt = '>4f'
+
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
         # Initalize the file object as normal
