@@ -41,6 +41,20 @@ class horizon(object):
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
+    def _readHorizon(self,filename):
+        self._file = HorizonFile(filename, 'r')
+
+        self._header = self._file.readHeader()
+        if self._header == "#GeoProbe Horizon V2.0 ascii\n":
+            raise TypeError('Ascii horizons not currently supported')
+        elif self._header != "#GeoProbe Horizon V2.0 binary\n":
+            raise TypeError('This does not appear to be a valid geoprobe horizon')
+        self.data = self._file.points
+
+    @property
+    def numpoints(self):
+        return self.data.size
+
     #-- x,y,z properties -------------------------------------------------------
     def _get_coord(self, name):
         return self.data[name]
@@ -56,20 +70,6 @@ class horizon(object):
             lambda self, value: self._set_coord('z', value),
             'Z-coordinates of all points stored in the horizon')
     #---------------------------------------------------------------------------
-
-    def _readHorizon(self,filename):
-        self._file = HorizonFile(filename, 'r')
-
-        self._header = self._file.readHeader()
-        if self._header == "#GeoProbe Horizon V2.0 ascii\n":
-            raise TypeError('Ascii horizons not currently supported')
-        elif self._header != "#GeoProbe Horizon V2.0 binary\n":
-            raise TypeError('This does not appear to be a valid geoprobe horizon')
-        self.data = self._file.points
-
-    @property
-    def numpoints(self):
-        return self.data.size
 
     #-- Grid Property ---------------------------------------------------------
     def _get_grid(self):
