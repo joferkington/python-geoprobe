@@ -25,7 +25,6 @@ def isValidVolume(filename):
     if (volID!=43970) or (volSize!=predSize): 
         return False
     else: 
-       
         return True
 
 
