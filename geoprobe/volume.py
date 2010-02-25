@@ -3,8 +3,11 @@ __license__   = "MIT License <http://http://www.opensource.org/licenses/mit-lice
 __copyright__ = "2009, Free Software Foundation"
 __author__    = "Joe Kington <jkington@wisc.edu>"
 
-import struct, os, array 
+import struct 
+import os 
 import numpy as np
+
+#-- Importing local Files -----------------------------------------------------
 
 # Dictonary of header values and offsets for a geoprobe volume
 from _volHeader import headerDef as _headerDef
