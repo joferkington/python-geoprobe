@@ -177,11 +177,11 @@ class HorizonFile(BinaryFile):
 
         # Build a dtype definition 
         self.point_dtype = []
-        for name, fmt in zip(_pointNames, _pointFormat):
+        for name, fmt in zip(self._pointNames, self._pointFormat):
             self.point_dtype.append((name,fmt))
 
         # Size in Bytes of a point (x,y,z,conf,type,...etc)
-        self._pointSize = sum(map(struct.calcsize, _pointFormat))
+        self._pointSize = sum(map(struct.calcsize, self._pointFormat))
 
     def readHeader(self):
         self.seek(0)
@@ -214,7 +214,7 @@ class HorizonFile(BinaryFile):
         return sectype
 
     def lineInfo(self):
-        xdir,ydir,zdir,ID = self.readBinary(_lineHdrFmt)
+        xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
     @property
