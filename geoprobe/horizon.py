@@ -65,7 +65,7 @@ class horizon(object):
             raise TypeError('Ascii horizons not currently supported')
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe horizon')
-        self.data = self._file.readAllPoints()
+        self.data = self._file.points
 
     @property
     def numpoints(self):
@@ -205,7 +205,11 @@ class HorizonFile(BinaryFile):
         xdir,ydir,zdir,ID = self.readBinary(_lineHdrFmt)
         return xdir, ydir, zdir, ID
 
-    def readAllPoints(self):
+    @property
+    def points(self):
+        """A numpy array with the fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') 
+        for each point in the horizon (regardless of whehter it's a manual pick (line) or 
+        surface)"""
         self.readHeader()
         # Initalize an empty recarray to store things in
         lines = [] # To store line objects in
