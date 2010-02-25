@@ -22,8 +22,10 @@ def isValidVolume(filename):
     predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
 
     # VolID == 43970 is a version 2 geoprobe volume (The only type currently supported)
-    if (volID!=43970) or (volSize!=predSize): return False
-    else: return True
+    if (volID!=43970) or (volSize!=predSize): 
+        return False
+    else: 
+        return True
 
 
 class volume(object):
