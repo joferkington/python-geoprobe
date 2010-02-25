@@ -209,13 +209,6 @@ class HorizonFile(BinaryFile):
         else: 
             return []
 
-    def skipPoints(self):
-        # Read number of points
-        numPoints = self.readBinary('>I')
-        # Jump to next section
-        self.seek(numPoints * self._pointSize, 1) 
-        return numPoints
-
     def sectionType(self):
         # No idea what the difference between #34 and #28, #2, etc is... (pos, neg, 0, pick??)
         secFmt = '>I'
