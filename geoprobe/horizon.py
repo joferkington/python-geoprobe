@@ -9,7 +9,7 @@ class horizon(object):
     """Reads a geoprobe horizon from disk.
 
     horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
-    stored in the horizon file.  
+    stored in the horizon file (in model coordinates, i.e. inline/crossline).  
 
     horizon.grid is a 2d numpy array of the z-values in the horizon filled
     with horizon.nodata in regions where there aren't any z-values
@@ -43,6 +43,22 @@ class horizon(object):
         # Need to make dx, dy, and dz properties... 
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
+
+    #-- x,y,z properties -------------------------------------------------------
+    def _get_coord(self, name):
+        return self.data[name]
+    def _set_coord(self, name, value):
+        self.data[name] = value
+    x = property(lambda self: self._get_coord('x'),
+            lambda self, value: self._set_coord('x', value),
+            'X-coordinates of all points stored in the horizon')
+    y = property(lambda self: self._get_coord('y'),
+            lambda self, value: self._set_coord('y', value),
+            'Y-coordinates of all points stored in the horizon')
+    z = property(lambda self: self._get_coord('z'),
+            lambda self, value: self._set_coord('z', value),
+            'Z-coordinates of all points stored in the horizon')
+    #---------------------------------------------------------------------------
 
     def _readHorizon(self,filename):
         self._file = HorizonFile(filename, 'r')
