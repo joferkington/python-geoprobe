@@ -182,6 +182,7 @@ class HorizonFile(BinaryFile):
     _pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
     _pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
     _lineHdrFmt = '>4f'
+    _sectionHdrFmt = '>I'
 
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
@@ -205,15 +206,8 @@ class HorizonFile(BinaryFile):
         points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
         return points
 
-    def sectionType(self):
-        secFmt = '>I'
-        secID = self.readBinary(secFmt)
-        if secID == 19: 
-            sectype = 'Points'
-        else:
-            # otherwise, secID is the number of lines
-            sectype = 'Lines'
-        return sectype
+    def readSectionHeader(self):
+        return self.readBinary(self._sectionHdrFmt)
 
     def lineInfo(self):
         xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
@@ -234,12 +228,12 @@ class HorizonFile(BinaryFile):
         self.readHeader() 
 
         # Read points section
-        secType = self.sectionType()
+        self.readSectionHeader() # Should always return 19
         temp_points = [self.readPoints()]
 
         # Read lines section
         try:
-            secType = self.sectionType() 
+            self.numlines = self.readSectionHeader() 
             while True:
                 lineInfo = self.lineInfo()
                 currentPoints = self.readPoints()
