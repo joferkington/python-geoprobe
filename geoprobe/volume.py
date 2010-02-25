@@ -3,15 +3,18 @@ __license__   = "MIT License <http://http://www.opensource.org/licenses/mit-lice
 __copyright__ = "2009, Free Software Foundation"
 __author__    = "Joe Kington <jkington@wisc.edu>"
 
-import struct, os, array 
+import struct 
+import os 
 import numpy as np
+
+#-- Importing local Files -----------------------------------------------------
 
 # Dictonary of header values and offsets for a geoprobe volume
 from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
 # Common methods
-from common import BinaryFile
+from common import BinaryFile, StaticCache
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
@@ -22,8 +25,10 @@ def isValidVolume(filename):
     predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
 
     # VolID == 43970 is a version 2 geoprobe volume (The only type currently supported)
-    if (volID!=43970) or (volSize!=predSize): return False
-    else: return True
+    if (volID!=43970) or (volSize!=predSize): 
+        return False
+    else: 
+        return True
 
 
 class volume(object):
@@ -135,22 +140,17 @@ class volume(object):
         self._infile.close()
 
     #-- data property ------------------------------------------------
+    # Prevents _getData from being called more than once 
+    @StaticCache 
     def _getData(self):
         """A 3D numpy array of the volume data.  Contains raw uint8 values.
         If the volume object is based on a file, this is a memory-mapped-file
         array."""
-        try:
-            # Have we already done this? 
-            # (Isn't done on initilization to avoid large virtual mem usage)
-            dat = self._data
-        except AttributeError:
-            #If not, we're reading from a file, so make a memory-mapped-file numpy array
-            dat = np.memmap(filename=self._filename, mode='r',
-                offset=_headerLength, order='F', 
-                shape=(self._nx, self._ny, self._nz) 
-                )
-            dat = self._fixAxes(dat)
-            self._data = dat
+        dat = np.memmap(filename=self._filename, mode='r',
+            offset=_headerLength, order='F', 
+            shape=(self._nx, self._ny, self._nz) 
+            )
+        dat = self._fixAxes(dat)
         return dat
     def _setData(self, newData):
         newData = np.asarray(newData).astype(np.uint8)

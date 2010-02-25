@@ -48,3 +48,19 @@ class BinaryFile(file):
             dat = struct.pack(fmt, dat) 
         self.write(dat)
 
+class StaticCache(object):
+    """
+    A decorator for very simple cacheing of values. The point isn't 
+    to memonize, just to make RAII a bit easier and avoid calling 
+    particularly expensive getters in properties more than once.
+    """
+    def __init__(self, function):
+        self.function = function
+    def __call__(self, *args):
+        try:
+            return self.cached_value
+        except AttributeError:
+            self.cached_value = self.function(*args)
+            return self.cached_value
+
+
