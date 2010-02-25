@@ -1,7 +1,8 @@
 import numpy as np
 import struct
 
-from geoprobe import utilities
+#-- Imports from local files --------------------------------------
+import utilities
 from volume import volume
 from common import BinaryFile, StaticCache
 
@@ -236,7 +237,7 @@ class HorizonFile(BinaryFile):
         surface)"""
         self.readHeader()
         # Initalize an empty recarray to store things in
-        lines = [] # To store line objects in
+        #lines = [] # To store line objects in
         secType = None
         self.readHeader() # Jump to start of file, past header
 
@@ -250,10 +251,10 @@ class HorizonFile(BinaryFile):
             while True:
                 lineInfo = self.lineInfo()
                 currentPoints = self.readPoints()
-                lines.append((lineInfo, currentPoints))
+                #lines.append((lineInfo, currentPoints))
                 np.append(points, currentPoints)
         except EOFError:
                 pass
-        self.lines = lines
+        #self.lines = lines
         return points
 
