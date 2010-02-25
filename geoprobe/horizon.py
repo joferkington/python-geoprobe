@@ -74,7 +74,7 @@ class horizon(object):
     def numpoints(self):
         return self.data.size
 
-    #-- Grid Property ----------------------------------
+    #-- Grid Property ---------------------------------------------------------
     def _get_grid(self):
         """An nx by ny numpy array (dtype=float32) of the z values contained
         in the horizon file"""
@@ -92,7 +92,7 @@ class horizon(object):
     def _set_grid(self, value):
         self._grid = value
     grid = property(_get_grid, _set_grid)
-    #----------------------------------------------------
+    #--------------------------------------------------------------------------
 
     def strikeDip(self, vol=None, velocity=None, independent='z'):
         """
