@@ -31,9 +31,6 @@ class horizon(object):
         self.nodata = -9999
 
         # Read horizon and initalize various properties
-        self.x = self.data['x']
-        self.y = self.data['y']
-        self.z = self.data['z']
         self.xmin = self.x.min()
         self.ymin = self.y.min()
         self.zmin = self.z.min()
