@@ -6,6 +6,7 @@ JDK 08/03/09"""
 
 import numpy as np
 
+import common
 from geoprobe import utilities
 
 class ezfault(object):
@@ -105,18 +106,15 @@ class ezfault(object):
             yield verts
 
     @property
+    @common.StaticCache 
     def points(self):
         """Returns a numpy array of all points in the file"""
-        # Have we already done this:
-        try:
-            return self._allPoints
-        except AttributeError:
-            dat = []
-            self._readHeader()
-            for rib in self.ribs:  
-                dat.extend(rib)
-            self._allPoints = np.rec.fromrecords(dat, names='x,y,z')
-            return self._allPoints
+        dat = []
+        self._readHeader()
+        for rib in self.ribs:  
+            dat.extend(rib)
+        self._allPoints = np.rec.fromrecords(dat, names='x,y,z')
+        return self._allPoints
 
 
     def strikeDip(self, vol=None, velocity=None):
