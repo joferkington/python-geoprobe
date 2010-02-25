@@ -6,8 +6,8 @@ JDK 08/03/09"""
 
 import numpy as np
 
-import common
 from geoprobe import utilities
+from common import StaticCache
 
 class ezfault(object):
     """Simple geoprobe ezfault reader."""
@@ -106,7 +106,7 @@ class ezfault(object):
             yield verts
 
     @property
-    @common.StaticCache 
+    @StaticCache 
     def points(self):
         """Returns a numpy array of all points in the file"""
         dat = []
