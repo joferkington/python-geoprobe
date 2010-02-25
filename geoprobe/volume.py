@@ -11,7 +11,7 @@ from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
 # Common methods
-from common import BinaryFile
+from common import BinaryFile, StaticCache
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
