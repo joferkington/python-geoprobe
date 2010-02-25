@@ -202,20 +202,16 @@ class HorizonFile(BinaryFile):
 
     def readPoints(self):
         numPoints = self.readBinary('>I')
-        if numPoints > 0:
-            points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
-            return points
-        # apparently, len(points) is not 0 when numPoints is 0...
-        else: 
-            return []
+        points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
+        return points
 
     def sectionType(self):
-        # No idea what the difference between #34 and #28, #2, etc is... (pos, neg, 0, pick??)
         secFmt = '>I'
         secID = self.readBinary(secFmt)
         if secID == 19: 
             sectype = 'Points'
         else:
+            # otherwise, secID is the number of lines
             sectype = 'Lines'
         return sectype
 
@@ -224,19 +220,22 @@ class HorizonFile(BinaryFile):
         return xdir, ydir, zdir, ID
 
     @property
+    @StaticCache
     def points(self):
         """A numpy array with the fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') 
         for each point in the horizon (regardless of whehter it's a manual pick (line) or 
         surface)"""
-        self.readHeader()
-        # Initalize an empty recarray to store things in
-        lines = [] # To store line objects in
-        secType = None
-        self.readHeader() # Jump to start of file, past header
+        # Note: The total number of points in the file is not directly stored 
+        #   on disk. Therefore, we must read through the entire file, store 
+        #   each section's points in a list, and then create a contigious array
+        #   from them.  Using numpy.append is much simpler, but quite slow.
+
+        # Jump to start of file, past header
+        self.readHeader() 
 
         # Read points section
         secType = self.sectionType()
-        points = self.readPoints()
+        temp_points = [self.readPoints()]
 
         # Read lines section
         try:
@@ -244,10 +243,17 @@ class HorizonFile(BinaryFile):
             while True:
                 lineInfo = self.lineInfo()
                 currentPoints = self.readPoints()
-                lines.append((lineInfo, currentPoints))
-                np.append(points, currentPoints)
+                temp_points.append(currentPoints)
         except EOFError:
-                pass
-        self.lines = lines
+            pass
+
+        # Create a single numpy array from the list of arrays (temp_points)
+        numpoints = sum(map(np.size, temp_points))
+        points = np.zeros(numpoints, dtype=self.point_dtype)
+        i = 0
+        for item in temp_points:
+            points[i : i + item.size] = item
+            i += item.size
+
         return points
 
