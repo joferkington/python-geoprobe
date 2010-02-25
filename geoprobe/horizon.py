@@ -78,11 +78,13 @@ class horizon(object):
         try: 
             return self._grid
         except AttributeError:
-            grid = self.nodata*np.ones((self.y.ptp()+1,self.x.ptp()+1),dtype=np.float32)
-            I = np.array(self.x-self.xmin,np.int)
-            J = np.array(self.y-self.ymin,np.int)
+            grid = np.ones((self.y.ptp() + 1, self.x.ptp() +1 ), 
+                            dtype=np.float32)
+            grid *= self.nodata
+            I = np.array(self.x - self.xmin, dtype=np.int)
+            J = np.array(self.y - self.ymin, dtype=np.int)
             for k in xrange(I.size):
-                i,j,d = I[k],J[k],self.z[k]
+                i, j, d = I[k], J[k], self.z[k]
                 grid[j,i] = d
             self._grid = grid
             return grid
