@@ -50,7 +50,7 @@ class horizon(object):
             raise TypeError('Ascii horizons not currently supported')
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe horizon')
-        self.data = self._file.read()
+        self.data = self._file.readAll()
 
     @property
     def numpoints(self):
@@ -87,6 +87,7 @@ class horizon(object):
             grid[j,i] = d
         return grid
     def _set_grid(self, value):
+        print 'Setting grid'
         self._grid = value
     grid = property(_get_grid, _set_grid)
     #--------------------------------------------------------------------------
@@ -213,7 +214,7 @@ class HorizonFile(BinaryFile):
         xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
-    def read(self):
+    def readAll(self):
         """
         Reads in the entire horizon file and returns a numpy array with the fields 
         ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') for each point in the 
