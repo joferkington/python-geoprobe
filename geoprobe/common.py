@@ -1,6 +1,7 @@
 #! /usr/bin/python
 import sys, os
 import struct
+import weakref
 import numpy as np
 
 #-- Raw reading and writing -------------------------------------------
@@ -58,9 +59,13 @@ class StaticCache(object):
         self.function = function
     def __call__(self, *args):
         try:
-            return self.cached_value
+            value =  self.cached_value()
+            if value is None:
+                raise AttributeError
         except AttributeError:
-            self.cached_value = self.function(*args)
-            return self.cached_value
+            retval = self.function(*args)
+            self.cached_value = weakref.ref(retval)
+            value = self.cached_value()
+        return value
 
 
