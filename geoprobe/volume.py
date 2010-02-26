@@ -14,7 +14,7 @@ from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
 # Common methods
-from common import BinaryFile, StaticCache
+from common import BinaryFile
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
@@ -140,18 +140,20 @@ class volume(object):
         self._infile.close()
 
     #-- data property ------------------------------------------------
-    # Prevents _getData from being called more than once 
-    @StaticCache 
     def _getData(self):
         """A 3D numpy array of the volume data.  Contains raw uint8 values.
         If the volume object is based on a file, this is a memory-mapped-file
         array."""
-        dat = np.memmap(filename=self._filename, mode='r',
-            offset=_headerLength, order='F', 
-            shape=(self._nx, self._ny, self._nz) 
-            )
-        dat = self._fixAxes(dat)
-        return dat
+        # Prevents _getData from being called more than once 
+        try:
+            return self._data
+        except AttributeError:
+            dat = np.memmap(filename=self._filename, mode='r',
+                offset=_headerLength, order='F', 
+                shape=(self._nx, self._ny, self._nz) 
+                )
+            dat = self._fixAxes(dat)
+            return dat
     def _setData(self, newData):
         newData = np.asarray(newData).astype(np.uint8)
         try:

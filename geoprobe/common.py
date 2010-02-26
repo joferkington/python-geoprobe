@@ -1,7 +1,6 @@
 #! /usr/bin/python
 import sys, os
 import struct
-import weakref
 import numpy as np
 
 #-- Raw reading and writing -------------------------------------------
@@ -48,24 +47,4 @@ class BinaryFile(file):
             # string (struct.error), don't expand.
             dat = struct.pack(fmt, dat) 
         self.write(dat)
-
-class StaticCache(object):
-    """
-    A decorator for very simple cacheing of values. The point isn't 
-    to memonize, just to make RAII a bit easier and avoid calling 
-    particularly expensive getters in properties more than once.
-    """
-    def __init__(self, function):
-        self.function = function
-    def __call__(self, *args):
-        try:
-            value =  self.cached_value()
-            if value is None: # Due to weakref
-                raise AttributeError
-        except AttributeError:
-            retval = self.function(*args)
-            self.cached_value = weakref.ref(retval)
-            value = self.cached_value()
-        return value
-
 

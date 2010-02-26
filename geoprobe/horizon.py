@@ -4,7 +4,7 @@ import struct
 #-- Imports from local files --------------------------------------
 import utilities
 from volume import volume
-from common import BinaryFile, StaticCache
+from common import BinaryFile
 
 class horizon(object):
     """Reads a geoprobe horizon from disk.
@@ -73,21 +73,22 @@ class horizon(object):
     #---------------------------------------------------------------------------
 
     #-- Grid Property ---------------------------------------------------------
-    @StaticCache
     def _get_grid(self):
         """An nx by ny numpy array (dtype=float32) of the z values contained
         in the horizon file"""
-        x, y, z = self.x, self.y, self.z
-        grid = np.ones((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
-        grid *= self.nodata
-        I = np.array(x - x.min(), dtype=np.int)
-        J = np.array(y - y.min(), dtype=np.int)
-        for k in xrange(I.size):
-            i, j, d = I[k], J[k], z[k]
-            grid[j,i] = d
-        return grid
+        try:
+            return self._grid
+        except AttributeError:
+            x, y, z = self.x, self.y, self.z
+            grid = np.ones((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
+            grid *= self.nodata
+            I = np.array(x - x.min(), dtype=np.int)
+            J = np.array(y - y.min(), dtype=np.int)
+            for k in xrange(I.size):
+                i, j, d = I[k], J[k], z[k]
+                grid[j,i] = d
+            return grid
     def _set_grid(self, value):
-        print 'Setting grid'
         self._grid = value
     grid = property(_get_grid, _set_grid)
     #--------------------------------------------------------------------------
