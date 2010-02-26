@@ -34,7 +34,7 @@ class horizon(object):
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
     def _readHorizon(self,filename):
-        self._file = _horizonFile(filename, 'r')
+        self._file = HorizonFile(filename, 'r')
 
         self._header = self._file.readHeader()
         if self._header == "#GeoProbe Horizon V2.0 ascii\n":
@@ -183,12 +183,12 @@ class HorizonFile(BinaryFile):
         file.__init__(self, *args, **kwargs)
 
         # Build a dtype definition 
-        self._dtype = []
-        for name, fmt in zip(_pointNames, _pointFormat):
-            self._dtype.append((name,fmt))
+        self.point_dtype = []
+        for name, fmt in zip(self._pointNames, self._pointFormat):
+            self.point_dtype.append((name,fmt))
 
         # Size in Bytes of a point (x,y,z,conf,type,...etc)
-        self._pointSize = sum(map(struct.calcsize, _pointFormat))
+        self._pointSize = sum(map(struct.calcsize, self._pointFormat))
 
     def readHeader(self):
         self.seek(0)
