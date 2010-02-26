@@ -60,7 +60,7 @@ class StaticCache(object):
     def __call__(self, *args):
         try:
             value =  self.cached_value()
-            if value is None:
+            if value is None: # Due to weakref
                 raise AttributeError
         except AttributeError:
             retval = self.function(*args)
