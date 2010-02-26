@@ -214,7 +214,6 @@ class HorizonFile(BinaryFile):
         return xdir, ydir, zdir, ID
 
     @property
-    @StaticCache
     def points(self):
         """A numpy array with the fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') 
         for each point in the horizon (regardless of whehter it's a manual pick (line) or 
