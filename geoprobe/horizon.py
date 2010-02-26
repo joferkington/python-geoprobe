@@ -50,7 +50,7 @@ class horizon(object):
             raise TypeError('Ascii horizons not currently supported')
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe horizon')
-        self.data = self._file.points
+        self.data = self._file.read()
 
     @property
     def numpoints(self):
@@ -209,15 +209,16 @@ class HorizonFile(BinaryFile):
     def readSectionHeader(self):
         return self.readBinary(self._sectionHdrFmt)
 
-    def lineInfo(self):
+    def readLineHeader(self):
         xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
-    @property
-    def points(self):
-        """A numpy array with the fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') 
-        for each point in the horizon (regardless of whehter it's a manual pick (line) or 
-        surface)"""
+    def read(self):
+        """
+        Reads in the entire horizon file and returns a numpy array with the fields 
+        ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') for each point in the 
+        horizon.
+        """
         # Note: The total number of points in the file is not directly stored 
         #   on disk. Therefore, we must read through the entire file, store 
         #   each section's points in a list, and then create a contigious array
@@ -234,7 +235,7 @@ class HorizonFile(BinaryFile):
         try:
             self.numlines = self.readSectionHeader() 
             while True:
-                lineInfo = self.lineInfo()
+                lineInfo = self.readLineHeader()
                 currentPoints = self.readPoints()
                 temp_points.append(currentPoints)
         except EOFError:
