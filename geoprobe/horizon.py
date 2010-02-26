@@ -1,23 +1,11 @@
 import numpy as np
 import struct
 
-#-- Imports from local files --------------------------------------
-import utilities
+from geoprobe import utilities
 from volume import volume
 from common import BinaryFile
 
 class horizon(object):
-    """Reads a geoprobe horizon from disk.
-
-    horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
-    stored in the horizon file (in model coordinates, i.e. inline/crossline).  
-
-    horizon.grid is a 2d numpy array of the z-values in the horizon filled
-    with horizon.nodata in regions where there aren't any z-values
-
-    horizon.{x,y,z}min and horizon.{x,y,z}max are the min's and max's 
-    of horizon.grid
-    """
     def __init__(self, input):
         """Takes either a filename or a numpy array"""
 
@@ -32,6 +20,9 @@ class horizon(object):
         self.nodata = -9999
 
         # Read horizon and initalize various properties
+        self.x = self.data['x']
+        self.y = self.data['y']
+        self.z = self.data['z']
         self.xmin = self.x.min()
         self.ymin = self.y.min()
         self.zmin = self.z.min()
@@ -43,7 +34,7 @@ class horizon(object):
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
     def _readHorizon(self,filename):
-        self._file = HorizonFile(filename, 'r')
+        self._file = _horizonFile(filename, 'r')
 
         self._header = self._file.readHeader()
         if self._header == "#GeoProbe Horizon V2.0 ascii\n":
@@ -87,11 +78,13 @@ class horizon(object):
             for k in xrange(I.size):
                 i, j, d = I[k], J[k], z[k]
                 grid[j,i] = d
+            self._grid = grid
             return grid
+
     def _set_grid(self, value):
         self._grid = value
     grid = property(_get_grid, _set_grid)
-    #--------------------------------------------------------------------------
+    #----------------------------------------------------
 
     def strikeDip(self, vol=None, velocity=None, independent='z'):
         """
@@ -157,8 +150,6 @@ class horizon(object):
 
         utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
-
-
 #-- This is currently very sloppy code... Need to clean up and document
 class HorizonFile(BinaryFile):
     """Basic geoprobe horizon binary file format reader
@@ -192,12 +183,12 @@ class HorizonFile(BinaryFile):
         file.__init__(self, *args, **kwargs)
 
         # Build a dtype definition 
-        self.point_dtype = []
-        for name, fmt in zip(self._pointNames, self._pointFormat):
-            self.point_dtype.append((name,fmt))
+        self._dtype = []
+        for name, fmt in zip(_pointNames, _pointFormat):
+            self._dtype.append((name,fmt))
 
         # Size in Bytes of a point (x,y,z,conf,type,...etc)
-        self._pointSize = sum(map(struct.calcsize, self._pointFormat))
+        self._pointSize = sum(map(struct.calcsize, _pointFormat))
 
     def readHeader(self):
         self.seek(0)

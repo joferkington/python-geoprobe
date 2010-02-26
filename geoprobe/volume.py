@@ -3,11 +3,8 @@ __license__   = "MIT License <http://http://www.opensource.org/licenses/mit-lice
 __copyright__ = "2009, Free Software Foundation"
 __author__    = "Joe Kington <jkington@wisc.edu>"
 
-import struct 
-import os 
+import struct, os, array 
 import numpy as np
-
-#-- Importing local Files -----------------------------------------------------
 
 # Dictonary of header values and offsets for a geoprobe volume
 from _volHeader import headerDef as _headerDef
@@ -25,10 +22,8 @@ def isValidVolume(filename):
     predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
 
     # VolID == 43970 is a version 2 geoprobe volume (The only type currently supported)
-    if (volID!=43970) or (volSize!=predSize): 
-        return False
-    else: 
-        return True
+    if (volID!=43970) or (volSize!=predSize): return False
+    else: return True
 
 
 class volume(object):
@@ -148,12 +143,13 @@ class volume(object):
         try:
             return self._data
         except AttributeError:
+            # If this hasn't been called already, make a memory-mapped-file numpy array
             dat = np.memmap(filename=self._filename, mode='r',
                 offset=_headerLength, order='F', 
                 shape=(self._nx, self._ny, self._nz) 
                 )
-            dat = self._fixAxes(dat)
-            return dat
+            self._data = self._fixAxes(dat)
+            return self._data
     def _setData(self, newData):
         newData = np.asarray(newData).astype(np.uint8)
         try:

@@ -108,6 +108,7 @@ class ezfault(object):
     @property
     def points(self):
         """Returns a numpy array of all points in the file"""
+        # Have we already done this:
         try:
             return self._allPoints
         except AttributeError:
