@@ -231,7 +231,8 @@ class HorizonFile(BinaryFile):
 
         # Read points section
         self.readSectionHeader() # Should always return 19
-        temp_points = [self.readPoints()]
+        self.surface = self.readPoints()
+        temp_points = [self.surface]
 
         # Read lines section
         try:
@@ -252,4 +253,31 @@ class HorizonFile(BinaryFile):
             i += item.size
 
         return points
+
+    def writeHeader(self):
+        header = "#GeoProbe Horizon V2.0 binary\n"
+        self.seek(0)
+        self.write(header)
+
+    def writePoints(self, points):
+        numPoints = points.size
+        self.writeBinary('>I', numPoints)
+        points.tofile(self, format=self.point_dtype)
+
+    def writeLineHeader(self, line_hdr):
+        self.writeBinary(self._lineHdrFmt, line_hdr)
+
+    def writeSectionHeader(self, sec_hdr):
+        self.writeBinary(self._sectionHdrFmt, sec_hdr)
+
+    def writeAll(self):
+        self.writeHeader()
+        self.writeSectionHeader(19)
+        self.writePoints(self.surface)
+        self.writeSectionHeader(len(self.lines))
+        for (info, line) in self.lines:
+            self.writeLineHeader(info)
+            self.writePoints(line)
+
+
 
