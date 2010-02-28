@@ -84,9 +84,7 @@ class horizon(object):
             grid *= self.nodata
             I = np.array(x - x.min(), dtype=np.int)
             J = np.array(y - y.min(), dtype=np.int)
-            for k in xrange(I.size):
-                i, j, d = I[k], J[k], z[k]
-                grid[j,i] = d
+            grid[J,I] = z
             return grid
     def _set_grid(self, value):
         self._grid = value
@@ -235,14 +233,11 @@ class HorizonFile(BinaryFile):
         temp_points = [self.surface]
 
         # Read lines section
-        try:
-            self.numlines = self.readSectionHeader() 
-            while True:
-                lineInfo = self.readLineHeader()
-                currentPoints = self.readPoints()
-                temp_points.append(currentPoints)
-        except EOFError:
-            pass
+        self.numlines = self.readSectionHeader() 
+        for i in xrange(self.numlines):
+            lineInfo = self.readLineHeader()
+            currentPoints = self.readPoints()
+            temp_points.append(currentPoints)
 
         # Create a single numpy array from the list of arrays (temp_points)
         numpoints = sum(map(np.size, temp_points))
