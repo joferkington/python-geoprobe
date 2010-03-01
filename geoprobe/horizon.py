@@ -76,14 +76,17 @@ class horizon(object):
     def _get_grid(self):
         """An nx by ny numpy array (dtype=float32) of the z values contained
         in the horizon file"""
-        x, y, z = self.x, self.y, self.z
-        grid = np.ma.masked_all((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
-        grid.fill_value = self.nodata
-        I = np.array(x - x.min(), dtype=np.int)
-        J = np.array(y - y.min(), dtype=np.int)
-        grid[J,I] = z
-        self._grid = grid
-        return self._grid
+        try:
+            return self._grid
+        except AttributeError:
+            x, y, z = self.x, self.y, self.z
+            grid = np.ma.masked_all((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
+            grid.fill_value = self.nodata
+            I = np.array(x - x.min(), dtype=np.int)
+            J = np.array(y - y.min(), dtype=np.int)
+            grid[J,I] = z
+            self._grid = grid
+            return self._grid
     def _set_grid(self, value):
         self._grid = value
     grid = property(_get_grid, _set_grid)
