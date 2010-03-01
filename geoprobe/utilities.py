@@ -22,7 +22,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     # If filenames are input instead of volume/horizion objects, create the objects
     if type(hor) == type('String'):
-        hor = horizion(hor)
+        hor = horizon(hor)
     if type(vol) == type('String'):
         vol = volume(vol)
 
