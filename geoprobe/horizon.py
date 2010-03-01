@@ -2,9 +2,8 @@ import numpy as np
 import struct
 
 #-- Imports from local files --------------------------------------
-import utilities
 from volume import volume
-from common import BinaryFile
+from common import BinaryFile, array2geotiff
 
 class horizon(object):
     """Reads a geoprobe horizon from disk.
@@ -155,7 +154,7 @@ class horizon(object):
         if nodata != self.nodata: data[data == self.nodata] = nodata
         data[data != nodata] *= zscale
 
-        utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
+        array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
 
 
