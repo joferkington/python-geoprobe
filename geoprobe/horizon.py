@@ -148,10 +148,10 @@ class horizon(object):
             elif vol.dz < 0: zscale = -1
 
         data = self.grid
-        if nodata != self.nodata: data[data == self.nodata] = nodata
-        data[data != nodata] *= zscale
+        data.fill_value = nodata
+        data *= zscale
 
-        utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
+        utilities.array2geotiff(data.filled(), filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
 
 
