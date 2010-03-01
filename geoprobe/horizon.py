@@ -168,19 +168,24 @@ class HorizonFile(BinaryFile):
                 (This is basically a sparse matrix)
             The second section contains lines (manual picks)
             Both section types have a 4 byte header (seems to be >I?)
-                The actual values in this header seem to be complelely meaningless (??)
-            subsections
-                if surface:
-                    info: (>I) Number of points
-                if line:
-                    info: (>4fI) xdir,ydir,zdir,ID,numPoints
+                The first section (surface) always (?) has a section header 
+                value of '\x00\x00\x00\x13' (unpacks to 19)
+                The section section (manual picks) contains the number of 
+                manually picked lines in the file (packed as >I).
+            Subsections
+                The first section only has one subsection, a "filled" surface
+                    Surface header: (>I) Number of points in the surface
+                The second section contains "numlines" subsections containing
+                manual picks (lines):
+                    Line header: (>4fI) xdir,ydir,zdir,ID,numPoints
             Point Format in all sections: (>4f3B)
                 x,y,z,confidence,type,heridity,tileSize
     """
+    _sectionHdrFmt = '>I'
+    _surfaceHdrFmt = '>I'
+    _lineHdrFmt = '>4f'
     _pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
     _pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
-    _lineHdrFmt = '>4f'
-    _sectionHdrFmt = '>I'
 
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
@@ -200,7 +205,7 @@ class HorizonFile(BinaryFile):
         return self.readline()
 
     def readPoints(self):
-        numPoints = self.readBinary('>I')
+        numPoints = self.readBinary(self._surfaceHdrFmt)
         points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
         return points
 
@@ -254,7 +259,7 @@ class HorizonFile(BinaryFile):
 
     def writePoints(self, points):
         numPoints = points.size
-        self.writeBinary('>I', numPoints)
+        self.writeBinary(self._surfaceHdrFmt, numPoints)
         points.tofile(self, format=self.point_dtype)
 
     def writeLineHeader(self, line_hdr):
