@@ -78,7 +78,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
                 # Extract the window out of data and store it in subVolume
                 subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
 
-    return subVolume
+    return subVolume.squeeze()
 
 def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     """
