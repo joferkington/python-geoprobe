@@ -4,6 +4,7 @@
 import numpy as np
 
 from volume import volume
+from horizon import horizon
 
 def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     """Extracts a window around a horizion out of a geoprobe volume
@@ -22,12 +23,12 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
 
     # If filenames are input instead of volume/horizion objects, create the objects
     if type(hor) == type('String'):
-        hor = horizion(hor)
+        hor = horizon(hor)
     if type(vol) == type('String'):
         vol = volume(vol)
 
     #Gah, changed the way hor.grid works... Should probably change it back
-    depth = hor.grid.T 
+    depth = hor.grid.filled().T 
 
     # If extents are not set, use the full extent of the horizion (assumes horizion is smaller than volume)
     if region == None: 
@@ -78,7 +79,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
                 # Extract the window out of data and store it in subVolume
                 subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
 
-    return subVolume
+    return subVolume.squeeze()
 
 def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     """
