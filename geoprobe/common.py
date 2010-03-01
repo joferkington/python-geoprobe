@@ -3,7 +3,7 @@ import sys, os
 import struct
 import numpy as np
 
-#-- Raw reading and writing -------------------------------------------
+#-- Raw reading and writing ---------------------------------------------------
 class BinaryFile(file):
     """
     Automatically packs or unpacks binary data according to a format
@@ -49,6 +49,7 @@ class BinaryFile(file):
         self.write(dat)
 
 
+#-- Functions in the utilities namespace---------------------------------------
 def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     """
     Write a geotiff file called "filename" from the numpy array "data".
