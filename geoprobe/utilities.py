@@ -4,6 +4,7 @@
 import numpy as np
 
 from volume import volume
+from horizon import horizon
 
 def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     """Extracts a window around a horizion out of a geoprobe volume
@@ -27,7 +28,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
         vol = volume(vol)
 
     #Gah, changed the way hor.grid works... Should probably change it back
-    depth = hor.grid.T 
+    depth = hor.grid.filled().T 
 
     # If extents are not set, use the full extent of the horizion (assumes horizion is smaller than volume)
     if region == None: 

@@ -80,14 +80,13 @@ class horizon(object):
             return self._grid
         except AttributeError:
             x, y, z = self.x, self.y, self.z
-            grid = np.ones((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
-            grid *= self.nodata
+            grid = np.ma.masked_all((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
+            grid.fill_value = self.nodata
             I = np.array(x - x.min(), dtype=np.int)
             J = np.array(y - y.min(), dtype=np.int)
-            for k in xrange(I.size):
-                i, j, d = I[k], J[k], z[k]
-                grid[j,i] = d
-            return grid
+            grid[J,I] = z
+            self._grid = grid
+            return self._grid
     def _set_grid(self, value):
         self._grid = value
     grid = property(_get_grid, _set_grid)
@@ -152,10 +151,10 @@ class horizon(object):
             elif vol.dz < 0: zscale = -1
 
         data = self.grid
-        if nodata != self.nodata: data[data == self.nodata] = nodata
-        data[data != nodata] *= zscale
+        data.fill_value = nodata
+        data *= zscale
 
-        utilities.array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
+        utilities.array2geotiff(data.filled(), filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
 
 
 
@@ -172,19 +171,24 @@ class HorizonFile(BinaryFile):
                 (This is basically a sparse matrix)
             The second section contains lines (manual picks)
             Both section types have a 4 byte header (seems to be >I?)
-                The actual values in this header seem to be complelely meaningless (??)
-            subsections
-                if surface:
-                    info: (>I) Number of points
-                if line:
-                    info: (>4fI) xdir,ydir,zdir,ID,numPoints
+                The first section (surface) always (?) has a section header 
+                value of '\x00\x00\x00\x13' (unpacks to 19)
+                The section section (manual picks) contains the number of 
+                manually picked lines in the file (packed as >I).
+            Subsections
+                The first section only has one subsection, a "filled" surface
+                    Surface header: (>I) Number of points in the surface
+                The second section contains "numlines" subsections containing
+                manual picks (lines):
+                    Line header: (>4fI) xdir,ydir,zdir,ID,numPoints
             Point Format in all sections: (>4f3B)
                 x,y,z,confidence,type,heridity,tileSize
     """
+    _sectionHdrFmt = '>I'
+    _surfaceHdrFmt = '>I'
+    _lineHdrFmt = '>4f'
     _pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
     _pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
-    _lineHdrFmt = '>4f'
-    _sectionHdrFmt = '>I'
 
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
@@ -204,7 +208,7 @@ class HorizonFile(BinaryFile):
         return self.readline()
 
     def readPoints(self):
-        numPoints = self.readBinary('>I')
+        numPoints = self.readBinary(self._surfaceHdrFmt)
         points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
         return points
 
@@ -231,17 +235,15 @@ class HorizonFile(BinaryFile):
 
         # Read points section
         self.readSectionHeader() # Should always return 19
-        temp_points = [self.readPoints()]
+        self.surface = self.readPoints()
+        temp_points = [self.surface]
 
         # Read lines section
-        try:
-            self.numlines = self.readSectionHeader() 
-            while True:
-                lineInfo = self.readLineHeader()
-                currentPoints = self.readPoints()
-                temp_points.append(currentPoints)
-        except EOFError:
-            pass
+        self.numlines = self.readSectionHeader() 
+        for i in xrange(self.numlines):
+            lineInfo = self.readLineHeader()
+            currentPoints = self.readPoints()
+            temp_points.append(currentPoints)
 
         # Create a single numpy array from the list of arrays (temp_points)
         numpoints = sum(map(np.size, temp_points))
@@ -252,4 +254,31 @@ class HorizonFile(BinaryFile):
             i += item.size
 
         return points
+
+    def writeHeader(self):
+        header = "#GeoProbe Horizon V2.0 binary\n"
+        self.seek(0)
+        self.write(header)
+
+    def writePoints(self, points):
+        numPoints = points.size
+        self.writeBinary(self._surfaceHdrFmt, numPoints)
+        points.tofile(self, format=self.point_dtype)
+
+    def writeLineHeader(self, line_hdr):
+        self.writeBinary(self._lineHdrFmt, line_hdr)
+
+    def writeSectionHeader(self, sec_hdr):
+        self.writeBinary(self._sectionHdrFmt, sec_hdr)
+
+    def writeAll(self):
+        self.writeHeader()
+        self.writeSectionHeader(19)
+        self.writePoints(self.surface)
+        self.writeSectionHeader(len(self.lines))
+        for (info, line) in self.lines:
+            self.writeLineHeader(info)
+            self.writePoints(line)
+
+
 
