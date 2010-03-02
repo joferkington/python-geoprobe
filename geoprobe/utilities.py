@@ -9,7 +9,7 @@ from horizon import horizon
 #Functions that were formerly in this file...
 from common import array2geotiff, points2strikeDip, fitPlane, normal2SD
 
-def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
+def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=False):
     """Extracts a window around a horizion out of a geoprobe volume
     Input:
         hor: a geoprobe horizion object or horizion filename
@@ -18,6 +18,9 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
         lower: (default, upper) lower window interval around horizion
         offset: (default, 0) amount (in voxels) to offset the horizion by along the Z-axis
         region: (default, full extent of horizion) sub-region to use instead of full extent
+        masked: (default, False) if True, return a masked array where nodata values in the
+                horizon are masked. Otherwise, return an array where the nodata values are
+                filled with 0.
     Output:
         returns a numpy volume "flattened" along the horizion
     """
@@ -31,7 +34,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
         vol = volume(vol)
 
     #Gah, changed the way hor.grid works... Should probably change it back
-    depth = hor.grid.filled().T 
+    depth = hor.grid.T 
 
     # If extents are not set, use the full extent of the horizion (assumes horizion is smaller than volume)
     if region == None: 
@@ -55,15 +58,19 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
     nx,ny,nz = data.shape
     
     # convert z coords of horizion to volume indexes
-    nodata = depth != hor.nodata
-    depth[nodata] -= vol.zmin
-    depth[nodata] /= abs(vol.dz)
+    depth -= vol.zmin
+    depth /= abs(vol.dz)
     depth = depth.astype(np.int)
+
+    # Initalize the output array
+    window_size = upper + lower + 1
+    # Not creating a masked array here due to speed problems when iterating through ma's
+    subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
 
     # Using fancy indexing to do this uses tons of memory...
     # As it turns out, simple iteration is much, much more memory efficient, and almost as fast
-    window_size = upper + lower + 1
-    subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
+    mask = depth.mask      # Need to preserve the mask for later
+    depth = depth.filled() # Iterating through masked arrays is much slower, apparently
     for i in xrange(nx):
         for j in xrange(ny):
             if depth[i,j] != hor.nodata:
@@ -82,7 +89,16 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None):
                 # Extract the window out of data and store it in subVolume
                 subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
 
-    return subVolume.squeeze()
+    # If masked is True (input option), return a masked array
+    if masked:
+        nx,ny,nz = subVolume.shape
+        mask = mask.reshape((nx,ny,1))
+        mask = np.tile(mask, (1,1,nz))
+        subVolume = np.ma.array(subVolume, mask=mask)
+
+    # If upper==lower==0, (default) subVolume will be (nx,ny,1), so return 2D array instead
+    subVolume = subVolume.squeeze()
+    return subVolume
 
 
 def coherence(data, window=(0.3, 0.3, 2.0)):
