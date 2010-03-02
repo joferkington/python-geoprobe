@@ -17,13 +17,46 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
         upper: (default, 0) upper window interval around horizion
         lower: (default, upper) lower window interval around horizion
         offset: (default, 0) amount (in voxels) to offset the horizion by along the Z-axis
-        region: (default, full extent of horizion) sub-region to use instead of full extent
+        region: (default, overlap between horizion and volume) sub-region to use instead of 
+                full extent. Must be a 4-tuple of (xmin, xmax, ymin, ymax)
         masked: (default, False) if True, return a masked array where nodata values in the
                 horizon are masked. Otherwise, return an array where the nodata values are
                 filled with 0.
     Output:
         returns a numpy volume "flattened" along the horizion
     """
+    def bbox_overlap(bbox1, bbox2):
+        """
+        Input: 
+            bbox1: 4-tuple of (xmin, xmax, ymin, ymax) for the first region
+            bbox2: 4-tuple of (xmin, xmax, ymin, ymax) for the second region
+        Output:
+            Returns a 4-tuple of (xmin, xmax, ymin, ymax) for overlap between 
+            the two input bounding-box regions
+        """
+        def intersects(bbox1, bbox2):
+            # Check for intersection
+            xmin1, xmax1, ymin1, ymax1 = bbox1
+            xmin2, xmax2, ymin2, ymax2 = bbox2
+            xdist = abs( (xmin1 + xmax1) / 2.0 - (xmin2 + xmax2) / 2.0 )
+            ydist = abs( (ymin1 + ymax1) / 2.0 - (ymin2 + ymax2) / 2.0 )
+            xwidth = (xmax1 - xmin1 + xmax2 - xmin2) / 2.0
+            ywidth = (ymax1 - ymin1 + ymax2 - ymin2) / 2.0
+            return (xdist <= xwidth) and (ydist <= ywidth)
+
+        if not intersects(bbox1, bbox2):
+            return None
+
+        output = []
+        for i, comparison in enumerate(zip(bbox1, bbox2)):
+            # mininum x or y coordinate
+            if i % 2 == 0:
+                output.append(max(comparison))
+            # maximum x or y coordinate
+            elif i % 2 == 1:
+                output.append(min(comparison))
+        return output
+
     # If the lower window isn't specified, assume it's equal to the upper window
     if lower == None: lower=upper
 
@@ -36,23 +69,33 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     #Gah, changed the way hor.grid works... Should probably change it back
     depth = hor.grid.T 
 
-    # If extents are not set, use the full extent of the horizion (assumes horizion is smaller than volume)
-    if region == None: 
-        xmin, xmax, ymin, ymax = hor.xmin, hor.xmax, hor.ymin, hor.ymax
-    else:
-        xmin, xmax, ymin, ymax = region
+    # Find the overlap between the horizon and volume
+    vol_extents = [vol.xmin, vol.xmax, vol.ymin, vol.ymax]
+    hor_extents = [hor.xmin, hor.xmax, hor.ymin, hor.ymax]
+    extents = bbox_overlap(hor_extents, vol_extents)
 
-    #-- Select region of overlap between volume and horizon
-    # Convert region to volume indicies
+    # Raise ValueError if horizon and volume do not intersect
+    if extents is None:
+        raise ValueError('Input horizon and volume do not intersect!')
+
+    # Find the overlap between the (optional) subregion current extent
+    if region is not None: 
+        extents = bbox_overlap(extents, region)
+        if extents is None:
+            raise ValueError('Specified region does not overlap with horizon and volume')
+        elif len(extents) != 4:
+            raise ValueError('"extents" must be a 4-tuple of (xmin, xmax, ymin, ymax)')
+
+    xmin, xmax, ymin, ymax = extents
+
+    # Convert extents to volume indicies and select subset of the volume 
     xstart, ystart = xmin - vol.xmin, ymin - vol.ymin
     xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
-    # Select only the volume data within the region of interest
     data = vol.data[xstart:xstop, ystart:ystop, :]
 
-    # Convert region to horizion grid indicies
+    # Convert extents to horizion grid indicies and select subset of the horizion 
     xstart, ystart = xmin - hor.xmin, ymin - hor.ymin
     xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
-    # Select only the volume data within the region of interest
     depth = depth[xstart:xstop, ystart:ystop]
 
     nx,ny,nz = data.shape
@@ -98,6 +141,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
 
     # If upper==lower==0, (default) subVolume will be (nx,ny,1), so return 2D array instead
     subVolume = subVolume.squeeze()
+
     return subVolume
 
 
