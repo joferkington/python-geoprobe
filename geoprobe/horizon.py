@@ -43,13 +43,17 @@ class horizon(object):
 
     def _readHorizon(self,filename):
         self._file = HorizonFile(filename, 'r')
-
         self._header = self._file.readHeader()
+
         if self._header == "#GeoProbe Horizon V2.0 ascii\n":
             raise TypeError('Ascii horizons not currently supported')
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe horizon')
+        
         self.data = self._file.readAll()
+
+        if self.data.size == 0:
+            raise ValueError('This file does not contain any points!')
 
     @property
     def numpoints(self):
