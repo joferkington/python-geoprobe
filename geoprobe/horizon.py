@@ -196,7 +196,7 @@ class HorizonFile(BinaryFile):
                     Surface header: (>I) Number of points in the surface
                 The second section contains "numlines" subsections containing
                 manual picks (lines):
-                    Line header: (>4fI) xdir,ydir,zdir,ID,numPoints
+                    Line header: (>4f) xdir,ydir,zdir,ID
             Point Format in all sections: (>4f3B)
                 x,y,z,confidence,type,heridity,tileSize
     """
@@ -269,8 +269,13 @@ class HorizonFile(BinaryFile):
         i = 0
         for info, item in zip(line_info, temp_points):
             points[i : i + item.size] = item
+            # self.surface is a view into the first part of the points array
             if i == 0:
                 self.surface = points[i:i+item.size]
+            # self.lines is a list of tuples, the first item is a tuple of
+            # (xdir,ydir,zdir,ID) where <xdir,ydir,zdir> form a vector in
+            # the direction of the line. The second item is a view into the 
+            # points array containg the relevant x,y,z,etc points.
             else:
                 self.lines.append((info, points[i:i+item.size]))
             i += item.size
