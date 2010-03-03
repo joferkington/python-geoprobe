@@ -41,7 +41,7 @@ class horizon(object):
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
-    def _readHorizon(self,filename):
+    def _readHorizon(self, filename):
         self._file = HorizonFile(filename, 'r')
         self._header = self._file.readHeader()
 
@@ -51,6 +51,10 @@ class horizon(object):
             raise TypeError('This does not appear to be a valid geoprobe horizon')
         
         self.data = self._file.readAll()
+
+        # Surface and line attributes
+        self.surface = self._file.surface
+        self.lines = self._file.lines
 
         if self.data.size == 0:
             raise ValueError('This file does not contain any points!')
@@ -238,22 +242,28 @@ class HorizonFile(BinaryFile):
 
         # Read points section
         self.readSectionHeader() # Should always return 19
-        self.surface = self.readPoints()
-        temp_points = [self.surface]
+        surface = self.readPoints()
+        temp_points = [surface]
 
         # Read lines section
+        line_info = [None]
         self.numlines = self.readSectionHeader() 
         for i in xrange(self.numlines):
-            lineInfo = self.readLineHeader()
+            line_info.append(self.readLineHeader())
             currentPoints = self.readPoints()
             temp_points.append(currentPoints)
 
         # Create a single numpy array from the list of arrays (temp_points)
         numpoints = sum(map(np.size, temp_points))
         points = np.zeros(numpoints, dtype=self.point_dtype)
+        self.lines = []
         i = 0
-        for item in temp_points:
+        for info, item in zip(line_info, temp_points):
             points[i : i + item.size] = item
+            if i == 0:
+                self.surface = points[i:i+item.size]
+            else:
+                self.lines.append((info, points[i:i+item.size]))
             i += item.size
 
         return points
