@@ -59,6 +59,15 @@ class horizon(object):
         if self.data.size == 0:
             raise ValueError('This file does not contain any points!')
 
+    def write(self, filename):
+        """
+        Write the horizon to a new file ("filename")
+        """
+        self._file = HorizonFile(filename, 'w')
+        self._file.lines = self.lines
+        self._file.surface = self.surface
+        self._file.writeAll()
+
     @property
     def numpoints(self):
         return self.data.size
