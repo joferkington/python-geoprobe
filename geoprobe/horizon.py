@@ -5,6 +5,11 @@ import struct
 from volume import volume
 from common import BinaryFile, array2geotiff
 
+#-- Build dtype for points ----------------------------------------
+_point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
+_point_names =  ('x',  'y',  'z', 'conf', 'type', 'herid', 'tileSize')
+_point_dtype = zip(_point_names, _point_format)
+
 class horizon(object):
     """Reads a geoprobe horizon from disk.
 
@@ -17,15 +22,18 @@ class horizon(object):
     horizon.{x,y,z}min and horizon.{x,y,z}max are the min's and max's 
     of horizon.grid
     """
-    def __init__(self, input):
+    def __init__(self, *args, **kwargs):
         """Takes either a filename or a numpy array"""
 
-        if type(input) == type('String'):
-            self._readHorizon(input)    
+        # If __init__ is just passed a string, assume it's a filename
+        # and make a horizon object by reading from disk
+        if (len(args) == 1) and isinstance(args[0], str):
+            self._readHorizon(args[0])    
+
+        # Otherwise, pass the args on to _make_horizon_from_data for
+        # parsing
         else:
-            # For the moment, just assume it's a numpy array
-            # Possibly pass a list of recarrays for lines?
-            raise TypeError('Only reading is suppored at this time.  Input must be a valid file name')
+            self._parse_new_horizon_input(*args, **kwargs)
 
         # For gridding:
         self.nodata = -9999
@@ -59,13 +67,105 @@ class horizon(object):
         if self.data.size == 0:
             raise ValueError('This file does not contain any points!')
 
+    def _parse_new_horizon_input(self, *args, **kwargs):
+        """Parse input when given something other than a filename"""
+        
+        #-- Parse Arguments ---------------------------------------------------
+        if len(args) == 0:
+            pass
+        elif len(args) == 1:
+            # Assume argument is data (numpy array with dtype of _point_dtype)
+            self.data = np.asarray(args[0], dtype=_point_dtype)
+            self.surface = self.data
+            
+        elif len(args) == 2:
+            # Assume arguments are surface + lines
+            init_from_surface_lines(self, surface=args[0], lines=args[1])
+
+        elif len(args) == 3:
+            # Assume arguments are x, y, and z arrays
+            init_from_xyz(self, *args)
+
+        else:
+            print args
+            raise ValueError('Invalid number of input arguments.')
+
+        #-- Parse keyword arguments -------------------------------------------
+        if len(kwargs) == 0:
+            pass
+        elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
+            self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
+            
+        elif ('surface' in kwargs) and ('lines' in kwargs):
+            self._init_from_surface_lines(kwargs['surface'], kwargs['lines'])
+            
+        elif 'surface' in kwargs:
+            self._init_from_surface_lines(surface=surface)
+
+        elif 'lines' in kwargs:
+            self._init_from_surface_lines(lines=lines)
+
+        else:
+            raise ValueError('Invalid keyword arguments. You must specify x,y,&z, surface, or lines')
+
+    def _init_from_xyz(self, x, y, z):
+        """Make a new horizon object from x, y, and z arrays"""
+        x,y,z = [np.asarray(item, dtype=np.float32) for item in [x,y,z]]
+        if x.size == y.size == z.size:
+            self.data = np.zeros(x.size, dtype=_point_dtype)
+            self.x = x
+            self.y = y
+            self.z = z
+            self.surface = data
+        else:
+            raise ValueError('x, y, and z arrays must be the same length')
+
+    def init_from_surface_lines(self, surface=None, lines=None):
+        """Make a new horizon object from either a surface array or a list of line arrays"""
+        if surface is not None:
+            surface = np.asarray(surface, dtype=_point_dtype)
+
+        # Calculate total number of points
+        numpoints = surface.size if surface else 0
+        if lines is not None:
+            for info, line in lines:
+                numpoints += line.size
+
+        # Make self.data and make self.lines & self.surface views into self.data
+        self.data = np.zeros(numpoints, dtype=_point_dtype)
+
+        array_list = []
+        if surface is not None:
+            array_list.append((None, surface))
+        if lines is not None:
+            array_list.extend(lines)
+
+        i = 0
+        for info, item in array_list:
+            self.data[i:i+item.size] = item
+            if (surface is not None) and (i == 0):
+                self.surface = self.data[i:i+item.size]
+            else:
+                self.lines.append(info, data[i:i+item.size])
+
     def write(self, filename):
         """
         Write the horizon to a new file ("filename")
         """
         self._file = HorizonFile(filename, 'w')
-        self._file.lines = self.lines
-        self._file.surface = self.surface
+
+        # If self.lines isn't set, default to []
+        try:
+            self._file.lines = self.lines
+        except AttributeError:
+            self._file.lines = []
+
+        # If self.surface isn't set, default to an empty numpy array
+        try:
+            self._file.surface = self.surface
+        except AttributeError:
+            self._file.surface = np.zeros(0, dtype=_point_dtype)
+
         self._file.writeAll()
 
     @property
@@ -104,7 +204,7 @@ class horizon(object):
             self._grid = grid
             return self._grid
     def _set_grid(self, value):
-        self._grid = value
+        self._grid = np.ma.asarray(value)
     grid = property(_get_grid, _set_grid)
     #--------------------------------------------------------------------------
 
@@ -203,21 +303,11 @@ class HorizonFile(BinaryFile):
     _sectionHdrFmt = '>I'
     _surfaceHdrFmt = '>I'
     _lineHdrFmt = '>4f'
-    _pointFormat = ('>f', '>f', '>f', '>f', '>B', '>B', '>B')
-    _pointNames = ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize')
 
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
         # Initalize the file object as normal
         file.__init__(self, *args, **kwargs)
-
-        # Build a dtype definition 
-        self.point_dtype = []
-        for name, fmt in zip(self._pointNames, self._pointFormat):
-            self.point_dtype.append((name,fmt))
-
-        # Size in Bytes of a point (x,y,z,conf,type,...etc)
-        self._pointSize = sum(map(struct.calcsize, self._pointFormat))
 
     def readHeader(self):
         self.seek(0)
@@ -225,7 +315,7 @@ class HorizonFile(BinaryFile):
 
     def readPoints(self):
         numPoints = self.readBinary(self._surfaceHdrFmt)
-        points = np.fromfile(self, count=numPoints, dtype=self.point_dtype)
+        points = np.fromfile(self, count=numPoints, dtype=_point_dtype)
         return points
 
     def readSectionHeader(self):
@@ -264,7 +354,7 @@ class HorizonFile(BinaryFile):
 
         # Create a single numpy array from the list of arrays (temp_points)
         numpoints = sum(map(np.size, temp_points))
-        points = np.zeros(numpoints, dtype=self.point_dtype)
+        points = np.zeros(numpoints, dtype=_point_dtype)
         self.lines = []
         i = 0
         for info, item in zip(line_info, temp_points):
@@ -290,7 +380,7 @@ class HorizonFile(BinaryFile):
     def writePoints(self, points):
         numPoints = points.size
         self.writeBinary(self._surfaceHdrFmt, numPoints)
-        points.tofile(self, format=self.point_dtype)
+        points.tofile(self)
 
     def writeLineHeader(self, line_hdr):
         self.writeBinary(self._lineHdrFmt, line_hdr)
