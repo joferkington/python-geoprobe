@@ -93,17 +93,13 @@ class horizon(object):
         #-- Parse keyword arguments -------------------------------------------
         if len(kwargs) == 0:
             pass
+
         elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
             self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
             
-        elif ('surface' in kwargs) and ('lines' in kwargs):
-            self._init_from_surface_lines(kwargs['surface'], kwargs['lines'])
-            
-        elif 'surface' in kwargs:
-            self._init_from_surface_lines(surface=surface)
-
-        elif 'lines' in kwargs:
-            self._init_from_surface_lines(lines=lines)
+        elif ('surface' in kwargs) or ('lines' in kwargs):
+            surface, lines = kwargs.pop('surface', None), kwargs.pop('lines', None)
+            self._init_from_surface_lines(surface, lines)
 
         else:
             raise ValueError('Invalid keyword arguments. You must specify x,y,&z, surface, or lines')
@@ -120,7 +116,7 @@ class horizon(object):
         else:
             raise ValueError('x, y, and z arrays must be the same length')
 
-    def init_from_surface_lines(self, surface=None, lines=None):
+    def _init_from_surface_lines(self, surface=None, lines=None):
         """Make a new horizon object from either a surface array or a list of line arrays"""
         if surface is not None:
             surface = np.asarray(surface, dtype=_point_dtype)
@@ -141,12 +137,14 @@ class horizon(object):
             array_list.extend(lines)
 
         i = 0
+        self.lines = []
         for info, item in array_list:
             self.data[i:i+item.size] = item
             if (surface is not None) and (i == 0):
                 self.surface = self.data[i:i+item.size]
             else:
-                self.lines.append(info, data[i:i+item.size])
+                self.lines.append((info, self.data[i:i+item.size]))
+            i += item.size
 
     def write(self, filename):
         """
@@ -322,6 +320,7 @@ class HorizonFile(BinaryFile):
         return self.readBinary(self._sectionHdrFmt)
 
     def readLineHeader(self):
+        # TODO: Change this to a numpy array
         xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
