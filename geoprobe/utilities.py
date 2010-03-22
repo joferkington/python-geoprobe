@@ -14,8 +14,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     Input:
         hor: a geoprobe horizion object or horizion filename
         vol: a geoprobe volume object or volume filename
-        upper: (default, 0) upper window interval around horizion
-        lower: (default, upper) lower window interval around horizion
+        upper: (default, 0) upper window interval around horizion in voxels 
+        lower: (default, upper) lower window interval around horizion in voxels 
         offset: (default, 0) amount (in voxels) to offset the horizion by along the Z-axis
         region: (default, overlap between horizion and volume) sub-region to use instead of 
                 full extent. Must be a 4-tuple of (xmin, xmax, ymin, ymax)
@@ -81,6 +81,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     # Find the overlap between the (optional) subregion current extent
     if region is not None: 
         extents = bbox_overlap(extents, region)
+        print extents
         if extents is None:
             raise ValueError('Specified region does not overlap with horizon and volume')
         elif len(extents) != 4:
