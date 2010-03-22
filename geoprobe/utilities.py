@@ -81,7 +81,6 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     # Find the overlap between the (optional) subregion current extent
     if region is not None: 
         extents = bbox_overlap(extents, region)
-        print extents
         if extents is None:
             raise ValueError('Specified region does not overlap with horizon and volume')
         elif len(extents) != 4:
