@@ -1,3 +1,23 @@
+"""
+A python module to read and write geoprobe format volumes, horizons, 2d data,
+and faults
+
+Reads and (mostly) writes seismic data from and to files written by Landmark's
+(a subsidiary of Halliburton) Geoprobe software. This implementation is based
+on reverse-engineering the file formats, and as such, is certainly not
+complete. However, things seem to work.
+
+As a basic example:
+
+>>>from geoprobe import volume
+>>>vol = volume('/path/to/geoprobe/volume/file.vol')
+>>>print vol.xmin, vol.ymin  # Model coordinate min and max
+>>>test_xslice = vol.data[vol.nx/2,:,:] # vol.data is a memmapped numpy array
+"""
+__author__ = 'Joe Kington <jkington@geology.wisc.edu>'
+__license__ = 'MIT License'
+
+
 from horizon import horizon
 from volume import volume
 from ezfault import ezfault
