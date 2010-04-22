@@ -1,4 +1,3 @@
-
 __license__   = "MIT License <http://http://www.opensource.org/licenses/mit-license.php>"
 __copyright__ = "2009, Free Software Foundation"
 __author__    = "Joe Kington <jkington@wisc.edu>"
@@ -11,7 +10,8 @@ from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
 # Common methods
-from common import BinaryFile
+from common import BinaryFile 
+from common import format_headerDef_docs
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
@@ -27,7 +27,11 @@ def isValidVolume(filename):
 
 
 class volume(object):
-    """Reads and writes geoprobe volumes"""
+    # Not a "normal" docstring so that "useful attributes" is set at runtime
+    __doc__ = """
+    Reads and writes geoprobe volumes
+    
+    Useful attributes set at initialization:\n%s""" % format_headerDef_docs(_headerDef)
 
     # TODO: Implement a clip method
 
