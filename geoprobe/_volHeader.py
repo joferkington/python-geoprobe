@@ -21,36 +21,36 @@ volume you'll ever come across, though!"""
 #    default:None indicates that the vaule must be obtained from the input data
 headerLength = 3072 #In bytes
 headerDef = {
-        'magicNum':         {'offset':0,    'type':'>i',    'default':43970 },      # Number indicating a geoprobe volume (default --> GeoProve Verion 2)
-        '_unknown1':        {'offset':4,    'type':'>4i',   'default':[1,0,0,0] },  # Unknown, important?
-        'path':             {'offset':20,   'type':'300s',  'default':300*" " },    # Path of geoprobe volume (why is this in here?)
-        '_unknown2':        {'offset':320,  'type':'>4i',   'default':[8,0,0,8] },  # Unknown, important? (8bit? But why two of them?)
-        '_nx':              {'offset':336,  'type':'>I',    'default':None },       # Number of x-values. This is _nx to allow the property volume.nx, which returns vol.data.shape[0]
-        '_ny':              {'offset':340,  'type':'>I',    'default':None },       # Number of y-values. (see above)
-        '_nz':              {'offset':344,  'type':'>I',    'default':None },       # Number of z-values. (see above)
-        'v0':               {'offset':352,  'type':'>f',    'default':0    },       # Voxel value calibration factor
-        'x0':               {'offset':356,  'type':'>f',    'default':0    },       # X-axis calibration factor (e.g. x = i*dx + x0, where i is the index value)
-        'y0':               {'offset':360,  'type':'>f',    'default':0    },       # Y-axis calibration factor
-        'z0':               {'offset':364,  'type':'>f',    'default':0    },       # Z-axis calibration factor
-        'dv':               {'offset':368,  'type':'>f',    'default':1    },       # Voxel value scaling factor
-        'dx':               {'offset':372,  'type':'>f',    'default':1    },       # X-axis scaling factor
-        'dy':               {'offset':376,  'type':'>f',    'default':1    },       # Y-axis scaling factor
-        'dz':               {'offset':380,  'type':'>f',    'default':1    },       # Z-axis scaling factor
-        'vUnit':            {'offset':384,  'type':'16s',   'default':'Unknown' },  # Physical units for voxels
-        'xUnit':            {'offset':400,  'type':'16s',   'default':'Unknown' },  # Physical units for the X-axis
-        'yUnit':            {'offset':416,  'type':'16s',   'default':'Unknown' },  # Physical units for the Y-axis
-        'zUnit':            {'offset':432,  'type':'16s',   'default':'Unknown' },  # Physical units for the Z-axis
-        'vDescrip':         {'offset':448,  'type':'16s',   'default':'Unknown' },  # Voxel description
-        'xDescrip':         {'offset':464,  'type':'16s',   'default':'Unknown' },  # X-axis description
-        'yDescrip':         {'offset':480,  'type':'16s',   'default':'Unknown' },  # Y-axis description
-        'zDescrip':         {'offset':496,  'type':'16s',   'default':'Unknown' },  # Z-axis description
-        '_unknown3':        {'offset':2584, 'type':'8s',    'default':'\xaa\xff\xff#\xaa\x00\x00#' }, #Probably important!  No idea what it is, though...
-        'georef':           {'offset':2592, 'type':'>12d',  'default':[0,0,1,0,1,1,0,1,1,0,0,1] },    # 3 sets of points for georeferencing. Order: worldX1, worldX2, worldX3, worldY1, worldY2, worldY3, modelY1, modelY2, modelY3, modelX1, modelX2, modelX3
-        'originalNx':       {'offset':2744, 'type':'>I',    'default':None },       # Original dimensions of the x-axis. No idea why these are here
-        'originalNy':       {'offset':2748, 'type':'>I',    'default':None },       # Original dimensions of the y-axis
-        'originalNz':       {'offset':2752, 'type':'>I',    'default':None },       # Original dimensions of the z-axis
-        'segmentName':      {'offset':2762, 'type':'50s',   'default':50*" " },     # Seems to be the pathname relative to the base geoprobe project directory
-        'seisworksProject': {'offset':2816, 'type':'256s',  'default':'' }          # Name of the associated seisworks project (?)
+        'magicNum':         {'offset':0,    'type':'>i',    'default':43970,       'doc':'Number indicating a geoprobe volume'},
+        '_unknown1':        {'offset':4,    'type':'>4i',   'default':[1,0,0,0],   'doc':'Unknown, important?'},
+        'path':             {'offset':20,   'type':'300s',  'default':300*" ",     'doc':'Path of original geoprobe volume'},
+        '_unknown2':        {'offset':320,  'type':'>4i',   'default':[8,0,0,8],   'doc':'Unknown, important? (8bit? but why two of them?)'},
+        '_nx':              {'offset':336,  'type':'>i',    'default':None,        'doc':'Number of x-values. this is _nx to allow the property volume.nx, which returns vol.data.shape[0]'},
+        '_ny':              {'offset':340,  'type':'>i',    'default':None,        'doc':'Number of y-values. (see above)'},
+        '_nz':              {'offset':344,  'type':'>i',    'default':None,        'doc':'Number of z-values. (see above)'},
+        'v0':               {'offset':352,  'type':'>f',    'default':0,           'doc':'Voxel value calibration factor (Physical voxel values = V*dv + v0, where V is the raw uint8 value in volume.data)'},
+        'x0':               {'offset':356,  'type':'>f',    'default':0,           'doc':'X-axis calibration factor (e.g. x = i*dx + x0)'},
+        'y0':               {'offset':360,  'type':'>f',    'default':0,           'doc':'Y-axis calibration factor (e.g. y = j*dy + y0)'},
+        'z0':               {'offset':364,  'type':'>f',    'default':0,           'doc':'Z-axis calibration factor (e.g. z = k*dz + z0)'},
+        'dv':               {'offset':368,  'type':'>f',    'default':1,           'doc':'Voxel value scaling factor (Physical voxel values = V*dv + v0, where V is the raw uint8 value in volume.data)'},
+        'dx':               {'offset':372,  'type':'>f',    'default':1,           'doc':'X-axis scaling factor (e.g. x = i*dx + x0)'},
+        'dy':               {'offset':376,  'type':'>f',    'default':1,           'doc':'Y-axis scaling factor (e.g. y = j*dy + y0)'},
+        'dz':               {'offset':380,  'type':'>f',    'default':1,           'doc':'Z-axis scaling factor (e.g. z = k*dz + z0)'},
+        'vunit':            {'offset':384,  'type':'16s',   'default':'unknown',   'doc':'Physical units for voxels'},
+        'xunit':            {'offset':400,  'type':'16s',   'default':'unknown',   'doc':'Physical units for the x-axis'},
+        'yunit':            {'offset':416,  'type':'16s',   'default':'unknown',   'doc':'Physical units for the y-axis'},
+        'zunit':            {'offset':432,  'type':'16s',   'default':'unknown',   'doc':'Physical units for the z-axis'},
+        'vdescrip':         {'offset':448,  'type':'16s',   'default':'unknown',   'doc':'Voxel description'},
+        'xdescrip':         {'offset':464,  'type':'16s',   'default':'unknown',   'doc':'X-axis description'},
+        'ydescrip':         {'offset':480,  'type':'16s',   'default':'unknown',   'doc':'Y-axis description'},
+        'zdescrip':         {'offset':496,  'type':'16s',   'default':'unknown',   'doc':'Z-axis description'},
+        '_unknown3':        {'offset':2584, 'type':'8s',    'default':'\xaa\xff\xff#\xaa\x00\x00#', 'doc':'Probably important!  no idea what it is, though...'},
+        'georef':           {'offset':2592, 'type':'>12d',  'default':[0,0,1,0,1,1,0,1,1,0,0,1] ,   'doc':'3 sets of points for georeferencing. order: worldx1, worldx2, worldx3, worldy1, worldy2, worldy3, modely1, modely2, modely3, modelx1, modelx2, modelx3'},
+        'originalnx':       {'offset':2744, 'type':'>i',    'default':None,        'doc':'Original dimensions of the x-axis'},
+        'originalny':       {'offset':2748, 'type':'>i',    'default':None,        'doc':'Original dimensions of the y-axis'},
+        'originalnz':       {'offset':2752, 'type':'>i',    'default':None,        'doc':'Original dimensions of the z-axis'},
+        'segmentname':      {'offset':2762, 'type':'50s',   'default':50*" ",      'doc':'Pathname relative to the base geoprobe project directory'},
+        'seisworksproject': {'offset':2816, 'type':'256s',  'default':'',          'doc':'Name of the associated seisworks project'}
 }
 
 # The following are almost definitely padding. I'm preserving them here in case the locations are ever needed...
