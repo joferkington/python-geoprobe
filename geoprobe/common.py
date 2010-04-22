@@ -1,7 +1,34 @@
 #! /usr/bin/python
 import sys, os
 import struct
+import textwrap
 import numpy as np
+
+#-- Miscellaneous -------------------------------------------------------------
+def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
+    """
+    Format the attributes contained in a headerDef for pretty printing 
+    (i.e. for use in docstrings)
+    """
+    attribute_docs = ''
+    initial_indent *= ' '
+    subsequent_indent *= ' '
+
+    for key in sorted(headerDef.keys()):
+        value = headerDef[key]
+        default = value['default']
+        if isinstance(default, str):
+            default = default.strip()
+
+        doc = '%s: %s (default=%s)' % (key, value['doc'], repr(default))
+        doc = textwrap.fill(doc, initial_indent=initial_indent, 
+                subsequent_indent=subsequent_indent)
+
+        if not key.startswith('_'):
+            attribute_docs += doc + '\n'
+
+    return attribute_docs
+
 
 #-- Raw reading and writing ---------------------------------------------------
 class BinaryFile(file):
