@@ -26,7 +26,7 @@ class data2d(object):
             setattr(self, varname, var)
 
     def _readTraces(self):
-        dtype = [('x', '>f4'), ('y', '>f4'), ('traces', '%i>u1'%self._numSamples)]
+        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), ('traces', '%i>u1'%self._numSamples)]
         self._infile.seek(_headerLength)
         data = np.fromfile(self._infile, dtype=dtype, count=self._numTraces)
         self.x = data['x']
