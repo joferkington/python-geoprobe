@@ -25,6 +25,13 @@ class data2d(object):
             var = self._infile.readBinary(fmt)
             setattr(self, varname, var)
 
+    @property
+    def headerValues(self):
+        output = {}
+        for varname in _headerDef.keys():
+            output[varname] = getattr(self, varname)
+        return output
+        
     def _readTraces(self):
         dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), ('traces', '%i>u1'%self._numSamples)]
         self._infile.seek(_headerLength)
