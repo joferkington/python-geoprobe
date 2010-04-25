@@ -36,7 +36,40 @@ class horizon(object):
             containing the points in the line.    
     """
     def __init__(self, *args, **kwargs):
-        """Takes either a filename or a numpy array"""
+        """
+        Takes either a filename or a numpy array
+        
+        If a single string is given as input, the string is assumed to be a 
+        filename, and a new horizon object is constructed by reading the file
+        from disk.
+
+        Otherwise, a horizon object can be created from existing data, as 
+        described below:
+
+        If one input argument is given, it is assumed to be a structured 
+            numpy array and is used as the filled surface portion of the 
+            horizon. The input array must be convertable into an array 
+            with a dtype of horizon.POINT_DTYPE.
+        If two input arguments are given, the first is used as the filled
+            surface portion of the horizon file and the second a list of lines
+            in the same format as horizon.lines. The arrays must be convertable
+            into an array with dtype horizon.POINT_DTYPE
+        If three input arguments are given, they are assumed to be lists/arrays
+            of x, y, and z coordinates (respectively) of the points in the new 
+            horizon. 
+        Alternatively, you may specify these options using the following
+            keyword arguments: surface, lines, or x, y, and z.
+
+        For example, a horizon object can be initalized in the following ways:
+            h = geoprobe.horizon('/path/to/file')
+            h = geoprobe.horizon(data)
+            h = geoprobe.horizon(surface, lines)
+            h = geoprobe.horizon(x,y,z)
+            h = geoprobe.horizon(x=x, y=y, z=z)
+            h = geoprobe.horizon(lines=a_list_of_lines)
+            h = geoprobe.horizon(surface=surface_array)
+            h = geoprobe.horizon(surface=surface, lines=lines)
+        """
 
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
@@ -55,7 +88,12 @@ class horizon(object):
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
+    # Adding this constant so that the "correct" dtype is visible before a 
+    # horizon object is initialized
+    POINT_DTYPE = _point_dtype
+
     def _readHorizon(self, filename):
+        """Reads a horizon from disk"""
         self._file = HorizonFile(filename, 'r')
         self._header = self._file.readHeader()
 
@@ -70,6 +108,9 @@ class horizon(object):
         self.surface = self._file.surface
         self.lines = self._file.lines
 
+        # Oddly enough, Geoprobe (the actual Landmark application) seems to
+        # do this a lot... 
+        # Raise the error here to avoid problems down the road!
         if self.data.size == 0:
             raise ValueError('This file does not contain any points!')
 
