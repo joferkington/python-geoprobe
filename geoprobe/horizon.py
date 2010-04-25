@@ -122,7 +122,7 @@ class horizon(object):
             pass
         elif len(args) == 1:
             # Assume argument is data (numpy array with dtype of _point_dtype)
-            self.data = np.asarray(args[0], dtype=_point_dtype)
+            self.data = self._ensure_correct_dtype(args[0])
             self.surface = self.data
             
         elif len(args) == 2:
@@ -151,11 +151,20 @@ class horizon(object):
         else:
             raise ValueError('Invalid keyword arguments. You must specify x,y,&z, surface, or lines')
 
+    def _ensure_correct_dtype(self, data):
+        """Converts data into the proper dtype for points and raises a useful
+        error message if it fails"""
+        try:
+            data = np.asarray(data, dtype=self.POINT_DTYPE)
+        except TypeError:
+            raise TypeError('The input data cannot be converted into an array'
+                            ' with dtype=%s' % repr(self.POINT_DTYPE))
+
     def _init_from_xyz(self, x, y, z):
         """Make a new horizon object from x, y, and z arrays"""
         x,y,z = [np.asarray(item, dtype=np.float32) for item in [x,y,z]]
         if x.size == y.size == z.size:
-            self.data = np.zeros(x.size, dtype=_point_dtype)
+            self.data = np.zeros(x.size, dtype=self.POINT_DTYPE)
             self.x = x
             self.y = y
             self.z = z
@@ -166,7 +175,7 @@ class horizon(object):
     def _init_from_surface_lines(self, surface=None, lines=None):
         """Make a new horizon object from either a surface array or a list of line arrays"""
         if surface is not None:
-            surface = np.asarray(surface, dtype=_point_dtype)
+            surface = self._ensure_correct_dtype(surface)
 
         # Calculate total number of points
         numpoints = surface.size if surface else 0
@@ -175,7 +184,7 @@ class horizon(object):
                 numpoints += line.size
 
         # Make self.data and make self.lines & self.surface views into self.data
-        self.data = np.zeros(numpoints, dtype=_point_dtype)
+        self.data = np.zeros(numpoints, dtype=self.POINT_DTYPE)
 
         array_list = []
         if surface is not None:
@@ -209,7 +218,7 @@ class horizon(object):
         try:
             self._file.surface = self.surface
         except AttributeError:
-            self._file.surface = np.zeros(0, dtype=_point_dtype)
+            self._file.surface = np.zeros(0, dtype=self.POINT_DTYPE)
 
         self._file.writeAll()
 
