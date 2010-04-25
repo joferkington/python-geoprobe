@@ -3,7 +3,8 @@ import struct
 
 #-- Imports from local files --------------------------------------
 from volume import volume
-from common import BinaryFile, array2geotiff
+from common import BinaryFile 
+from common import array2geotiff
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
@@ -11,16 +12,28 @@ _point_names =  ('x',  'y',  'z', 'conf', 'type', 'herid', 'tileSize')
 _point_dtype = zip(_point_names, _point_format)
 
 class horizon(object):
-    """Reads a geoprobe horizon from disk.
+    """
+    Reads and writes geoprobe horizon files
 
     horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
     stored in the horizon file (in model coordinates, i.e. inline/crossline).  
+    These are views into horizon.data, so any changes made to these will 
+    update horizon.data and vice versa.
 
     horizon.grid is a 2d numpy array of the z-values in the horizon filled
     with horizon.nodata in regions where there aren't any z-values
 
-    horizon.{x,y,z}min and horizon.{x,y,z}max are the min's and max's 
-    of horizon.grid
+    Useful attributes set at initialization:
+        data: A structured numpy array with the fields 'x', 'y', 'z',
+            'conf', 'type', 'herid', and 'tileSize'. This array 
+            contains all the data stored in the horizon file. 
+        surface: A view into horizon.data that contains only the points
+            in the file that make up a "filled" surface. (Usually points
+            interpolated between manual picks).
+        lines: A list of manual picks stored in the horizon file. Each item
+            in the list is a tuple of a) a 4-tuple of line information 
+            (xdir, ydir, zdir, ID) and b) a view into horizon.data 
+            containing the points in the line.    
     """
     def __init__(self, *args, **kwargs):
         """Takes either a filename or a numpy array"""
@@ -38,13 +51,6 @@ class horizon(object):
         # For gridding:
         self.nodata = -9999
 
-        # Read horizon and initalize various properties
-        self.xmin = self.x.min()
-        self.ymin = self.y.min()
-        self.zmin = self.z.min()
-        self.xmax = self.x.max()
-        self.ymax = self.y.max()
-        self.zmax = self.z.max()
         # Need to make dx, dy, and dz properties... 
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
@@ -168,7 +174,18 @@ class horizon(object):
 
     @property
     def numpoints(self):
+        """The total number of points stored in the horizon 
+        (equivalent to horizon.data.size)"""
         return self.data.size
+
+    #-- xmin, xmax, etc properties ---------------------------------------------
+    xmin = property(lambda self: self.x.min(), doc='Mininum X-coordinate')
+    ymin = property(lambda self: self.y.min(), doc='Mininum Y-coordinate')
+    zmin = property(lambda self: self.z.min(), doc='Mininum Z-coordinate')
+    xmax = property(lambda self: self.x.max(), doc='Maximum X-coordinate')
+    ymax = property(lambda self: self.y.max(), doc='Maximum Y-coordinate')
+    zmax = property(lambda self: self.z.max(), doc='Maximum Z-coordinate')
+    #---------------------------------------------------------------------------
 
     #-- x,y,z properties -------------------------------------------------------
     def _get_coord(self, name):
@@ -177,13 +194,13 @@ class horizon(object):
         self.data[name] = value
     x = property(lambda self: self._get_coord('x'),
             lambda self, value: self._set_coord('x', value),
-            'X-coordinates of all points stored in the horizon')
+            doc='X-coordinates of all points stored in the horizon')
     y = property(lambda self: self._get_coord('y'),
             lambda self, value: self._set_coord('y', value),
-            'Y-coordinates of all points stored in the horizon')
+            doc='Y-coordinates of all points stored in the horizon')
     z = property(lambda self: self._get_coord('z'),
             lambda self, value: self._set_coord('z', value),
-            'Z-coordinates of all points stored in the horizon')
+            doc='Z-coordinates of all points stored in the horizon')
     #---------------------------------------------------------------------------
 
     #-- Grid Property ---------------------------------------------------------
