@@ -53,18 +53,18 @@ class ezfault(object):
 
     #Can't use self.box to set xmin, xmax, etc...
     # (self.box is in volume indicies instead of model units!)
-    @property
-    def xmin(self): return self.points.x.min()
-    @property
-    def xmax(self): return self.points.x.max()
-    @property
-    def ymin(self): return self.points.y.min()
-    @property
-    def ymax(self): return self.points.y.max()
-    @property
-    def zmin(self): return self.points.z.min()
-    @property
-    def zmax(self): return self.points.z.max()
+    xmin = property(lambda self: self.points.x.min(),
+            doc='Mininum X-coordinate (in inline/crossline)')
+    ymin = property(lambda self: self.points.y.min(),
+            doc='Mininum Y-coordinate (in inline/crossline)')
+    zmin = property(lambda self: self.points.z.min(),
+            doc='Mininum Z-coordinate (in inline/crossline)')
+    xmax = property(lambda self: self.points.x.max(),
+            doc='Maximum X-coordinate (in inline/crossline)')
+    ymax = property(lambda self: self.points.y.max(),
+            doc='Maximum Y-coordinate (in inline/crossline)')
+    zmax = property(lambda self: self.points.z.max(),
+            doc='Maximum Z-coordinate (in inline/crossline)')
 
     @property
     def ribs(self):
