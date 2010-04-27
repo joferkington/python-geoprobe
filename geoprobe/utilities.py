@@ -168,20 +168,31 @@ def coherence(data, window=(0.3, 0.3, 2.0)):
     data = np.sqrt(data)
     return data
 
-def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resampleRatio=10, rescale=False):
+def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', 
+        resampleRatio=10, rescale=False, ymin=0, ymax=None, ax=None):
     """Plots a "wiggle" trace
     Input:
         x: input data (1D numpy array)
         origin: (default, 0) value to fill above or below (float)
-        posFill: (default, black) color to fill positive wiggles with (string or None)
-        negFill: (default, None) color to fill negative wiggles with (string or None)
+        posFill: (default, black) color to fill positive wiggles with (string 
+            or None)
+        negFill: (default, None) color to fill negative wiggles with (string 
+            or None)
         lineColor: (default, black) color of wiggle trace (string or None)
-        resampleRatio: (default, 10) factor to resample traces by before plotting (1 = raw data) (float)
+        resampleRatio: (default, 10) factor to resample traces by before 
+            plotting (1 = raw data) (float)
+        rescale: (default, False) If True, rescale "x" to be between -1 and 1
+        ymin: (default, 0) The minimum y to use for plotting
+        ymax: (default, len(x)) The maximum y to use for plotting
+        ax: (default, current axis) The matplotlib axis to plot onto
     Output:
         a matplotlib plot on the current axes
     """
     from matplotlib import pyplot as plt
     from scipy.signal import cspline1d, cspline1d_eval
+
+    if ymax is None:
+        ymax = x.size
 
     # Rescale so that x ranges from -1 to 1
     if rescale:
@@ -191,32 +202,49 @@ def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', resamp
         x *= 2
         x -= 1
 
-    # Interpolate at 10x the previous density
-    y = np.arange(0,x.size,1)
-    newy = np.arange(0,x.size,1/float(resampleRatio))
+    # Interpolate at resampleRatio x the previous density
+    y = np.linspace(0, x.size, x.size)
+    interp_y = np.linspace(0, x.size, x.size * resampleRatio)
     cj = cspline1d(x)
-    interpX = cspline1d_eval(cj,newy) #,dx=1,x0=0
-    if origin == None: origin = interpX.mean()
+    interpX = cspline1d_eval(cj,interp_y) #,dx=1,x0=0
+    newy = np.linspace(ymax, ymin, interp_y.size)
+    if origin == None: 
+        origin = interpX.mean()
 
     # Plot
+    if ax is None:
+        ax = plt.gca()
+        plt.hold(True)
     if posFill is not None: 
-        plt.fill_betweenx(newy,interpX,origin,where=interpX>origin,hold=True,facecolor=posFill)
+        ax.fill_betweenx(newy, interpX, origin,
+                where=interpX > origin,
+                facecolor=posFill)
     if negFill is not None:
-        plt.fill_betweenx(newy,interpX,origin,where=interpX<origin,hold=True,facecolor=negFill)
+        ax.fill_betweenx(newy, interpX, origin,
+                where=interpX < origin,
+                facecolor=negFill)
     if lineColor is not None:
-        plt.plot(interpX,newy,color=lineColor,hold=True)
+        ax.plot(interpX, newy, color=lineColor)
 
 def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', negFill=None, lineColor='black', 
-        rescale=True, extent=None):
+        rescale=True, extent=None, ax=None):
     """Plots a series of "wiggle" traces based on a grid
     Input:
         x: input data (2D numpy array)
-        wiggleInterval: (default, 10) Plot 'wiggles' every wiggleInterval traces
-        overlap: (default, 0.7) amount to overlap 'wiggles' by (1.0 = scaled to wiggleInterval)
-        posFill: (default, black) color to fill positive wiggles with (string or None)
-        negFill: (default, None) color to fill negative wiggles with (string or None)
+        wiggleInterval: (default, 10) Plot 'wiggles' every wiggleInterval 
+            traces
+        overlap: (default, 0.7) amount to overlap 'wiggles' by (1.0 = scaled 
+            to wiggleInterval)
+        posFill: (default, black) color to fill positive wiggles with (string 
+            or None)
+        negFill: (default, None) color to fill negative wiggles with (string 
+            or None)
         lineColor: (default, black) color of wiggle trace (string or None)
-        resampleRatio: (default, 10) factor to resample traces by before plotting (1 = raw data) (float)
+        resampleRatio: (default, 10) factor to resample traces by before 
+            plotting (1 = raw data) (float)
+        extent: (default, (0, nx, 0, ny)) The extent to use for the plot. 
+            A 4-tuple of (xmin, xmax, ymin, ymax)
+        ax: (default, current axis) The matplotlib axis to plot onto.
     Output:
         a matplotlib plot on the current axes
     """
@@ -230,15 +258,19 @@ def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', negFill=None,
         grid *= 2
         grid -= 1
 
-    # TODO: Finish this!! add support for plotting with proper coords...
     if extent is None:
-        xmin, ymin = 0, 0
-        xmax, ymax = grid.shape
+        xmin, ymin = 0, grid.shape[0]
+        ymax, xmax = 0, grid.shape[1]
+    else:
+        xmin, xmax, ymin, ymax = extent
 
     ny,nx = grid.shape
+    x_loc = np.linspace(xmin, xmax, nx)
     for i in range(wiggleInterval//2, nx, wiggleInterval):
-        x = overlap * wiggleInterval/2 * grid[:,i]
-        wiggle(x+i,i,posFill,negFill,lineColor)
+        x = overlap * (wiggleInterval / 2.0) * (x_loc[1] - x_loc[0]) * grid[:,i]
+        wiggle(x + x_loc[i], origin=x_loc[i], 
+                posFill=posFill, negFill=negFill, lineColor=lineColor, 
+                ymin=ymin, ymax=ymax, ax=ax)
 
 
 def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
