@@ -94,7 +94,7 @@ class volume(object):
             # Set default attributes
             for varname, info in _headerDef.iteritems():
                 setattr(self, varname, info['default'])
-            (self.originalNx, self.originalNy, self.originalNz) = data.shape
+            (self.originalnx, self.originalny, self.originalnz) = data.shape
 
         if rescale:
             self.v0 = data.min()
