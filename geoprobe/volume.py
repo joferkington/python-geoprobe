@@ -102,7 +102,7 @@ class volume(object):
             data -= self.v0
             data /= self.dv
 
-        self.data = self._fixAxes(data.astype(np.uint8))
+        self.data = self._fixAxes(data)
 
     def _fixAxes(self,data):
         """Transposes the axes of geoprobe volume numpy
@@ -126,17 +126,26 @@ class volume(object):
         return dat
 
     def write(self, filename):
-        """Writes a geoprobe volume to disk using memmapped arrays"""
+        """Writes a geoprobe volume to disk."""
+
         # Write header values
-        self._infile = BinaryFile(filename, 'w')
+        outfile = BinaryFile(filename, 'w')
         for varname, info in _headerDef.iteritems():
             value = getattr(self, varname, info['default'])
-            self._infile.seek(info['offset'])
-            self._infile.writeBinary(info['type'], value)
+            outfile.seek(info['offset'])
+            outfile.writeBinary(info['type'], value)
 
-        self._infile.seek(_headerLength)
-        self.data.ravel('F').tofile(self._infile, format='B')
-        self._infile.close()
+        # Jump to end of header before writing data
+        outfile.seek(_headerLength)
+
+        # Write to file in Fortran order...
+        #  Not using data.ravel('F'), as it appears to make a copy if the
+        #  array is C-ordered (doubling memory usage). Instead, we just write
+        #  the transpose with the tofile method. (tofile writes in C-order 
+        #  regardless of the order of the input array, thus requring the 
+        #  transpose for both F and C ordered arrays)
+        self.data.T.tofile(outfile, format='B')
+        outfile.close()
 
     #-- data property ------------------------------------------------
     def _getData(self):
@@ -155,7 +164,7 @@ class volume(object):
             self._data = self._fixAxes(dat)
             return self._data
     def _setData(self, newData):
-        newData = np.asarray(newData).astype(np.uint8)
+        newData = np.asarray(newData, dtype=np.uint8)
         try:
             self._nx, self._ny, self._nz = newData.shape
         except ValueError, AttributeError:
