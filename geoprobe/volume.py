@@ -144,7 +144,7 @@ class volume(object):
         #  the transpose with the tofile method. (tofile writes in C-order 
         #  regardless of the order of the input array, thus requring the 
         #  transpose for both F and C ordered arrays)
-        self.data.T.tofile(outfile, format='B')
+        self.data.T.tofile(outfile)
         outfile.close()
 
     #-- data property ------------------------------------------------
