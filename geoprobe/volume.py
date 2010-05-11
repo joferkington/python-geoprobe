@@ -105,9 +105,11 @@ class volume(object):
         self.data = self._fixAxes(data)
 
     def _fixAxes(self,data):
-        """Transposes the axes of geoprobe volume numpy
-        array so that axis1=x, axis2=y, and axis3=z. Also
-        flips the z-axis, if needed."""
+        """
+        Reverses the x, y, and z axes if dx, dy, or dz (respectively) are 
+        negative.  This ensures that self.data[0,0,0] always corresponds
+        to self.xmin, self.ymin, self.zmin.
+        """
         if self.dz < 0:
             data = data[:,:,::-1]
         if self.dy < 0:
@@ -163,8 +165,11 @@ class volume(object):
                 )
             self._data = self._fixAxes(dat)
             return self._data
+
     def _setData(self, newData):
+        """Set self.data without making a copy in-memory"""
         newData = np.asarray(newData, dtype=np.uint8)
+        # Make sure we're dealing with a 3D numpy array
         try:
             self._nx, self._ny, self._nz = newData.shape
         except ValueError, AttributeError:
@@ -173,6 +178,7 @@ class volume(object):
         # dv and d0 when you're manipulating the data in some way. When making a 
         # new volume object from an existing numpy array (in _newVolume), dv and d0 are set
         self._data = newData
+
     data = property(_getData, _setData)
     #-------------------------------------------------------------------
 
