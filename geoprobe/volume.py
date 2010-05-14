@@ -315,7 +315,7 @@ class volume(object):
             Ypos: Y-Value given in model coordinates
         Output:
             A 2D (NZ x NX) numpy array"""
-        Ypos = self.model2index(Ypos)
+        Ypos = self.model2index(Ypos, axis='y')
         return self.data[:,Ypos,:].transpose()
 
     def XSlice(self, Xpos):
@@ -339,7 +339,7 @@ class volume(object):
             Zpos: Z-Value given in model coordinates
         Output:
             A 2D (NY x NX) numpy array"""
-        Zpos = self.model2index(Zpos)
+        Zpos = self.model2index(Zpos, axis='z')
         return self.data[:,:,Zpos].transpose()
 
     def model2index(self, *coords, **kwargs):
