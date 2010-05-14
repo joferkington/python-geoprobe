@@ -3,5 +3,6 @@ syntax: glob
 *.swp
 *~
 dist/
+build/
 documentation/.build/
 geoprobe/sync.sh
