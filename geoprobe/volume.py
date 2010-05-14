@@ -442,17 +442,23 @@ class volume(object):
         else: return converted
 
     def model2world(self,crossline,inline=None):
-        """Converts model coordinates to world coordinates.  
-        Accepts either a Nx2 list/numpy.array or 2 seperate
-        lists/numpy.array's with crossline, inline coordinates.
-        Returns 2 numpy arrays X and Y with world coordinates."""
+        """
+        Converts model coordinates to world coordinates.  Accepts either a Nx2
+        list/numpy.array or 2 seperate lists/numpy.array's with crossline,
+        inline coordinates.  Returns 2 numpy arrays X and Y with world
+        coordinates. If a Nx2 or 2xN array was given, returns a single Nx2 or 
+        2xN array instead of seperate x & y 1D arrays.
+        """
         return self._transformCoords(crossline, inline, self.transform)
 
     def world2model(self, x, y=None):
-        """Converts world coordinates to model coordinates.  
-        Accepts either a Nx2 list/numpy.array or 2 seperate
-        lists/numpy.array's with x, y coordinates.
-        Returns 2 numpy arrays X and Y with model coordinates."""
+        """
+        Converts world coordinates to model coordinates.  Accepts either a Nx2
+        list/numpy.array or 2 seperate lists/numpy.array's with x, y
+        coordinates.  Returns 2 numpy arrays X and Y with model coordinates.
+        If a Nx2 or 2xN array was given, returns a single Nx2 or 2xN array
+        instead of seperate x & y 1D arrays.
+        """
         return self._transformCoords(x, y, self.invtransform)
 
     def _transformCoords(self,x,y,transform):
@@ -462,15 +468,18 @@ class volume(object):
         None, assumes x is a Nx2 matrix where y is the 2nd column
         """
         #-- Process input ------------------
+        return_array, transpose = False, False
         x = np.squeeze(np.asarray(x))
 
         # If only one array is given...
         if y is None:
+            return_array = True
             # Assume x is 2xN or Nx2 and slice appropriately
             if 2 in x.shape:
                 if x.shape[0] == 2:    
                     x,y = x[0,:], x[1,:]
                 elif x.shape[1] == 2:  
+                    transpose = True
                     x,y = x[:,0], x[:,1]
                 x = np.squeeze(x)
             else:  
@@ -481,13 +490,24 @@ class volume(object):
         #-- Convert Coordinates -------------------------------------
         try:
             # Make a G-matrix from the input coords
-            dataIn = np.vstack((x,y,np.ones(ndata))) 
+            dataIn = np.vstack((x,y,np.ones(x.size))) 
         except ValueError:
             raise ValueError('X and Y inputs must be the same size!!')
         # Output world coords
         dataOut = np.dot(transform,dataIn)  
-        
-        return dataOut[0,:], dataOut[1,:]  # X,Y
+
+        #-- Output Data with Same Shape as Input --------------------
+        if return_array:
+            if transpose:
+                dataOut = dataOut.T
+            return dataOut
+        else:
+            # Return x, y
+            X,Y = dataOut[0,:], dataOut[1,:]  
+            if X.size == 1:
+                return X[0], Y[0]
+            else:
+                return X,Y
     
     @property
     def transform(self):
