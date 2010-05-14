@@ -118,9 +118,7 @@ class horizon(object):
         """Parse input when given something other than a filename"""
         
         #-- Parse Arguments ---------------------------------------------------
-        if len(args) == 0:
-            pass
-        elif len(args) == 1:
+        if len(args) == 1:
             # Assume argument is data (numpy array with dtype of _point_dtype)
             self.data = self._ensure_correct_dtype(args[0])
             self.surface = self.data
@@ -133,14 +131,7 @@ class horizon(object):
             # Assume arguments are x, y, and z arrays
             init_from_xyz(self, *args)
 
-        else:
-            print args
-            raise ValueError('Invalid number of input arguments.')
-
         #-- Parse keyword arguments -------------------------------------------
-        if len(kwargs) == 0:
-            pass
-
         elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
             self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
             
@@ -149,7 +140,7 @@ class horizon(object):
             self._init_from_surface_lines(surface, lines)
 
         else:
-            raise ValueError('Invalid keyword arguments. You must specify x,y,&z, surface, or lines')
+            raise ValueError('Invalid arguments. You must specify one of: x,y,&z, surface, or lines')
 
     def _ensure_correct_dtype(self, data):
         """Converts data into the proper dtype for points and raises a useful
