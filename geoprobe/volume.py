@@ -456,32 +456,36 @@ class volume(object):
         return self._transformCoords(x, y, self.invtransform)
 
     def _transformCoords(self,x,y,transform):
-        """Consolidates model2world and world2model.
-        Takes x,y and a transform matrix and ouputs
-        transformed coords X and Y (both are Nx1).  
-        If y is None, assumes x is a Nx2 matrix where
-        y is the 2nd column"""
-
+        """
+        Consolidates model2world and world2model.  Takes x,y and a transform
+        matrix and ouputs transformed coords X and Y (both are Nx1).  If y is
+        None, assumes x is a Nx2 matrix where y is the 2nd column
+        """
         #-- Process input ------------------
         x = np.squeeze(np.asarray(x))
+
         # If only one array is given...
         if y is None:
             # Assume x is 2xN or Nx2 and slice appropriately
             if 2 in x.shape:
-                if x.shape[0] == 2:    x,y = x[0,:], x[1,:]
-                elif x.shape[1] == 2:  x,y = x[:,0], x[:,0]
+                if x.shape[0] == 2:    
+                    x,y = x[0,:], x[1,:]
+                elif x.shape[1] == 2:  
+                    x,y = x[:,0], x[:,1]
                 x = np.squeeze(x)
             else:  
-                raise ValueError('If Y is not given, X must be an Nx2 or 2xN array!')
+                raise ValueError('If Y is not given, X must be an'
+                                 ' Nx2 or 2xN array!')
         y = np.squeeze(np.asarray(y))
-        # Check size of input
-        ndata = x.size
-        if x.size != y.size:
+        
+        #-- Convert Coordinates -------------------------------------
+        try:
+            # Make a G-matrix from the input coords
+            dataIn = np.vstack((x,y,np.ones(ndata))) 
+        except ValueError:
             raise ValueError('X and Y inputs must be the same size!!')
-
-        #-- Convert Coordinates ------------------
-        dataIn = np.vstack((x,y,np.ones(ndata))) # Input model coords in the form of a G-matrix
-        dataOut = np.dot(transform,dataIn)  # Output world Coords
+        # Output world coords
+        dataOut = np.dot(transform,dataIn)  
         
         return dataOut[0,:], dataOut[1,:]  # X,Y
     
