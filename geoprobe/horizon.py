@@ -159,6 +159,7 @@ class horizon(object):
         except TypeError:
             raise TypeError('The input data cannot be converted into an array'
                             ' with dtype=%s' % repr(self.POINT_DTYPE))
+        return data
 
     def _init_from_xyz(self, x, y, z):
         """Make a new horizon object from x, y, and z arrays"""
