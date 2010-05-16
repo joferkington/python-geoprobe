@@ -37,9 +37,11 @@ def plot(vol):
 def print_info(vol):
     """Print some basic information about "vol", a geoprobe.volume instance."""
     # Print out some basic information 
-    print 'The volume has dimensions of:', vol.nx, vol.ny, vol.nz
+    print 'The volume has dimensions of (nx, ny, nz):', vol.nx, vol.ny, vol.nz
     print 'The inline coordinates range from', vol.xmin, 'to', vol.xmax
+    print 'The inline spacing is:', vol.dxW, 'world units'
     print 'The crossline coordinates range from', vol.ymin, 'to', vol.ymax
+    print 'The crossline spacing is:', vol.dyW, 'world units'
     print 'The depth/time coordinates range from', vol.zmin, 'to', vol.zmax
 
     # Determine the locations of the corners
