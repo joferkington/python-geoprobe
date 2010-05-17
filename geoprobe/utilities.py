@@ -9,19 +9,22 @@ from horizon import horizon
 #Functions that were formerly in this file...
 from common import array2geotiff, points2strikeDip, fitPlane, normal2SD
 
-def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=False):
+def extractWindow(hor, vol, upper=0, lower=None, offset=0, 
+                region=None, masked=False):
     """Extracts a window around a horizion out of a geoprobe volume
     Input:
         hor: a geoprobe horizion object or horizion filename
         vol: a geoprobe volume object or volume filename
         upper: (default, 0) upper window interval around horizion in voxels 
         lower: (default, upper) lower window interval around horizion in voxels 
-        offset: (default, 0) amount (in voxels) to offset the horizion by along the Z-axis
-        region: (default, overlap between horizion and volume) sub-region to use instead of 
-                full extent. Must be a 4-tuple of (xmin, xmax, ymin, ymax)
-        masked: (default, False) if True, return a masked array where nodata values in the
-                horizon are masked. Otherwise, return an array where the nodata values are
-                filled with 0.
+        offset: (default, 0) amount (in voxels) to offset the horizion by along
+                the Z-axis
+        region: (default, overlap between horizion and volume) sub-region to 
+                use instead of full extent. Must be a 4-tuple of (xmin, xmax,
+                ymin, ymax)
+        masked: (default, False) if True, return a masked array where nodata 
+                values in the horizon are masked. Otherwise, return an array
+                where the nodata values are filled with 0.
     Output:
         returns a numpy volume "flattened" along the horizion
     """
@@ -57,10 +60,12 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
                 output.append(min(comparison))
         return output
 
-    # If the lower window isn't specified, assume it's equal to the upper window
+    # If the lower window isn't specified, assume it's equal to the 
+    # upper window
     if lower == None: lower=upper
 
-    # If filenames are input instead of volume/horizion objects, create the objects
+    # If filenames are input instead of volume/horizion objects, create 
+    # the objects
     if type(hor) == type('String'):
         hor = horizon(hor)
     if type(vol) == type('String'):
@@ -82,9 +87,11 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     if region is not None: 
         extents = bbox_overlap(extents, region)
         if extents is None:
-            raise ValueError('Specified region does not overlap with horizon and volume')
+            raise ValueError('Specified region does not overlap with'\
+                             ' horizon and volume')
         elif len(extents) != 4:
-            raise ValueError('"extents" must be a 4-tuple of (xmin, xmax, ymin, ymax)')
+            raise ValueError('"extents" must be a 4-tuple of'\
+                             ' (xmin, xmax, ymin, ymax)')
 
     xmin, xmax, ymin, ymax = extents
 
@@ -93,7 +100,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
     xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
     data = vol.data[xstart:xstop, ystart:ystop, :]
 
-    # Convert extents to horizion grid indicies and select subset of the horizion 
+    # Convert extents to horizion grid indicies and select 
+    # subset of the horizion 
     xstart, ystart = xmin - hor.xmin, ymin - hor.ymin
     xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
     depth = depth[xstart:xstop, ystart:ystop]
@@ -107,13 +115,15 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
 
     # Initalize the output array
     window_size = upper + lower + 1
-    # Not creating a masked array here due to speed problems when iterating through ma's
+    # Not creating a masked array here due to speed problems when 
+    # iterating through ma's
     subVolume = np.zeros((nx,ny,window_size), dtype=np.uint8)
 
     # Using fancy indexing to do this uses tons of memory...
-    # As it turns out, simple iteration is much, much more memory efficient, and almost as fast
+    # As it turns out, simple iteration is much, much more memory 
+    # efficient, and almost as fast
     mask = depth.mask      # Need to preserve the mask for later
-    depth = depth.filled() # Iterating through masked arrays is much slower, apparently
+    depth = depth.filled() # Iterating through masked arrays is much slower...
     for i in xrange(nx):
         for j in xrange(ny):
             if depth[i,j] != hor.nodata:
@@ -122,15 +132,17 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
                 top = z - upper 
                 bottom = z + lower + 1
 
-                # Be careful to extract the right vertical region in cases where the 
-                # window goes outside the data bounds (find region of overlap)
+                # Be careful to extract the right vertical region in cases
+                # where the window goes outside the data bounds (find region of
+                # overlap)
                 data_top = max([top, 0]) 
                 data_bottom = min([bottom, nz]) 
                 window_top = max([0, window_size - bottom])
                 window_bottom = min([window_size, nz - top])
 
                 # Extract the window out of data and store it in subVolume
-                subVolume[i,j,window_top:window_bottom] = data[i,j,data_top:data_bottom]
+                subVolume[i, j, window_top : window_bottom] \
+                                = data[i, j, data_top : data_bottom]
 
     # If masked is True (input option), return a masked array
     if masked:
@@ -139,7 +151,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, masked=F
         mask = np.tile(mask, (1,1,nz))
         subVolume = np.ma.array(subVolume, mask=mask)
 
-    # If upper==lower==0, (default) subVolume will be (nx,ny,1), so return 2D array instead
+    # If upper==lower==0, (default) subVolume will be (nx,ny,1), so 
+    # return 2D array instead
     subVolume = subVolume.squeeze()
 
     return subVolume
@@ -159,7 +172,8 @@ def coherence(data, window=(0.3, 0.3, 2.0)):
                 allowed.
     """
     from scipy import ndimage
-    # To avoid overflow, if we're dealing with an 8-bit array, convert it to 16-bit
+    # To avoid overflow, if we're dealing with an 8-bit array, convert 
+    # it to 16-bit
     if data.dtype == np.uint8:
         data = data.astype(np.int16) - 127
     elif data.dtype == np.int8:
@@ -226,8 +240,8 @@ def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black',
     if lineColor is not None:
         ax.plot(interpX, newy, color=lineColor)
 
-def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', negFill=None, lineColor='black', 
-        rescale=True, extent=None, ax=None):
+def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', 
+        negFill=None, lineColor='black', rescale=True, extent=None, ax=None):
     """Plots a series of "wiggle" traces based on a grid
     Input:
         x: input data (2D numpy array)
@@ -267,10 +281,13 @@ def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black', negFill=None,
     ny,nx = grid.shape
     x_loc = np.linspace(xmin, xmax, nx)
     for i in range(wiggleInterval//2, nx, wiggleInterval):
-        x = overlap * (wiggleInterval / 2.0) * (x_loc[1] - x_loc[0]) * grid[:,i]
+        x = overlap * (wiggleInterval / 2.0) \
+                    * (x_loc[1] - x_loc[0]) \
+                    * grid[:,i]
         wiggle(x + x_loc[i], origin=x_loc[i], 
-                posFill=posFill, negFill=negFill, lineColor=lineColor, 
-                ymin=ymin, ymax=ymax, ax=ax)
+                posFill=posFill, negFill=negFill, 
+                lineColor=lineColor, ymin=ymin, 
+                ymax=ymax, ax=ax)
 
 
 def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
@@ -286,8 +303,8 @@ def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
         title (default: 'North'): The title of the plot
     """
     # TODO: This needs to pass kwargs on to the plotting routines
-    # TODO: (also, take the title parameter out) 
-    # TODO: (or just remove this function entirely? It shouldn't really be here)
+    # TODO: (or just remove this function entirely? It shouldn't 
+    # TODO: really be here)
     from matplotlib import pyplot as plt
     data = np.asarray(data)
     n = data.size
@@ -298,7 +315,8 @@ def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
         data = np.append(data, data+180)
         data[data>360] -= 360
 
-    # Rotate the data so that north will plot at the top (90deg, in polar space)
+    # Rotate the data so that north will plot at the top 
+    # (90deg, in polar space)
     data = 90-data
     data[data<0] += 360
 
@@ -307,7 +325,8 @@ def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.7], polar=True, axisbg='#d5de9c')
 
     # Change the labeling so that north is at the top
-    plt.thetagrids(range(0,360,45), ['90','45','0','315','270','225','180','135'])
+    plt.thetagrids(range(0,360,45), 
+            ['90','45','0','315','270','225','180','135'])
 
     # Plot a histogram on the polar axes
     data = np.radians(data)

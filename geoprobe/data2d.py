@@ -6,14 +6,16 @@ from _2dHeader import headerDef as _headerDef
 from _2dHeader import headerLength as _headerLength
 
 class data2d(object):
-    # Not a "normal" docstring so that "useful attributes" is set at initialization
+    # Not a "normal" docstring so that "useful attributes" is set 
+    # at initialization
     __doc__ = """
     Reads geoprobe 2D data files.
 
     Useful Attributes:
         data: array containg the seismic data as uint8's
         x: a list of the x-coordinates of each trace
-        y: a list of the y-coordinates of each trace\n%s""" % format_headerDef_docs(_headerDef)
+        y: a list of the y-coordinates of each trace\n%s
+    """ % format_headerDef_docs(_headerDef)
 
     def __init__(self, filename):
         """
@@ -51,7 +53,8 @@ class data2d(object):
         Read all traces (everything other than the file header) 
         from self._infile
         """
-        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), ('traces', '%i>u1'%self._numSamples)]
+        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), 
+                ('traces', '%i>u1'%self._numSamples)]
         self._infile.seek(_headerLength)
         data = np.fromfile(self._infile, dtype=dtype, count=self._numTraces)
         self.x = data['x']

@@ -35,7 +35,8 @@ class ezfault(object):
         self.face = int(self.face[1])
 
         #3rd Line: "BOX {%xmin %ymin %zmin %xmax %ymax %zmax}"
-        #  Bounding Box (for some weird reason, this is in volume indicies instead of model units!!)
+        #  Bounding Box (for some weird reason, this is in volume indicies 
+        #  instead of model units!!)
         self.box = self._infile.readline().strip()[5:-1].split()
         self.box = [int(item) for item in self.box]
 
@@ -89,7 +90,8 @@ class ezfault(object):
             if line == '':  
                 raise StopIteration #End of File
             elif line.strip() != 'CURVE':  
-                raise ValueError('Expected next line to be "CURVE", got %s' % line.strip())
+                raise ValueError('Expected next line to be "CURVE",'\
+                                ' got %s' % line.strip())
 
             # Skip the next 4 lines, and store the 5th for processing
             for i in range(5): line = self._infile.readline()
@@ -133,8 +135,8 @@ class ezfault(object):
         Output:
             strike, dip
         """
-        return utilities.points2strikeDip(self.points.x, self.points.y, self.points.z,
-                          vol=vol, velocity=velocity)
+        return utilities.points2strikeDip(self.points.x, self.points.y, 
+                        self.points.z, vol=vol, velocity=velocity)
 
     def interpolate(self, xi, yi):
         from scipy import interpolate
@@ -180,8 +182,12 @@ class ezfault(object):
             dx, dy = abs(vol.dx), abs(vol.dy)
 
             # Make sure we start at a volume index
-            xstart, xstop = [vol.index2model(vol.model2index(item)) for item in [xstart, xstop] ] 
-            ystart, ystop= [vol.index2model(vol.model2index(item, axis='y'), axis='y') for item in [ystart, ystop] ] 
+            xstart, xstop = [vol.index2model(vol.model2index(item)) 
+                            for item in [xstart, xstop] ] 
+            ystart, ystop= [vol.index2model(
+                                vol.model2index(item, axis='y'), 
+                                axis='y') 
+                            for item in [ystart, ystop] ] 
 
         else: 
             if dx is None: dx = 1

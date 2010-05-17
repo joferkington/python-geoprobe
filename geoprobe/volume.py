@@ -14,14 +14,16 @@ from common import BinaryFile
 from common import format_headerDef_docs
 
 def isValidVolume(filename):
-    """Tests whether a filename is a valid geoprobe file. Returns boolean True/False."""
+    """Tests whether a filename is a valid geoprobe file. Returns boolean 
+    True/False."""
     testvol = volume(filename)
     
     volID = testvol.magicNum
     volSize = os.stat(filename).st_size
     predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
 
-    # VolID == 43970 is a version 2 geoprobe volume (The only type currently supported)
+    # VolID == 43970 is a version 2 geoprobe volume (The only type 
+    # currently supported)
     if (volID!=43970) or (volSize!=predSize): return False
     else: return True
 
@@ -31,40 +33,46 @@ class volume(object):
     __doc__ = """
     Reads and writes geoprobe volumes
     
-    Useful attributes set at initialization:\n%s""" % format_headerDef_docs(_headerDef)
+    Useful attributes set at initialization:\n%s
+    """ % format_headerDef_docs(_headerDef)
 
     # TODO: Implement a clip method
 
     def __init__(self, input, copyFrom=None, rescale=True):
-        """Read an existing geoprobe volue or make a new one based on input data
+        """
+        Read an existing geoprobe volue or make a new one based on input data
             Input: 
-                input: Either the path to a geoprobe volume file or data to create
-                        a geoprobe object from (either a numpy array or an object
-                        convertable into one). The following keyword arguments only
-                        apply when creating a new volume from data, not reading from
-                        a file.
-                copyFrom (default: None): A geoprobe volume object or path to a geoprobe
-                        volume file to copy relevant header values from for the new 
-                        volume object (used only when creating a new volume from a
-                        numpy array).
-                rescale (default: True): Boolean True/False.  If True, the data will be
-                        rescaled so that data.min(), data.max() correspond to 0, 255 in
-                        volume.data before being converted to 8-bit values.  If False, 
-                        the data data will not be rescaled before converting to type 
-                        uint8. (i.e. 0.9987 --> 0, 257.887 --> 1, etc due to rounding
-                        and wrap around)""" 
+                input: Either the path to a geoprobe volume file or data to 
+                        create a geoprobe object from (either a numpy array or
+                        an object convertable into one). The following keyword
+                        arguments only apply when creating a new volume from
+                        data, not reading from a file.
+                copyFrom (default: None): A geoprobe volume object or path to a
+                        geoprobe volume file to copy relevant header values
+                        from for the new volume object (used only when creating
+                        a new volume from a numpy array).
+                rescale (default: True): Boolean True/False.  If True, the data 
+                        will be rescaled so that data.min(), data.max()
+                        correspond to 0, 255 in volume.data before being
+                        converted to 8-bit values.  If False, the data data
+                        will not be rescaled before converting to type uint8.
+                        (i.e. 0.9987 --> 0, 257.887 --> 1, etc due to rounding
+                        and wrap around)
+        """ 
 
         # What were we given as input?  
         if isinstance(input, str):  
             # Assume strings are filenames of a geoprobe array
             self._readVolume(input)
         else:
-            # If it's not a string, just assume it's a numpy array or convertable
-            # into one and try to make a new volume out of it
+            # If it's not a string, just assume it's a numpy array or
+            # convertable into one and try to make a new volume out of it
             self._newVolume(input, copyFrom, rescale)
  
     def _readVolume(self,filename):
-        """Reads the header of a geoprobe volume and sets attributes based on it"""
+        """
+        Reads the header of a geoprobe volume and sets attributes based on it
+        """
     
         #Probably best to let the calling program handle IO errors
         self._filename = filename
@@ -84,12 +92,14 @@ class volume(object):
 
         #Set up the header Dictionary
         if copyFrom:
-            if isinstance(copyFrom, str): # Assume the string is the filname of a geoprobe volume
+            # Assume the string is the filname of a geoprobe volume
+            if isinstance(copyFrom, str): 
                 copyFrom = volume(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
             except AttributeError:
-                raise TypeError('This does not appear to be a valid geoprobe volume object')
+                raise TypeError('This does not appear to be a valid'\
+                                ' geoprobe volume object')
         else:
             # Set default attributes
             for varname, info in _headerDef.iteritems():
@@ -149,7 +159,7 @@ class volume(object):
         self.data.T.tofile(outfile)
         outfile.close()
 
-    #-- data property ------------------------------------------------
+    #-- data property --------------------------------------------------------
     def _getData(self):
         """A 3D numpy array of the volume data.  Contains raw uint8 values.
         If the volume object is based on a file, this is a memory-mapped-file
@@ -158,7 +168,8 @@ class volume(object):
         try:
             return self._data
         except AttributeError:
-            # If this hasn't been called already, make a memory-mapped-file numpy array
+            # If this hasn't been called already, make a memory-mapped-file 
+            # numpy array
             dat = np.memmap(filename=self._filename, mode='r',
                 offset=_headerLength, order='F', 
                 shape=(self._nx, self._ny, self._nz) 
@@ -174,41 +185,51 @@ class volume(object):
             self._nx, self._ny, self._nz = newData.shape
         except ValueError, AttributeError:
             raise TypeError('Data must be a 3D numpy array')
-        # We don't update dv and d0 here.  This is to avoid overwriting the "real"
-        # dv and d0 when you're manipulating the data in some way. When making a 
-        # new volume object from an existing numpy array (in _newVolume), dv and d0 are set
+
+        # We don't update dv and d0 here.  This is to avoid overwriting the
+        # "real" dv and d0 when you're manipulating the data in some way. When
+        # making a new volume object from an existing numpy array (in
+        # _newVolume), dv and d0 are set
         self._data = newData
 
     data = property(_getData, _setData)
-    #-------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
 
-    #-- headerValues property (avoiding @headerValues.setter to keep compatibility w/ python2.5)----
+    #-- headerValues property (avoiding @headerValues.setter to keep 
+    #-- compatibility w/ python2.5)----
     def _getHeaderValues(self):
-        """A dict with a key, value pair for each value in the geoprobe volume file 
-        header.  These are stored as class attributes in each volume instance.
-        Do not set vol.headerValues['something'] = newValue. This will silently fail to 
-        update vol.something. However, setting vol.headerValues = {'something':newValue} 
-        will work fine.  Normally, header values should be set directly through the volume's
-        attributes, e.g. vol.something = newValue."""
-        # Return the current instance attributes that are a part of the header definition  
+        """
+        A dict with a key, value pair for each value in the geoprobe volume
+        file header.  These are stored as class attributes in each volume
+        instance.  Do not set vol.headerValues['something'] = newValue. This
+        will silently fail to update vol.something. However, setting
+        vol.headerValues = {'something':newValue} will work fine.  Normally,
+        header values should be set directly through the volume's attributes,
+        e.g. vol.something = newValue.
+        """
+        # Return the current instance attributes that are a part of the 
+        # header definition  
         values = {}
         for key in _headerDef:
             # If it's been deleted for some reason, return the default value
             default = _headerDef[key]['default']  
             values[key] = getattr(self, key, default)
         return values
+
     def _setHeaderValues(self, input):
-        # This needs to raise an error if set via headerValues['x'] = y! Don't know how to do it easily, though...
+        # This needs to raise an error if set via headerValues['x'] = y! 
+        # Don't know how to do it easily, though...
         for key, value in input.iteritems():
             # Only set things in input that are normally in the header
             if key in _headerDef:
                 setattr(self, key, input[key])
+
     headerValues = property(_getHeaderValues, _setHeaderValues)
-    #------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
 
-    #-- xmin, xmax, etc -----------------------------------------------------------------------
+    #-- xmin, xmax, etc -------------------------------------------------------
     def _getVolumeBound(self, axis, max=True): 
         n = [self.nx, self.ny, self.nz][axis]
         d = [self.dx, self.dy, self.dz][axis]
@@ -219,6 +240,7 @@ class volume(object):
             return stop
         else: 
             return start
+
     def _setVolumeBound(self, value, axis, max=True):
         axisLetter = ['x','y','z'][axis]
         n = [self.nx, self.ny, self.nz][axis]
@@ -229,27 +251,32 @@ class volume(object):
         setattr(self, axisLetter+'0', value)
 
     xmin = property(lambda self: self._getVolumeBound(axis=0, max=False), 
-                    lambda self, value: self._setVolumeBound(value, axis=0, max=False),
-                    doc="Mininum x model coordinate")
+            lambda self, value: self._setVolumeBound(value, axis=0, max=False),
+            doc="Mininum x model coordinate")
+
     ymin = property(lambda self: self._getVolumeBound(axis=1, max=False), 
-                    lambda self, value: self._setVolumeBound(value, axis=1, max=False),
-                    doc="Mininum y model coordinate")
+            lambda self, value: self._setVolumeBound(value, axis=1, max=False),
+            doc="Mininum y model coordinate")
+
     zmin = property(lambda self: self._getVolumeBound(axis=2, max=False), 
-                    lambda self, value: self._setVolumeBound(value, axis=2, max=False),
-                    doc="Mininum z model coordinate")
+            lambda self, value: self._setVolumeBound(value, axis=2, max=False),
+            doc="Mininum z model coordinate")
+
     xmax = property(lambda self: self._getVolumeBound(axis=0, max=True), 
-                    lambda self, value: self._setVolumeBound(value, axis=0, max=True),
-                    doc="Maximum x model coordinate")
+            lambda self, value: self._setVolumeBound(value, axis=0, max=True),
+            doc="Maximum x model coordinate")
+
     ymax = property(lambda self: self._getVolumeBound(axis=1, max=True), 
-                    lambda self, value: self._setVolumeBound(value, axis=1, max=True),
-                    doc="Maximum y model coordinate")
+            lambda self, value: self._setVolumeBound(value, axis=1, max=True),
+            doc="Maximum y model coordinate")
+
     zmax = property(lambda self: self._getVolumeBound(axis=2, max=True), 
-                    lambda self, value: self._setVolumeBound(value, axis=2, max=True),
-                    doc="Maximum z model coordinate")
-    #-----------------------------------------------------------------------------------
+            lambda self, value: self._setVolumeBound(value, axis=2, max=True),
+            doc="Maximum z model coordinate")
+    #--------------------------------------------------------------------------
 
 
-    #-- nx, ny, nz ---------------------------------------------------------------------
+    #-- nx, ny, nz ------------------------------------------------------------
     @property
     def nx(self):
         """The number of x values in the array (read-only)"""
@@ -262,10 +289,11 @@ class volume(object):
     def nz(self):
         """The number of z values in the array (read-only)"""
         return self.data.shape[2]
-    #-----------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
 
-    # Need to fix these... should be 3x2 instead of 2x3... fix transform when I do.
+    # Need to fix these... should be 3x2 instead of 2x3... 
+    # fix transform when I do!
 
     #-- worldCoords property-------------------------------------
     def _getWorldCoords(self):
@@ -281,7 +309,8 @@ class volume(object):
 
     #-- modelCoords property-------------------------------------
     #   georef format: Xw1,Xw2,Xw3,Yw1,Yw2,Yw3,Ym1,Ym2,Ym3,Xm1,Xm2,Xm3
-    #   This means that we need to flipud the modelCoords!! (looks suspicious, double-check)
+    #   This means that we need to flipud the modelCoords!! 
+    #   (looks suspicious, double-check)
     def _getModelCoords(self):
         """A 2x3 array containing 3 points in model coordinates corresponding
         to the points in worldCoords.
@@ -353,7 +382,8 @@ class volume(object):
             axis (default None): The axis that the given model coordinate
                 is from.  Use 0,1,2 or 'x','y','z'.  
         Output:
-            A tuple of converted coordinates (or just the coord if only one was input)
+            A tuple of converted coordinates (or just the coord if only one 
+            was input)
         Examples:
             XI = volume.model2index(X)
             XI,YI = volume.model2index(X,Y)
@@ -374,7 +404,8 @@ class volume(object):
             axis (default None): The axis that the given model coordinate
                 is from.  Use 0,1,2 or 'x','y','z'.  
         Output:
-            A tuple of converted indicies (or just the index if only one was input)
+            A tuple of converted indicies (or just the index if only one was 
+            input)
         Examples:
             X = volume.index2model(XI)
             X,Y = volume.index2model(XI,YI)
@@ -407,7 +438,9 @@ class volume(object):
             value = np.asarray(value)
 
             # Select the proper starting point and step value
-            axis = axis % 3 # This is to allow some odd but useful stuff... E.g. converting Y,Z pairs
+            #   The "axis % 3" is to allow some odd but useful stuff... 
+            #   E.g. converting Y,Z pairs
+            axis = axis % 3 
             mins = [self.xmin, self.ymin, self.zmin]
             Ds = [abs(self.dx), abs(self.dy), abs(self.dz)]
             min, d = mins[axis], Ds[axis]
@@ -419,9 +452,9 @@ class volume(object):
                 idx = (value - min) / d
                 return idx.astype(np.int)
 
-        #-- Handle user input ------------------------------------------------------ 
+        #-- Handle user input -------------------------------------------------
 
-        # Set the default values of axis and inverse (unfortunately, have to use **kwargs)
+        # Set the default values of axis and inverse 
         axis = kwargs.get('axis', 0)
         inverse = kwargs.get('inverse', False)
 
