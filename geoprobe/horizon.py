@@ -100,7 +100,8 @@ class horizon(object):
         if self._header == "#GeoProbe Horizon V2.0 ascii\n":
             raise TypeError('Ascii horizons not currently supported')
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
-            raise TypeError('This does not appear to be a valid geoprobe horizon')
+            raise TypeError('This does not appear to be a valid geoprobe'\
+                            ' horizon')
         
         self.data = self._file.readAll()
 
@@ -136,11 +137,13 @@ class horizon(object):
             self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
             
         elif ('surface' in kwargs) or ('lines' in kwargs):
-            surface, lines = kwargs.pop('surface', None), kwargs.pop('lines', None)
+            surface = kwargs.pop('surface', None), 
+            lines = kwargs.pop('lines', None)
             self._init_from_surface_lines(surface, lines)
 
         else:
-            raise ValueError('Invalid arguments. You must specify one of: x,y,&z, surface, or lines')
+            raise ValueError('Invalid arguments. You must specify one of:'\
+                             ' x,y,&z, surface, or lines')
 
     def _ensure_correct_dtype(self, data):
         """Converts data into the proper dtype for points and raises a useful
@@ -165,7 +168,10 @@ class horizon(object):
             raise ValueError('x, y, and z arrays must be the same length')
 
     def _init_from_surface_lines(self, surface=None, lines=None):
-        """Make a new horizon object from either a surface array or a list of line arrays"""
+        """
+        Make a new horizon object from either a surface array or a list of 
+        line arrays
+        """
         if surface is not None:
             surface = self._ensure_correct_dtype(surface)
 
@@ -220,16 +226,16 @@ class horizon(object):
         (equivalent to horizon.data.size)"""
         return self.data.size
 
-    #-- xmin, xmax, etc properties ---------------------------------------------
+    #-- xmin, xmax, etc properties --------------------------------------------
     xmin = property(lambda self: self.x.min(), doc='Mininum X-coordinate')
     ymin = property(lambda self: self.y.min(), doc='Mininum Y-coordinate')
     zmin = property(lambda self: self.z.min(), doc='Mininum Z-coordinate')
     xmax = property(lambda self: self.x.max(), doc='Maximum X-coordinate')
     ymax = property(lambda self: self.y.max(), doc='Maximum Y-coordinate')
     zmax = property(lambda self: self.z.max(), doc='Maximum Z-coordinate')
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
-    #-- x,y,z properties -------------------------------------------------------
+    #-- x,y,z properties ------------------------------------------------------
     def _get_coord(self, name):
         return self.data[name]
     def _set_coord(self, name, value):
@@ -243,7 +249,7 @@ class horizon(object):
     z = property(lambda self: self._get_coord('z'),
             lambda self, value: self._set_coord('z', value),
             doc='Z-coordinates of all points stored in the horizon')
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 
     #-- Grid Property ---------------------------------------------------------
     def _get_grid(self):
@@ -253,7 +259,9 @@ class horizon(object):
             return self._grid
         except AttributeError:
             x, y, z = self.x, self.y, self.z
-            grid = np.ma.masked_all((y.ptp() + 1, x.ptp() +1 ), dtype=np.float32)
+            grid = np.ma.masked_all(
+                            (y.ptp() + 1, x.ptp() + 1 ), 
+                            dtype=np.float32)
             grid.fill_value = self.nodata
             I = np.array(x - x.min(), dtype=np.int)
             J = np.array(y - y.min(), dtype=np.int)
@@ -294,15 +302,16 @@ class horizon(object):
         The Z values in the output tiff will be stored as 32bit floats.
         Input:
             filename:  Output filename
-            vol (optional): A geoprobe volume object or path to a geoprobe volume file. 
-                If vol is specified, the geotiff will be georeferenced based on the
-                data in the volume header (and will therefore be in same projection
-                as the volume's world coordinates).  Otherwise the geotiff is created
-                using the model coordinates stored in the geoprobe horizon file.
+            vol (optional): A geoprobe volume object or path to a geoprobe 
+                volume file.  If vol is specified, the geotiff will be
+                georeferenced based on the data in the volume header (and will
+                therefore be in same projection as the volume's world
+                coordinates).  Otherwise the geotiff is created using the model
+                coordinates stored in the geoprobe horizon file.
             nodata (default=self.nodata (-9999)): Value to use for NoData.
-            zscale (optional): Scaling factor to use for the Z-values.  If vol is
-                specified, and vol.dz is negative, this defaults to -1.  Otherwise
-                this defaults to 1.
+            zscale (optional): Scaling factor to use for the Z-values.  If vol
+                is specified, and vol.dz is negative, this defaults to -1.
+                Otherwise this defaults to 1.
         """
         if vol is not None:
             if type(vol) == type('string'): 
@@ -327,8 +336,8 @@ class horizon(object):
         data.fill_value = nodata
         data *= zscale
 
-        array2geotiff(data, filename, nodata=nodata, extents=(Xoffset, Yoffset), transform=transform)
-
+        array2geotiff(data, filename, nodata=nodata, 
+                      extents=(Xoffset, Yoffset), transform=transform)
 
 
 #-- This is currently very sloppy code... Need to clean up and document
@@ -385,9 +394,9 @@ class HorizonFile(BinaryFile):
 
     def readAll(self):
         """
-        Reads in the entire horizon file and returns a numpy array with the fields 
-        ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') for each point in the 
-        horizon.
+        Reads in the entire horizon file and returns a numpy array with the
+        fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') for each
+        point in the horizon.
         """
         # Note: The total number of points in the file is not directly stored 
         #   on disk. Therefore, we must read through the entire file, store 
