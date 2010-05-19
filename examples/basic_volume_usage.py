@@ -1,6 +1,7 @@
 """
-A quick example of viewing some data using python-geoprobe
+A quick example of viewing data stored in a geoprobe volume file.
 """
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,8 +9,11 @@ import matplotlib.pyplot as plt
 import geoprobe
 
 def main():
+    # Path to the example data dir relative to the location of this script.
+    datadir = os.path.dirname(__file__) + '/data/'
+
     # Read an existing geoprobe volume
-    vol = geoprobe.volume('data/Volumes/example.vol')
+    vol = geoprobe.volume(datadir + 'Volumes/example.vol')
 
     # Print some info
     print_info(vol)
