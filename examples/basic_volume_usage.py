@@ -10,6 +10,7 @@ import geoprobe
 
 def main():
     # Path to the example data dir relative to the location of this script.
+    # This is just so that the script can be called from a different directory
     datadir = os.path.dirname(__file__) + '/data/'
 
     # Read an existing geoprobe volume
