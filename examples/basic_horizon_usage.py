@@ -21,6 +21,8 @@ def main():
 
 def print_info(hor):
     """Print some basic information about "hor", a geoprobe.horizon instance"""
+    print 'The horizon has a total of %i points, %i of which are'\
+          ' auto-tracked' % (hor.data.size, hor.surface.size)
     print 'The horizon has %i manually picked lines' % len(hor.lines)
     print 'The inline coordinates range from', hor.xmin, 'to', hor.xmax
     print 'The crossline coordinates range from', hor.ymin, 'to', hor.ymax
