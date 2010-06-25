@@ -1,0 +1,19 @@
+Welcome to my project's documentation!
+======================================
+
+Contents:
+
+.. toctree::
+    :maxdepth: 2
+
+
+Indices and tables
+==================
+* :ref:`modindex`
+* :ref:`search`
+
+:mod:`geoprobe` -- Reference
+=============================================
+.. automethod:: geoprobe.volume.__init__
+.. autoclass:: geoprobe.volume
+.. autoattribute:: geoprobe.volume.dx

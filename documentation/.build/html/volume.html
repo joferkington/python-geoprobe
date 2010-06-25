@@ -1,0 +1,671 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+ 
+ <title>python-pocdock - Google Code</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ 
+ <link rel="shortcut icon" href="http://code.google.com/favicon.ico"/>
+ <link type="text/css" rel="stylesheet"
+       href="_static/custom.css" />
+ <link type="text/css" rel="stylesheet"
+       href="http://code.google.com/hosting/css/d_20081006.css" />
+ <link rel="stylesheet"  type="text/css"
+       href="_static/pygments.css" /> 
+ 
+ <link type="application/atom+xml" rel="alternate"
+ href="/feeds/p/python-pocdock/svnchanges/basic?path=/wiki/" />
+ 
+ 
+<!--[if IE]>
+ <link type="text/css" rel="stylesheet"
+       href="http://code.google.com/hosting/css/d_ie.css" />
+<![endif]-->
+
+<script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+          URL_ROOT:    '',
+          VERSION:     '0.1',
+          COLLAPSE_MODINDEX: false,
+          FILE_SUFFIX: '.html'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html" />
+    <link rel="index" title="Global index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="python-geoprobe v0.1 documentation" href="index.html" />
+</head>
+<body class="t6">
+ <div id=gaia>
+  <font size="-1">
+ 
+ <a href="http://code.google.com/p/support/wiki/WhatsNew" style="color:#a03">What's new?</a>
+ | <a href="http://code.google.com/p/support/">Help</a>
+ 
+ </font> 
+
+ </div>
+ <table style="padding:0px; margin: 0px 0px -6px 0; width:100%" cellpadding=0 cellspacing=0>
+ <tr>
+ <td style="width:153px"><a href="/"><img src="http://www.gstatic.com/codesite/ph/images/code_sm.png" width=153 height=55 alt="Google"/></a></td>
+ <td style="padding-left: 1.5em">
+ 
+ <div id="pname">
+ <a href="http://code.google.com/p/python-pocdock/" style="text-decoration:none; color:#000">python-pocdock</a>
+ 
+ </div>
+ <div id="psum">
+ <i><a href="http://code.google.com/p/python-pocdock/" style="text-decoration:none; color:#000">python-geoprobe v0.1 documentation</a></i>
+ </div>
+ 
+ </td>
+ <td style="white-space:nowrap; text-align:right">
+ 
+ <form action="http://code.google.com/hosting/search">
+ <input size=30 name=q value=""/>
+ <input type=submit name=projectsearch value="Search Projects" />
+ <input type=submit name=websearch value="Search the Web" />
+ </form>
+ 
+ </tr>
+ </table>
+
+
+<table id="mt" cellspacing="0" cellpadding="0" width="100%" border="0">
+ <tr>
+ <th onclick="if (!cancelBubble) _go('http://code.google.com/p/python-pocdock/');">
+ <div class="tab inactive">
+ <div class="round4"></div>
+ <div class="round2"></div>
+ <div class="round1"></div>
+ <div class="box-inner">
+ <a onclick="cancelBubble=true;" href="http://code.google.com/p/python-pocdock/">Project&nbsp;Home</a>
+ </div>
+ </div>
+ </th><td>&nbsp;&nbsp;</td>
+ 
+ 
+ 
+ 
+ <th onclick="if (!cancelBubble) _go('http://code.google.com/p/python-pocdock/downloads/list');">
+ <div class="tab inactive">
+ <div class="round4"></div>
+ <div class="round2"></div>
+ <div class="round1"></div>
+ <div class="box-inner">
+ <a onclick="cancelBubble=true;" href="http://code.google.com/p/python-pocdock/downloads/list">Downloads</a>
+ </div>
+ </div>
+ </th><td>&nbsp;&nbsp;</td>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ <th onclick="if (!cancelBubble) _go('http://code.google.com/p/python-pocdock/issues/list');">
+ <div class="tab inactive">
+ <div class="round4"></div>
+ <div class="round2"></div>
+ <div class="round1"></div>
+ <div class="box-inner">
+ <a onclick="cancelBubble=true;" href="http://code.google.com/p/python-pocdock/issues/list">Issues</a>
+ </div>
+ </div>
+ </th><td>&nbsp;&nbsp;</td>
+ 
+ 
+ 
+ 
+ 
+ 
+ <th onclick="if (!cancelBubble) _go('http://code.google.com/p/python-pocdock/source/list');">
+ <div class="tab inactive">
+ <div class="round4"></div>
+ <div class="round2"></div>
+ <div class="round1"></div>
+ <div class="box-inner">
+ <a onclick="cancelBubble=true;" href="http://code.google.com/p/python-pocdock/source/list">Source</a>
+ </div>
+ </div>
+ </th><td>&nbsp;&nbsp;</td>
+ 
+ 
+ 
+ <td width="100%">&nbsp;</td>
+ </tr>
+</table>
+<table cellspacing="0" cellpadding="0" width="100%" align="center" border="0" class="st">
+ <tr>
+ 
+ 
+ 
+ <td>
+ <div class="issueList">
+<div class=isf>
+ 
+ 
+ 
+ <a href="index.html">python-geoprobe v0.1 documentation</a> |
+ <span>
+   <a href="genindex.html" title="General Index"
+      accesskey="I">index</a>
+ </span> |
+ <span class="inIssueList">
+   <span>Search</span>
+    <form action="search.html" method="GET" style="display:inline">
+      <input size=30 name=q value=""/>
+      <input type=submit name=projectsearch value="Search Documentation" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+ </span>
+
+</div>
+</div>
+
+ </td>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ <td height=4 align=right valign=top class="bevel-right">
+ <div class="round4"></div>
+ <div class="round2"></div>
+ <div class="round1"></div>
+ </td>
+ </tr>
+</table>
+<script>
+ var cancelBubble = false;
+ function _go(url) { document.location = url; }
+</script>
+
+<div id="maincol">
+<!-- IE -->
+
+
+
+<style>
+ #downloadbox { 
+ padding: 6px; 
+ overflow: hidden;
+ white-space: nowrap;
+ text-overflow: ellipsis;
+ }
+ #downloadbox a {
+ margin: 0 0 0 0;
+ display: block;
+ padding-left: 0px;
+ }
+ #owners a, #members a { white-space: nowrap; }
+</style>
+
+<div style="float:right; width:25em; margin:0 0 1em 2em">
+
+ 
+ 
+ 
+ <div style="background:#ddf8cc; margin-bottom: 5px;table-layout:fixed">
+
+ <div class="round4"></div>
+
+ <div class="round2"></div>
+ <div class="round1"></div>
+ <div class="box-inner">
+ <div id=downloadbox>
+  <b>Table of Contents</b><br/>
+  <table class="pmeta toc" cellpadding=5><tr><td>
+	<ul>
+<li><a class="reference external" href="">Welcome to my project&#8217;s documentation!</a></li>
+<li><a class="reference external" href="#volume-reference"><tt class="docutils literal"><span class="pre">volume</span></tt> &#8211; Reference</a></li>
+</ul>
+
+  </td></tr></table>
+
+ 
+ </div>
+ </div>
+ <div class="round1"></div>
+ <div class="round2"></div>
+ <div class="round4"></div>
+ </div>
+ 
+ 
+
+
+ </div>
+</div>
+
+ <div style="padding:0 3em 1.2em 0">
+   
+     
+  
+  <div class="section" id="welcome-to-my-project-s-documentation">
+<h1>Welcome to my project&#8217;s documentation!<a class="headerlink" href="#welcome-to-my-project-s-documentation" title="Permalink to this headline">¶</a></h1>
+</div>
+<div class="section" id="volume-reference">
+<h1><tt class="xref docutils literal"><span class="pre">volume</span></tt> &#8211; Reference<a class="headerlink" href="#volume-reference" title="Permalink to this headline">¶</a></h1>
+<p>Geoprobe volume files contain a 3D array of values discretized and stored as
+unsigned 8-bit integers. Reading from and writing to Geoprobe volumes is supported
+through the volume class.</p>
+<dl class="class">
+<dt id="geoprobe.volume">
+<!--[geoprobe.volume]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">volume</tt><big>(</big><em>input</em>, <em>copyFrom=None</em>, <em>rescale=True</em><big>)</big><a class="headerlink" href="#geoprobe.volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads and writes geoprobe volumes</p>
+<dl class="docutils">
+<dt>Useful attributes set at initialization:</dt>
+<dd><dl class="first docutils">
+<dt>dv: Voxel value scaling factor (Physical voxel values = V*dv +</dt>
+<dd>v0, where V is the raw uint8 value in volume.data)
+(default=1)</dd>
+</dl>
+<p>dx: X-axis scaling factor (e.g. x = i*dx + x0) (default=1)
+dy: Y-axis scaling factor (e.g. y = j*dy + y0) (default=1)
+dz: Z-axis scaling factor (e.g. z = k*dz + z0) (default=1)
+georef: 3 sets of points for georeferencing. order: worldx1,</p>
+<blockquote>
+worldx2, worldx3, worldy1, worldy2, worldy3, modely1,
+modely2, modely3, modelx1, modelx2, modelx3 (default=[0,
+0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1])</blockquote>
+<p>magicNum: Number indicating a geoprobe volume (default=43970)
+originalnx: Original dimensions of the x-axis (default=None)
+originalny: Original dimensions of the y-axis (default=None)
+originalnz: Original dimensions of the z-axis (default=None)
+path: Path of original geoprobe volume (default=&#8217;&#8216;)
+segmentname: Pathname relative to the base geoprobe project</p>
+<blockquote>
+directory (default=&#8217;&#8216;)</blockquote>
+<dl class="docutils">
+<dt>seisworksproject: Name of the associated seisworks project</dt>
+<dd>(default=&#8217;&#8216;)</dd>
+<dt>v0: Voxel value calibration factor (Physical voxel values =</dt>
+<dd>V*dv + v0, where V is the raw uint8 value in volume.data)
+(default=0)</dd>
+</dl>
+<p class="last">vdescrip: Voxel description (default=&#8217;unknown&#8217;)
+vunit: Physical units for voxels (default=&#8217;unknown&#8217;)
+x0: X-axis calibration factor (e.g. x = i*dx + x0) (default=0)
+xdescrip: X-axis description (default=&#8217;unknown&#8217;)
+xunit: Physical units for the x-axis (default=&#8217;unknown&#8217;)
+y0: Y-axis calibration factor (e.g. y = j*dy + y0) (default=0)
+ydescrip: Y-axis description (default=&#8217;unknown&#8217;)
+yunit: Physical units for the y-axis (default=&#8217;unknown&#8217;)
+z0: Z-axis calibration factor (e.g. z = k*dz + z0) (default=0)
+zdescrip: Z-axis description (default=&#8217;unknown&#8217;)
+zunit: Physical units for the z-axis (default=&#8217;unknown&#8217;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.__init__">
+<!--[geoprobe.volume.__init__]--><tt class="descclassname">volume.</tt><tt class="descname">__init__</tt><big>(</big><em>input</em>, <em>copyFrom=None</em>, <em>rescale=True</em><big>)</big><a class="headerlink" href="#geoprobe.volume.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Read an existing geoprobe volue or make a new one based on input data</dt>
+<dd><dl class="first last docutils">
+<dt>Input: </dt>
+<dd><dl class="first last docutils">
+<dt>input: Either the path to a geoprobe volume file or data to </dt>
+<dd>create a geoprobe object from (either a numpy array or
+an object convertable into one). The following keyword
+arguments only apply when creating a new volume from
+data, not reading from a file.</dd>
+<dt>copyFrom (default: None): A geoprobe volume object or path to a</dt>
+<dd>geoprobe volume file to copy relevant header values
+from for the new volume object (used only when creating
+a new volume from a numpy array).</dd>
+<dt>rescale (default: True): Boolean True/False.  If True, the data </dt>
+<dd>will be rescaled so that data.min(), data.max()
+correspond to 0, 255 in volume.data before being
+converted to 8-bit values.  If False, the data data
+will not be rescaled before converting to type uint8.
+(i.e. 0.9987 &#8211;&gt; 0, 257.887 &#8211;&gt; 1, etc due to rounding
+and wrap around)</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The raw uint8 array values can be accessed through the volume.data attribute. This
+is a 3D numpy array (or memory-mapped-file array) with shape (nx,ny,nz). The
+attributes nx, ny, and nz are readonly.  To change them, reshape or otherwise
+operate on volume.data.</p>
+<dl class="attribute">
+<dt id="geoprobe.volume.nx">
+<!--[geoprobe.volume.nx]--><tt class="descclassname">volume.</tt><tt class="descname">nx</tt><a class="headerlink" href="#geoprobe.volume.nx" title="Permalink to this definition">¶</a></dt>
+<dd>The number of x values in the array (read-only)</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.ny">
+<!--[geoprobe.volume.ny]--><tt class="descclassname">volume.</tt><tt class="descname">ny</tt><a class="headerlink" href="#geoprobe.volume.ny" title="Permalink to this definition">¶</a></dt>
+<dd>The number of y values in the array (read-only)</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.nz">
+<!--[geoprobe.volume.nz]--><tt class="descclassname">volume.</tt><tt class="descname">nz</tt><a class="headerlink" href="#geoprobe.volume.nz" title="Permalink to this definition">¶</a></dt>
+<dd>The number of z values in the array (read-only)</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.data">
+<!--[geoprobe.volume.data]--><tt class="descclassname">volume.</tt><tt class="descname">data</tt><a class="headerlink" href="#geoprobe.volume.data" title="Permalink to this definition">¶</a></dt>
+<dd>A 3D numpy array of the volume data.  Contains raw uint8 values.
+If the volume object is based on a file, this is a memory-mapped-file
+array.</dd></dl>
+
+<p>If the volume object is created from an existing volume file, volume.data will be
+a memory-mapped-file array.  Otherwise, this will contain whatever array you set
+when creating the object (or assign to volume.data afterwards).  When setting this
+attribute, the new array will be recast as a uint8 array.  (i.e. the values will
+always be between 0-255, and overflow/wrap-around will occur if the new array has
+values outside of this range)</p>
+<p>To load volume.data from a memory-mapped file entirely into memory (for faster
+access) use volume.load</p>
+<dl class="method">
+<dt id="geoprobe.volume.load">
+<!--[geoprobe.volume.load]--><tt class="descclassname">volume.</tt><tt class="descname">load</tt><big>(</big><big>)</big><a class="headerlink" href="#geoprobe.volume.load" title="Permalink to this definition">¶</a></dt>
+<dd>Reads an entire Geoprobe volume into memory and returns 
+a numpy array contining the volume.</dd></dl>
+
+<p>The original values stored in the volume can be recovered with the volume.d0 and
+volume.dv properties.  For example:</p>
+<blockquote>
+&gt;&gt;&gt;rescaled = volume.data * volume.dv + volume + d0</blockquote>
+<dl class="attribute">
+<dt id="geoprobe.volume.dv">
+<!--[geoprobe.volume.dv]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">dv</tt><a class="headerlink" href="#geoprobe.volume.dv" title="Permalink to this definition">¶</a></dt>
+<dd>Voxel value scaling factor</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.d0">
+<!--[geoprobe.volume.d0]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">d0</tt><a class="headerlink" href="#geoprobe.volume.d0" title="Permalink to this definition">¶</a></dt>
+<dd>Voxel value calibration factor</dd></dl>
+
+<dl class="docutils">
+<dt>There are three coordinate systems stored in a geoprobe volume file.</dt>
+<dd><ol class="first last arabic simple">
+<li>The array indicies. These range from 0 to nx-1, 0 to ny-1, 0 to nz-1.</li>
+<li>The model coordinates (e.g. inline and crossline). These range from volume.xmin
+to volume.xmax, volume.ymin to volume.ymax, and volume.zmin to volume.zmax.</li>
+<li>The world coordinates.  These are typically a map projection of some sort (e.g.
+utm). However, the only restriction is that they must be related to the model
+coordinates via an affine transformation.</li>
+</ol>
+</dd>
+</dl>
+<dl class="method">
+<dt id="geoprobe.volume.index2model">
+<!--[geoprobe.volume.index2model]--><tt class="descclassname">volume.</tt><tt class="descname">index2model</tt><big>(</big><em>*coords</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#geoprobe.volume.index2model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts array indicies to model coordinates
+Input:</p>
+<blockquote>
+<dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>coords: x,y,z array indicies to be converted. Will accept numpy</dt>
+<dd>arrays.  If only one index is specified, it is assumed to
+be x, and if two are specified, they are assumed to be x,y.
+To override this choice (i.e. convert just y or z) use the 
+axis keyword argument</dd>
+<dt>axis (default None): The axis that the given model coordinate</dt>
+<dd>is from.  Use 0,1,2 or &#8216;x&#8217;,&#8217;y&#8217;,&#8217;z&#8217;.</dd>
+</dl>
+</blockquote>
+<dl class="docutils">
+<dt>Output:</dt>
+<dd>A tuple of converted indicies (or just the index if only one was 
+input)</dd>
+<dt>Examples:</dt>
+<dd>X = volume.index2model(XI)
+X,Y = volume.index2model(XI,YI)
+X,Y,Z = volume.index2model(XI,YI,ZI)
+Z = volume.index2model(ZI, axis=2) # (or axis=&#8217;z&#8217;)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.model2index">
+<!--[geoprobe.volume.model2index]--><tt class="descclassname">volume.</tt><tt class="descname">model2index</tt><big>(</big><em>*coords</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#geoprobe.volume.model2index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts model coordinates into array indicies
+Input:</p>
+<blockquote>
+<dl class="docutils">
+<dt><a href="#id3"><span class="problematic" id="id4">*</span></a>coords: x,y,z model coordinates to be converted. Will accept numpy</dt>
+<dd>arrays.  If only one coordinate is specified, it is assumed to
+be x, and if two are specified, they are assumed to be x,y.
+To override this choice (i.e. convert just y or z) use the 
+axis keyword argument</dd>
+<dt>axis (default None): The axis that the given model coordinate</dt>
+<dd>is from.  Use 0,1,2 or &#8216;x&#8217;,&#8217;y&#8217;,&#8217;z&#8217;.</dd>
+</dl>
+</blockquote>
+<dl class="docutils">
+<dt>Output:</dt>
+<dd>A tuple of converted coordinates (or just the coord if only one 
+was input)</dd>
+<dt>Examples:</dt>
+<dd>XI = volume.model2index(X)
+XI,YI = volume.model2index(X,Y)
+XI,YI,ZI = volume.model2index(X,Y,Z)
+ZI = volume.model2index(Z, axis=2) # (or axis=&#8217;z&#8217;)
+YI,ZI = volume.model2index(Y,Z,axis=&#8217;y&#8217;)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.model2world">
+<!--[geoprobe.volume.model2world]--><tt class="descclassname">volume.</tt><tt class="descname">model2world</tt><big>(</big><em>crossline</em>, <em>inline=None</em><big>)</big><a class="headerlink" href="#geoprobe.volume.model2world" title="Permalink to this definition">¶</a></dt>
+<dd>Converts model coordinates to world coordinates.  Accepts either a Nx2
+list/numpy.array or 2 seperate lists/numpy.array&#8217;s with crossline,
+inline coordinates.  Returns 2 numpy arrays X and Y with world
+coordinates. If a Nx2 or 2xN array was given, returns a single Nx2 or 
+2xN array instead of seperate x &amp; y 1D arrays.</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.world2model">
+<!--[geoprobe.volume.world2model]--><tt class="descclassname">volume.</tt><tt class="descname">world2model</tt><big>(</big><em>x</em>, <em>y=None</em><big>)</big><a class="headerlink" href="#geoprobe.volume.world2model" title="Permalink to this definition">¶</a></dt>
+<dd>Converts world coordinates to model coordinates.  Accepts either a Nx2
+list/numpy.array or 2 seperate lists/numpy.array&#8217;s with x, y
+coordinates.  Returns 2 numpy arrays X and Y with model coordinates.
+If a Nx2 or 2xN array was given, returns a single Nx2 or 2xN array
+instead of seperate x &amp; y 1D arrays.</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.transform">
+<!--[geoprobe.volume.transform]--><tt class="descclassname">volume.</tt><tt class="descname">transform</tt><a class="headerlink" href="#geoprobe.volume.transform" title="Permalink to this definition">¶</a></dt>
+<dd>A 2x3 numpy array describing an affine transformation between 
+model and world coordinates. (Read only property. Calculated from
+volume.modelCoords and volume.worldCoords.)</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.invtransform">
+<!--[geoprobe.volume.invtransform]--><tt class="descclassname">volume.</tt><tt class="descname">invtransform</tt><a class="headerlink" href="#geoprobe.volume.invtransform" title="Permalink to this definition">¶</a></dt>
+<dd>A 2x3 numpy array to transform between world and 
+model coordinates. (Read only property. Calculated from
+volume.modelCoords and volume.worldCoords.)</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.modelCoords">
+<!--[geoprobe.volume.modelCoords]--><tt class="descclassname">volume.</tt><tt class="descname">modelCoords</tt><a class="headerlink" href="#geoprobe.volume.modelCoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 2x3 array containing 3 points in model coordinates corresponding
+to the points in worldCoords.
+[[x1, x2, x3],</p>
+<blockquote>
+[y2, y2, y3]]</blockquote>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.worldCoords">
+<!--[geoprobe.volume.worldCoords]--><tt class="descclassname">volume.</tt><tt class="descname">worldCoords</tt><a class="headerlink" href="#geoprobe.volume.worldCoords" title="Permalink to this definition">¶</a></dt>
+<dd><p>A 2x3 array containing 3 points in world coordinates corresponding
+to the points in modelCoords.
+[[x1, x2, x3],</p>
+<blockquote>
+[y2, y2, y3]]</blockquote>
+</dd></dl>
+
+<p>The x, y, and z spacing and starting values are defined in the following attributes.</p>
+<dl class="attribute">
+<dt id="geoprobe.volume.x0">
+<!--[geoprobe.volume.x0]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">x0</tt><a class="headerlink" href="#geoprobe.volume.x0" title="Permalink to this definition">¶</a></dt>
+<dd>x axis calibration factor.  (model x-coordinate = dx * i + x0, where i is the x-axis index)
+Defaults to 0.0</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.y0">
+<!--[geoprobe.volume.y0]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">y0</tt><a class="headerlink" href="#geoprobe.volume.y0" title="Permalink to this definition">¶</a></dt>
+<dd>y axis calibration factor. (model y-coordinate = dy * i + y0, where i is the y-axis index)
+Defaults to 0.0</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.z0">
+<!--[geoprobe.volume.z0]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">z0</tt><a class="headerlink" href="#geoprobe.volume.z0" title="Permalink to this definition">¶</a></dt>
+<dd>z axis calibration factor. (model z-coordinate = dz * i + z0, where i is the z-axis index)
+Defaults to 0.0</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.dx">
+<!--[geoprobe.volume.dx]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">dx</tt><a class="headerlink" href="#geoprobe.volume.dx" title="Permalink to this definition">¶</a></dt>
+<dd>x axis scaling factor. (model x-coordinate = dx * i + x0, where i is the x-axis index)
+:attribute: <cite>geoprobe.volume.dx</cite> may be negative, but cannot be 0. Defaults to 1.0</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.dy">
+<!--[geoprobe.volume.dy]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">dy</tt><a class="headerlink" href="#geoprobe.volume.dy" title="Permalink to this definition">¶</a></dt>
+<dd>y axis scaling factor. (model y-coordinate = dy * i + y0, where i is the y-axis index)
+:attribute: <cite>geoprobe.volume.dy</cite> may be negative, but cannot be 0. Defaults to 1.0</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.dz">
+<!--[geoprobe.volume.dz]--><tt class="descclassname">geoprobe.volume.</tt><tt class="descname">dz</tt><a class="headerlink" href="#geoprobe.volume.dz" title="Permalink to this definition">¶</a></dt>
+<dd>z axis scaling factor. (model z-coordinate = dz * i + z0, where i is the z-axis index)
+:attribute: <cite>geoprobe.volume.dz</cite> may be negative, but cannot be 0. Defaults to 1.0</dd></dl>
+
+<p>The xmin, xmax, ymin, ymax, zmin, and zmax attributes define the model coords. Setting
+these will change x0, y0, or z0 (respectively).</p>
+<dl class="attribute">
+<dt id="geoprobe.volume.xmin">
+<!--[geoprobe.volume.xmin]--><tt class="descclassname">volume.</tt><tt class="descname">xmin</tt><a class="headerlink" href="#geoprobe.volume.xmin" title="Permalink to this definition">¶</a></dt>
+<dd>Mininum x model coordinate</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.xmax">
+<!--[geoprobe.volume.xmax]--><tt class="descclassname">volume.</tt><tt class="descname">xmax</tt><a class="headerlink" href="#geoprobe.volume.xmax" title="Permalink to this definition">¶</a></dt>
+<dd>Maximum x model coordinate</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.ymin">
+<!--[geoprobe.volume.ymin]--><tt class="descclassname">volume.</tt><tt class="descname">ymin</tt><a class="headerlink" href="#geoprobe.volume.ymin" title="Permalink to this definition">¶</a></dt>
+<dd>Mininum y model coordinate</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.ymax">
+<!--[geoprobe.volume.ymax]--><tt class="descclassname">volume.</tt><tt class="descname">ymax</tt><a class="headerlink" href="#geoprobe.volume.ymax" title="Permalink to this definition">¶</a></dt>
+<dd>Maximum y model coordinate</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.zmin">
+<!--[geoprobe.volume.zmin]--><tt class="descclassname">volume.</tt><tt class="descname">zmin</tt><a class="headerlink" href="#geoprobe.volume.zmin" title="Permalink to this definition">¶</a></dt>
+<dd>Mininum z model coordinate</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.zmax">
+<!--[geoprobe.volume.zmax]--><tt class="descclassname">volume.</tt><tt class="descname">zmax</tt><a class="headerlink" href="#geoprobe.volume.zmax" title="Permalink to this definition">¶</a></dt>
+<dd>Maximum z model coordinate</dd></dl>
+
+<p>Changing the sign of dx, dy, or dz changes the order in which the array is stored on
+disk and will change volume.&lt;x,y,z&gt;min and volume.&lt;x,y,z&gt;max.  However, volume.data
+is always accessed such that volume.data[0,0,0] corresponds to xmin, ymin, zmin and
+volume.data[nx,ny,nz] corresponds to xmax, ymax, zmax.</p>
+<p>The world x and y grid spacing can be obtained from the volume.dxW and volume.dyW attributes.</p>
+<dl class="attribute">
+<dt id="geoprobe.volume.dxW">
+<!--[geoprobe.volume.dxW]--><tt class="descclassname">volume.</tt><tt class="descname">dxW</tt><a class="headerlink" href="#geoprobe.volume.dxW" title="Permalink to this definition">¶</a></dt>
+<dd>X-spacing interval in world coordinates</dd></dl>
+
+<dl class="attribute">
+<dt id="geoprobe.volume.dyW">
+<!--[geoprobe.volume.dyW]--><tt class="descclassname">volume.</tt><tt class="descname">dyW</tt><a class="headerlink" href="#geoprobe.volume.dyW" title="Permalink to this definition">¶</a></dt>
+<dd>Y-spacing interval in world coordinates</dd></dl>
+
+<p>There are also convience methods to quickly extract an axis-aligned slice at a given model
+coordinate.</p>
+<dl class="method">
+<dt id="geoprobe.volume.XSlice">
+<!--[geoprobe.volume.XSlice]--><tt class="descclassname">volume.</tt><tt class="descname">XSlice</tt><big>(</big><em>Xpos</em><big>)</big><a class="headerlink" href="#geoprobe.volume.XSlice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a slice of the volume at a constant x-value (i.e. the
+slice is in the direction of the y-axis) This is a convience 
+function to avoid calling volume.model2index before slicing
+and transposing (for easier plotting) after.
+Input:</p>
+<blockquote>
+Xpos: X-Value given in model coordinates</blockquote>
+<dl class="docutils">
+<dt>Output:</dt>
+<dd>A 2D (NZ x NY) numpy array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.YSlice">
+<!--[geoprobe.volume.YSlice]--><tt class="descclassname">volume.</tt><tt class="descname">YSlice</tt><big>(</big><em>Ypos</em><big>)</big><a class="headerlink" href="#geoprobe.volume.YSlice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a slice of the volume at a constant y-value (i.e. the
+slice is in the direction of the x-axis) This is a convience 
+function to avoid calling volume.model2index before slicing
+and transposing (for easier plotting) after.
+Input:</p>
+<blockquote>
+Ypos: Y-Value given in model coordinates</blockquote>
+<dl class="docutils">
+<dt>Output:</dt>
+<dd>A 2D (NZ x NX) numpy array</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.ZSlice">
+<!--[geoprobe.volume.ZSlice]--><tt class="descclassname">volume.</tt><tt class="descname">ZSlice</tt><big>(</big><em>Zpos</em><big>)</big><a class="headerlink" href="#geoprobe.volume.ZSlice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a slice of the volume at a constant z-value (i.e. 
+a depth slice) This is a convience function to avoid calling 
+volume.model2index before slicing and transposing (for 
+easier plotting) after.
+Input:</p>
+<blockquote>
+Zpos: Z-Value given in model coordinates</blockquote>
+<dl class="docutils">
+<dt>Output:</dt>
+<dd>A 2D (NY x NX) numpy array</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+   
+ 
+ 
+ </div>
+<div id="footer" dir="ltr">
+ 
+ <div class="text">
+ 
+ &copy;2008 Google -
+ <a href="http://code.google.com/">Code Home</a> -
+ <a href="http://code.google.com/tos.html">Terms of Service</a> -
+ <a href="http://www.google.com/privacy.html">Privacy Policy</a> -
+  
+ </body>
+</html>
