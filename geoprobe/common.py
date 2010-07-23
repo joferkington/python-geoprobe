@@ -4,6 +4,9 @@ import struct
 import textwrap
 import numpy as np
 
+# Local imports
+import volume
+
 #-- Miscellaneous -------------------------------------------------------------
 def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
     """
@@ -175,7 +178,7 @@ def points2strikeDip(x, y, z, vol=None, velocity=None, independent=None):
     if vol is not None:
         # If given a string, assume it's the filename of a volume
         if type(vol) == type('String'):
-            vol = volume(vol)
+            vol = volume.volume(vol)
         # Convert coords
         x,y = vol.model2world(x, y)
 
