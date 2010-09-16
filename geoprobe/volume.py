@@ -159,6 +159,40 @@ class volume(object):
         self.data.T.tofile(outfile)
         outfile.close()
 
+    def crop(self, xmin=None, xmax=None, ymin=None, ymax=None, 
+            zmin=None, zmax=None, copy_data=True):
+        """Crops a volume to the limits specified (in model coordinates)
+        by the input arguments.  Returns a new volume instance containing
+        data for the cropped region."""
+
+        # Set defaults (verbose, but I want to avoid metaprogramming...)
+        if (xmin is None) or (xmin < self.xmin):
+            xmin = self.xmin
+        if (xmax is None) or (xmax > self.xmax):
+            xmax = self.xmax
+
+        if (ymin is None) or (ymin < self.ymin):
+            ymin = self.ymin
+        if (ymax is None) or (ymax > self.ymax):
+            ymax = self.ymax
+
+        if (zmin is None) or (zmin < self.zmin):
+            zmin = self.zmin
+        if (zmax is None) or (zmax > self.zmax):
+            zmax = self.zmax
+
+        # Convert input units to indicies...
+        xmin, xmax = self.model2index([xmin, xmax], axis='x')
+        ymin, ymax = self.model2index([ymin, ymax], axis='y')
+        zmin, zmax = self.model2index([zmin, zmax], axis='z')
+
+        # Crop data
+        data = self.data[xmin:xmax, ymin:ymax, zmin:zmax]
+        if copy_data:
+            data = data.copy()
+
+        return volume(data, copyFrom=self, rescale=False)
+
     #-- data property --------------------------------------------------------
     def _getData(self):
         """A 3D numpy array of the volume data.  Contains raw uint8 values.
