@@ -182,16 +182,20 @@ class volume(object):
             zmax = self.zmax
 
         # Convert input units to indicies...
-        xmin, xmax = self.model2index([xmin, xmax], axis='x')
-        ymin, ymax = self.model2index([ymin, ymax], axis='y')
-        zmin, zmax = self.model2index([zmin, zmax], axis='z')
+        xstart, xstop = self.model2index([xmin, xmax], axis='x')
+        ystart, ystop= self.model2index([ymin, ymax], axis='y')
+        zstart, zstop = self.model2index([zmin, zmax], axis='z')
 
         # Crop data
-        data = self.data[xmin:xmax, ymin:ymax, zmin:zmax]
+        data = self.data[xstart:xstop, ystart:ystop, zstart:zstart]
         if copy_data:
             data = data.copy()
 
-        return volume(data, copyFrom=self, rescale=False)
+        # Make a new volume instance and set it's mininum model coords
+        vol = volume(data, copyFrom=self, rescale=False)
+        vol.xmin, vol.ymin, vol.zmin = xmin, ymin, zmin
+
+        return vol
 
     #-- data property --------------------------------------------------------
     def _getData(self):
