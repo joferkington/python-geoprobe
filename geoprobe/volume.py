@@ -183,16 +183,16 @@ class volume(object):
 
         # Convert input units to indicies...
         xstart, xstop = self.model2index([xmin, xmax], axis='x')
-        ystart, ystop= self.model2index([ymin, ymax], axis='y')
+        ystart, ystop = self.model2index([ymin, ymax], axis='y')
         zstart, zstop = self.model2index([zmin, zmax], axis='z')
 
         # Crop data
-        data = self.data[xstart:xstop, ystart:ystop, zstart:zstart]
+        data = self.data[xstart:xstop, ystart:ystop, zstart:zstop]
         if copy_data:
             data = data.copy()
 
         # Make a new volume instance and set it's mininum model coords
-        vol = volume(data, copyFrom=self, rescale=False)
+        vol = type(self)(data, copyFrom=self, rescale=False)
         vol.xmin, vol.ymin, vol.zmin = xmin, ymin, zmin
 
         return vol
