@@ -8,7 +8,7 @@ Welcome to python-geoprobe's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    intro
    user_guide
 
