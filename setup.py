@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name = 'geoprobe',
-    version = '0.1.5-dev',
+    version = '0.2',
     description = "Reads and (partially) writes seismic data in Landmark's Geoprobe format",
     author = 'Joe Kington',
     author_email = 'joferkington@gmail.com',
