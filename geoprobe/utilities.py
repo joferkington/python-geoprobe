@@ -157,31 +157,6 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0,
 
     return subVolume
 
-
-def coherence(data, window=(0.3, 0.3, 2.0)):
-    """Calculates a coherence volume from a 3D numpy array using a
-    gaussian-shaped moving window. This method of calculating coherence 
-    implicitly assumes that the array consistsof perodic data with a 
-    mean of 0. If the data consists of 8-bit values, it will be 
-    converted to 16-bit to avoid overflow (and centered on 0, if the 
-    data are unsigned integers)
-    Input:
-        data: Input data (a 3d numpy array)
-        window: A tuple of (xlength, ylength, zlength) describing the
-                size of the gaussian window. Fractional values _are_
-                allowed.
-    """
-    from scipy import ndimage
-    # To avoid overflow, if we're dealing with an 8-bit array, convert 
-    # it to 16-bit
-    if data.dtype == np.uint8:
-        data = data.astype(np.int16) - 127
-    elif data.dtype == np.int8:
-        data = data.astype(np.int16)
-    ndimage.gaussian_filter(data, window, output=data, mode='constant', cval=0)
-    data = np.sqrt(data)
-    return data
-
 def wiggle(x, origin=0, posFill='black', negFill=None, lineColor='black', 
         resampleRatio=10, rescale=False, ymin=0, ymax=None, ax=None):
     """Plots a "wiggle" trace
