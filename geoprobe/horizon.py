@@ -137,7 +137,7 @@ class horizon(object):
             self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
             
         elif ('surface' in kwargs) or ('lines' in kwargs):
-            surface = kwargs.pop('surface', None), 
+            surface = kwargs.pop('surface', None)
             lines = kwargs.pop('lines', None)
             self._init_from_surface_lines(surface, lines)
 

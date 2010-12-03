@@ -4,7 +4,7 @@ Welcome to my project's documentation!
 Contents:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
 
 Indices and tables
@@ -14,6 +14,16 @@ Indices and tables
 
 :mod:`geoprobe` -- Reference
 =============================================
-.. automethod:: geoprobe.volume.__init__
 .. autoclass:: geoprobe.volume
-.. autoattribute:: geoprobe.volume.dx
+.. automethod:: geoprobe.volume.__init__
+
+.. autoclass:: geoprobe.horizon
+.. automethod:: geoprobe.horizon.__init__
+
+.. autoclass:: geoprobe.ezfault
+.. automethod:: geoprobe.ezfault.__init__
+
+.. autoclass:: geoprobe.data2d
+.. automethod:: geoprobe.data2d.__init__
+
+.. autoclass:: geoprobe.utilities

@@ -11,6 +11,7 @@ Contents:
    :maxdepth: 5
    intro
    user_guide
+   volume
 
 Indices and tables
 ==================

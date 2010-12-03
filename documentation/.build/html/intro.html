@@ -50,37 +50,6 @@
 </div>
 <div class="section" id="geoprobe-reference">
 <h1><tt class="xref docutils literal"><span class="pre">geoprobe</span></tt> &#8211; Reference<a class="headerlink" href="#geoprobe-reference" title="Permalink to this headline">¶</a></h1>
-<dl class="method">
-<dt id="geoprobe.volume.__init__">
-<!--[geoprobe.volume.__init__]--><tt class="descclassname">volume.</tt><tt class="descname">__init__</tt><big>(</big><em>input</em>, <em>copyFrom=None</em>, <em>rescale=True</em><big>)</big><a class="headerlink" href="#geoprobe.volume.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Read an existing geoprobe volue or make a new one based on input data</dt>
-<dd><dl class="first last docutils">
-<dt>Input: </dt>
-<dd><dl class="first last docutils">
-<dt>input: Either the path to a geoprobe volume file or data to </dt>
-<dd>create a geoprobe object from (either a numpy array or
-an object convertable into one). The following keyword
-arguments only apply when creating a new volume from
-data, not reading from a file.</dd>
-<dt>copyFrom (default: None): A geoprobe volume object or path to a</dt>
-<dd>geoprobe volume file to copy relevant header values
-from for the new volume object (used only when creating
-a new volume from a numpy array).</dd>
-<dt>rescale (default: True): Boolean True/False.  If True, the data </dt>
-<dd>will be rescaled so that data.min(), data.max()
-correspond to 0, 255 in volume.data before being
-converted to 8-bit values.  If False, the data data
-will not be rescaled before converting to type uint8.
-(i.e. 0.9987 &#8211;&gt; 0, 257.887 &#8211;&gt; 1, etc due to rounding
-and wrap around)</dd>
-</dl>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="class">
 <dt id="geoprobe.volume">
 <!--[geoprobe.volume]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">volume</tt><big>(</big><em>input</em>, <em>copyFrom=None</em>, <em>rescale=True</em><big>)</big><a class="headerlink" href="#geoprobe.volume" title="Permalink to this definition">¶</a></dt>
@@ -129,6 +98,206 @@ zunit: Physical units for the z-axis (default=&#8217;unknown&#8217;)</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.volume.__init__">
+<!--[geoprobe.volume.__init__]--><tt class="descclassname">volume.</tt><tt class="descname">__init__</tt><big>(</big><em>input</em>, <em>copyFrom=None</em>, <em>rescale=True</em><big>)</big><a class="headerlink" href="#geoprobe.volume.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Read an existing geoprobe volue or make a new one based on input data</dt>
+<dd><dl class="first last docutils">
+<dt>Input: </dt>
+<dd><dl class="first last docutils">
+<dt>input: Either the path to a geoprobe volume file or data to </dt>
+<dd>create a geoprobe object from (either a numpy array or
+an object convertable into one). The following keyword
+arguments only apply when creating a new volume from
+data, not reading from a file.</dd>
+<dt>copyFrom (default: None): A geoprobe volume object or path to a</dt>
+<dd>geoprobe volume file to copy relevant header values
+from for the new volume object (used only when creating
+a new volume from a numpy array).</dd>
+<dt>rescale (default: True): Boolean True/False.  If True, the data </dt>
+<dd>will be rescaled so that data.min(), data.max()
+correspond to 0, 255 in volume.data before being
+converted to 8-bit values.  If False, the data data
+will not be rescaled before converting to type uint8.
+(i.e. 0.9987 &#8211;&gt; 0, 257.887 &#8211;&gt; 1, etc due to rounding
+and wrap around)</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="geoprobe.horizon">
+<!--[geoprobe.horizon]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">horizon</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#geoprobe.horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads and writes geoprobe horizon files</p>
+<p>horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
+stored in the horizon file (in model coordinates, i.e. inline/crossline).  
+These are views into horizon.data, so any changes made to these will 
+update horizon.data and vice versa.</p>
+<p>horizon.grid is a 2d numpy array of the z-values in the horizon filled
+with horizon.nodata in regions where there aren&#8217;t any z-values</p>
+<dl class="docutils">
+<dt>Useful attributes set at initialization:</dt>
+<dd><dl class="first last docutils">
+<dt>data: A structured numpy array with the fields &#8216;x&#8217;, &#8216;y&#8217;, &#8216;z&#8217;,</dt>
+<dd>&#8216;conf&#8217;, &#8216;type&#8217;, &#8216;herid&#8217;, and &#8216;tileSize&#8217;. This array 
+contains all the data stored in the horizon file.</dd>
+<dt>surface: A view into horizon.data that contains only the points</dt>
+<dd>in the file that make up a &#8220;filled&#8221; surface. (Usually points
+interpolated between manual picks).</dd>
+<dt>lines: A list of manual picks stored in the horizon file. Each item</dt>
+<dd>in the list is a tuple of a) a 4-tuple of line information 
+(xdir, ydir, zdir, ID) and b) a view into horizon.data 
+containing the points in the line.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.horizon.__init__">
+<!--[geoprobe.horizon.__init__]--><tt class="descclassname">horizon.</tt><tt class="descname">__init__</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#geoprobe.horizon.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes either a filename or a numpy array</p>
+<p>If a single string is given as input, the string is assumed to be a 
+filename, and a new horizon object is constructed by reading the file
+from disk.</p>
+<p>Otherwise, a horizon object can be created from existing data, as 
+described below:</p>
+<dl class="docutils">
+<dt>If one input argument is given, it is assumed to be a structured </dt>
+<dd>numpy array and is used as the filled surface portion of the 
+horizon. The input array must be convertable into an array 
+with a dtype of horizon.POINT_DTYPE.</dd>
+<dt>If two input arguments are given, the first is used as the filled</dt>
+<dd>surface portion of the horizon file and the second a list of lines
+in the same format as horizon.lines. The arrays must be convertable
+into an array with dtype horizon.POINT_DTYPE</dd>
+<dt>If three input arguments are given, they are assumed to be lists/arrays</dt>
+<dd>of x, y, and z coordinates (respectively) of the points in the new 
+horizon.</dd>
+<dt>Alternatively, you may specify these options using the following</dt>
+<dd>keyword arguments: surface, lines, or x, y, and z.</dd>
+<dt>For example, a horizon object can be initalized in the following ways:</dt>
+<dd>h = geoprobe.horizon(&#8216;/path/to/file&#8217;)
+h = geoprobe.horizon(data)
+h = geoprobe.horizon(surface, lines)
+h = geoprobe.horizon(x,y,z)
+h = geoprobe.horizon(x=x, y=y, z=z)
+h = geoprobe.horizon(lines=a_list_of_lines)
+h = geoprobe.horizon(surface=surface_array)
+h = geoprobe.horizon(surface=surface, lines=lines)</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="geoprobe.ezfault">
+<!--[geoprobe.ezfault]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">ezfault</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#geoprobe.ezfault" title="Permalink to this definition">¶</a></dt>
+<dd>Simple geoprobe ezfault reader.</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.ezfault.__init__">
+<!--[geoprobe.ezfault.__init__]--><tt class="descclassname">ezfault.</tt><tt class="descname">__init__</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#geoprobe.ezfault.__init__" title="Permalink to this definition">¶</a></dt>
+<dd>Takes a filename as input</dd></dl>
+
+<dl class="class">
+<dt id="geoprobe.data2d">
+<!--[geoprobe.data2d]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">data2d</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#geoprobe.data2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads geoprobe 2D data files.</p>
+<dl class="docutils">
+<dt>Useful Attributes:</dt>
+<dd><p class="first">data: array containg the seismic data as uint8&#8217;s
+x: a list of the x-coordinates of each trace
+y: a list of the y-coordinates of each trace
+comments: Arbitrary comments. (default=&#8217;Created by python-</p>
+<blockquote>
+geoprobe&#8217;)</blockquote>
+<dl class="docutils">
+<dt>createdByUser: File originally created by username given</dt>
+<dd>(default=None)</dd>
+<dt>creationDate: Unix-style timestamp of the original creation</dt>
+<dd>date (default=None)</dd>
+</dl>
+<p>dv: Voxel value scaling factor (default=1)
+dvUser: User-specified voxel value scaling factor (No idea</p>
+<blockquote>
+what that means!) (default=1)</blockquote>
+<p>dx: X-axis scaling factor (default=1)
+dy: Y-axis scaling factor (default=1)
+dz: Z-axis scaling factor (default=1)
+endTime: End time of the traces (default=None)
+georef: 3 sets of points for georeferencing. Order: worldX1,</p>
+<blockquote>
+worldX2, worldX3, worldY1, worldY2, worldY3, modelY1,
+modelY2, modelY3, modelX1, modelX2, modelX3 (default=[0,
+0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1])</blockquote>
+<dl class="docutils">
+<dt>histogram: Histogram of amplitude values, bins are 0-255 (or</dt>
+<dd>-127 to +127)  (default=(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))</dd>
+<dt>lastModifiedDate: Unix-style timestamp of last modified on</dt>
+<dd>date (default=None)</dd>
+<dt>lastModifiedUser: File last modified by username given</dt>
+<dd>(default=None)</dd>
+</dl>
+<p>name: Name of the line (default=&#8217;Unknown&#8217;)
+sampleRate: Sample rate of the traces (default=None)
+smoothingFactor: No idea what this really is... (default=0.0)
+startTime: Start time of the traces (default=None)
+v0: Voxel value calibration factor (default=0)
+v0User: User-specified voxel value calibration factor (No idea</p>
+<blockquote>
+what that means!) (default=0)</blockquote>
+<p>vDescrip: Voxel description (default=&#8217;Unknown&#8217;)
+vUnit: Physical units for voxels (default=&#8217;Unknown&#8217;)
+version: The version string stored at the beginning of the</p>
+<blockquote>
+file (default=&#8217;#GeoProbe 2DData V1.0 binary&#8217;)</blockquote>
+<dl class="docutils">
+<dt>x0: X-axis calibration factor (e.g. x = i*dx + x0, where i is</dt>
+<dd>the index value) (default=0)</dd>
+</dl>
+<p class="last">xDescrip: X-axis description (default=&#8217;Unknown&#8217;)
+xUnit: Physical units for the X-axis (default=&#8217;Unknown&#8217;)
+y0: Y-axis calibration factor (default=0)
+yDescrip: Y-axis description (default=&#8217;Unknown&#8217;)
+yUnit: Physical units for the Y-axis (default=&#8217;Unknown&#8217;)
+z0: Z-axis calibration factor (default=0)
+zDescrip: Z-axis description (default=&#8217;Unknown&#8217;)
+zUnit: Physical units for the Z-axis (default=&#8217;Unknown&#8217;)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="geoprobe.data2d.__init__">
+<!--[geoprobe.data2d.__init__]--><tt class="descclassname">data2d.</tt><tt class="descname">__init__</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#geoprobe.data2d.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Input:</dt>
+<dd>filename: The name of the 2D data file</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="geoprobe.utilities">
+<!--[geoprobe.utilities]-->class <tt class="descclassname">geoprobe.</tt><tt class="descname">utilities</tt><a class="headerlink" href="#geoprobe.utilities" title="Permalink to this definition">¶</a></dt>
+<dd>Various utilities using the geoprobe format api&#8217;s
+07/2009</dd></dl>
 
 </div>
 
