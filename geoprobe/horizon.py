@@ -130,7 +130,7 @@ class horizon(object):
 
         elif len(args) == 3:
             # Assume arguments are x, y, and z arrays
-            self._init_from_xyz(self, *args)
+            self._init_from_xyz(*args)
 
         #-- Parse keyword arguments -------------------------------------------
         elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
@@ -163,7 +163,7 @@ class horizon(object):
             self.x = x
             self.y = y
             self.z = z
-            self.surface = data
+            self.surface = self.data
         else:
             raise ValueError('x, y, and z arrays must be the same length')
 
