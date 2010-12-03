@@ -130,7 +130,7 @@ class horizon(object):
 
         elif len(args) == 3:
             # Assume arguments are x, y, and z arrays
-            init_from_xyz(self, *args)
+            self._init_from_xyz(self, *args)
 
         #-- Parse keyword arguments -------------------------------------------
         elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
