@@ -32,8 +32,38 @@ def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
 
     return attribute_docs
 
+class cached_property(object):
+    """
+    A decorator class that ensures that properties are only evaluated once.
+    From: <http://code.activestate.com/recipes/363602-lazy-property-evaluation/>
+    """
+    def __init__(self, calculate_function):
+        self._calculate = calculate_function
+
+    def __get__(self, obj, _=None):
+        if obj is None:
+            return self
+        value = self._calculate(obj)
+        setattr(obj, self._calculate.func_name, value)
+        return value
 
 #-- Raw reading and writing ---------------------------------------------------
+class open_and_close(object):
+    """A decorator class for opening a file and closing it after the decorated
+    function finishes or raises an exception."""
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+
+    def __call__(self, func):
+        def wrapped_func(*args):
+            try:
+                f = open(self.filename, self.mode)
+                func(f, *args)
+            finally:
+                f.close()
+        return wrapped_func
+
 class BinaryFile(file):
     """
     Automatically packs or unpacks binary data according to a format
