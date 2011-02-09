@@ -10,23 +10,20 @@ from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
     
 # Common methods
-from common import BinaryFile 
+from common import BinaryFile
 from common import format_headerDef_docs
+
+formats = [GeoprobeVolumeV2]
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean 
     True/False."""
-    testvol = volume(filename)
-    
-    volID = testvol.magicNum
-    volSize = os.stat(filename).st_size
-    predSize = testvol.nx*testvol.ny*testvol.nz + _headerLength
-
-    # VolID == 43970 is a version 2 geoprobe volume (The only type 
-    # currently supported)
-    if (volID!=43970) or (volSize!=predSize): return False
-    else: return True
-
+    def check_validity(format, filename):
+        try:
+            return format(filename, 'rb').is_valid()
+        except (IOError, EOFError):
+            return False
+    return any([check_validity(format, filename) for format in formats])
 
 class volume(object):
     # Not a "normal" docstring so that "useful attributes" is set at runtime
@@ -36,8 +33,8 @@ class volume(object):
     Useful attributes set at initialization:\n%s
     """ % format_headerDef_docs(_headerDef)
 
-    # TODO: Implement a clip method
-
+    format_type = GeoprobeVolumeV2
+    
     def __init__(self, input, copyFrom=None, rescale=True):
         """
         Read an existing geoprobe volue or make a new one based on input data
@@ -73,17 +70,10 @@ class volume(object):
         """
         Reads the header of a geoprobe volume and sets attributes based on it
         """
-    
-        #Probably best to let the calling program handle IO errors
         self._filename = filename
-        self._infile = BinaryFile(filename,'rb')
-
-        #--Set up proper attributes based on the header
-        for varname, info in _headerDef.iteritems():
-            self._infile.seek(info['offset'])
-            value = self._infile.readBinary(info['type'])
-            setattr(self, varname, value)
-       
+        self._infile = self.format_type(filename, 'rb')
+        self.headerValues = self._infile.read_header()
+          
     def _newVolume(self,data,copyFrom=None,rescale=True):
         """Takes a numpy array and makes a geoprobe volume. This
         volume can then be written to disk using the write() method."""
@@ -131,33 +121,15 @@ class volume(object):
     def load(self):
         """Reads an entire Geoprobe volume into memory and returns 
         a numpy array contining the volume."""
-        dat = np.fromfile(self._filename, dtype=np.uint8)
-        dat = dat[_headerLength:]
-        dat = dat.reshape((self.nz, self.ny, self.nx)).T
+        dat = self._infile.load()
         dat = self._fixAxes(dat)
         return dat
 
     def write(self, filename):
         """Writes a geoprobe volume to disk."""
-
-        # Write header values
-        outfile = BinaryFile(filename, 'w')
-        for varname, info in _headerDef.iteritems():
-            value = getattr(self, varname, info['default'])
-            outfile.seek(info['offset'])
-            outfile.writeBinary(info['type'], value)
-
-        # Jump to end of header before writing data
-        outfile.seek(_headerLength)
-
-        # Write to file in Fortran order...
-        #  Not using data.ravel('F'), as it appears to make a copy if the
-        #  array is C-ordered (doubling memory usage). Instead, we just write
-        #  the transpose with the tofile method. (tofile writes in C-order 
-        #  regardless of the order of the input array, thus requring the 
-        #  transpose for both F and C ordered arrays)
-        self.data.T.tofile(outfile)
-        outfile.close()
+        outfile = self.format_type(filename, 'w')
+        outfile.write_header(self.headerValues)
+        outfile.write_data(self.data)
 
     def crop(self, xmin=None, xmax=None, ymin=None, ymax=None, 
             zmin=None, zmax=None, copy_data=True):
@@ -206,13 +178,7 @@ class volume(object):
         try:
             return self._data
         except AttributeError:
-            # If this hasn't been called already, make a memory-mapped-file 
-            # numpy array
-            dat = np.memmap(filename=self._filename, mode='r',
-                offset=_headerLength, order='F', 
-                shape=(self._nx, self._ny, self._nz) 
-                )
-            self._data = self._fixAxes(dat)
+            self._data = self._fixAxes(self._infile.memmap_data())
             return self._data
 
     def _setData(self, newData):
@@ -261,7 +227,7 @@ class volume(object):
         for key, value in input.iteritems():
             # Only set things in input that are normally in the header
             if key in _headerDef:
-                setattr(self, key, input[key])
+                setattr(self, key, value)
 
     headerValues = property(_getHeaderValues, _setHeaderValues)
     #--------------------------------------------------------------------------
@@ -618,3 +584,67 @@ class volume(object):
         d = self.modelCoords
         m = np.dot(d,np.linalg.inv(G))
         return m
+
+class GeoprobeVolumeFileV2(object):
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+        self._file = BinaryFile(self.filename, self.mode)
+
+    def is_valid(self):
+        header = self.read_header()
+        nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
+        volSize = os.stat(filename).st_size
+        predSize = nx*ny*nz + _headerLength
+
+        if (header['magicNum'] != 43970) or (volSize != predSize): 
+            return False
+        else: 
+            return True
+
+
+    def read_header(self):
+        """Reads and returns the header of a geoprobe volume."""
+        header = dict()
+        for varname, info in _headerDef.iteritems():
+            self._file.seek(info['offset'])
+            value = self._file.readBinary(info['type'])
+            header[varname] = value
+        return header
+
+    def read_data(self):
+        """Reads an entire Geoprobe volume into memory and returns 
+        a numpy array contining the volume."""
+        header = self.read_header
+        nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
+        dat = np.fromfile(self.filename, dtype=np.uint8)
+        dat = dat[_headerLength:]
+        dat = dat.reshape((nz, ny, nx)).T
+        return dat
+
+    def memmap_data(self):
+        header = self.read_header()
+        nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
+        dat = np.memmap(filename=self.filename, mode='r',
+            offset=_headerLength, order='F', 
+            shape=(nx, ny, nz) 
+            )
+        return dat
+
+    def write_header(self, header):
+        for varname, info in _headerDef.iteritems():
+            value = header.get(varname, info['default'])
+            self._file.seek(info['offset'])
+            self._file.writeBinary(info['type'], value)
+
+    def write_data(self, data):
+        """Writes a geoprobe volume to disk."""
+        self._file.seek(_headerLength)
+        # Write to file in Fortran order...
+        #  Not using data.ravel('F'), as it appears to make a copy if the
+        #  array is C-ordered (doubling memory usage). Instead, we just
+        #  write the transpose with the tofile method. (tofile writes in
+        #  C-order regardless of the order of the input array, thus
+        #  requring the transpose for both F and C ordered arrays)
+        data.T.tofile(self._file)
+
