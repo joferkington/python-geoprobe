@@ -34,8 +34,8 @@ def plot(vol):
     # Plot the first crossline in the volume
     plt.figure()
     plt.imshow(vol.YSlice(vol.ymin))
-    # Note: instead of vol.XSlice, we could have used vol.data[:,0,:].T
-    plt.title('Crossline %i' % vol.xmin)
+    # Note: instead of vol.YSlice, we could have used vol.data[:,0,:].T
+    plt.title('Crossline %i' % vol.ymin)
 
     plt.show()
 
