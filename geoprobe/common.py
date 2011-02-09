@@ -48,22 +48,6 @@ class cached_property(object):
         return value
 
 #-- Raw reading and writing ---------------------------------------------------
-class open_and_close(object):
-    """A decorator class for opening a file and closing it after the decorated
-    function finishes or raises an exception."""
-    def __init__(self, filename, mode):
-        self.filename = filename
-        self.mode = mode
-
-    def __call__(self, func):
-        def wrapped_func(*args):
-            try:
-                f = open(self.filename, self.mode)
-                func(f, *args)
-            finally:
-                f.close()
-        return wrapped_func
-
 class BinaryFile(file):
     """
     Automatically packs or unpacks binary data according to a format
