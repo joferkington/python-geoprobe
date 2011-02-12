@@ -12,20 +12,69 @@ from _volHeader import headerLength as _headerLength
 # Common methods
 from common import BinaryFile
 from common import format_headerDef_docs
+from common import cached_property
 
-formats = [GeoprobeVolumeV2]
+# Factory function for creating new Volume objects...
+def volume(input, copyFrom=None, rescale=True, voltype=None):
+    """
+    Read an existing geoprobe volue or make a new one based on input data
+        Input: 
+            input: Either the path to a geoprobe volume file or data to 
+                    create a geoprobe object from (either a numpy array or
+                    an object convertable into one). The following keyword
+                    arguments only apply when creating a new volume from
+                    data, not reading from a file.
+            copyFrom (default: None): A geoprobe volume object or path to a
+                    geoprobe volume file to copy relevant header values
+                    from for the new volume object (used only when creating
+                    a new volume from a numpy array).
+            rescale (default: True): Boolean True/False.  If True, the data 
+                    will be rescaled so that data.min(), data.max()
+                    correspond to 0, 255 in volume.data before being
+                    converted to 8-bit values.  If False, the data data
+                    will not be rescaled before converting to type uint8.
+                    (i.e. 0.9987 --> 0, 257.887 --> 1, etc due to rounding
+                    and wrap around)
+    """ 
+    typestrings = {'hdf':HDFVolume, 'geoprobe_v2':GeoprobeVolumeV2}
+    if voltype is None:
+        voltype = formats[0]
+    else:
+        if voltype in typestrings:
+            voltype = typestrings[voltype]
+
+    # What were we given as input?  
+    if isinstance(input, str):  
+        # Assume strings are filenames of a geoprobe array
+        for vol_format in formats:
+            if _check_validity(vol_format, input):
+                vol = vol_format()
+                vol._readVolume(input)
+                return vol
+    else:
+        # If it's not a string, just assume it's a numpy array or
+        # convertable into one and try to make a new volume out of it
+        print copyFrom
+        vol = voltype()
+        vol._newVolume(input, copyFrom=copyFrom, rescale=rescale)
+        return vol
+ 
+def _check_validity(vol_format, filename):
+    try:
+        volfile = vol_format.format_type(filename, 'rb')
+        is_valid = volfile.is_valid()
+        volfile.close()
+        return is_valid
+    except (IOError, EOFError):
+        return False
 
 def isValidVolume(filename):
     """Tests whether a filename is a valid geoprobe file. Returns boolean 
     True/False."""
-    def check_validity(format, filename):
-        try:
-            return format(filename, 'rb').is_valid()
-        except (IOError, EOFError):
-            return False
-    return any([check_validity(format, filename) for format in formats])
+    return any([_check_validity(format, filename) for format in formats])
 
-class volume(object):
+#-- Base Volume Class ---------------------------------------------------------
+class Volume(object):
     # Not a "normal" docstring so that "useful attributes" is set at runtime
     __doc__ = """
     Reads and writes geoprobe volumes
@@ -33,39 +82,12 @@ class volume(object):
     Useful attributes set at initialization:\n%s
     """ % format_headerDef_docs(_headerDef)
 
-    format_type = GeoprobeVolumeV2
+    format_type = None
     
-    def __init__(self, input, copyFrom=None, rescale=True):
-        """
-        Read an existing geoprobe volue or make a new one based on input data
-            Input: 
-                input: Either the path to a geoprobe volume file or data to 
-                        create a geoprobe object from (either a numpy array or
-                        an object convertable into one). The following keyword
-                        arguments only apply when creating a new volume from
-                        data, not reading from a file.
-                copyFrom (default: None): A geoprobe volume object or path to a
-                        geoprobe volume file to copy relevant header values
-                        from for the new volume object (used only when creating
-                        a new volume from a numpy array).
-                rescale (default: True): Boolean True/False.  If True, the data 
-                        will be rescaled so that data.min(), data.max()
-                        correspond to 0, 255 in volume.data before being
-                        converted to 8-bit values.  If False, the data data
-                        will not be rescaled before converting to type uint8.
-                        (i.e. 0.9987 --> 0, 257.887 --> 1, etc due to rounding
-                        and wrap around)
-        """ 
+    def __init__(self):
+        """See the "volume" function's docstring for constructor information"""
+        pass
 
-        # What were we given as input?  
-        if isinstance(input, str):  
-            # Assume strings are filenames of a geoprobe array
-            self._readVolume(input)
-        else:
-            # If it's not a string, just assume it's a numpy array or
-            # convertable into one and try to make a new volume out of it
-            self._newVolume(input, copyFrom, rescale)
- 
     def _readVolume(self,filename):
         """
         Reads the header of a geoprobe volume and sets attributes based on it
@@ -81,7 +103,7 @@ class volume(object):
         data = np.asarray(data)
 
         #Set up the header Dictionary
-        if copyFrom:
+        if copyFrom is not None:
             # Assume the string is the filname of a geoprobe volume
             if isinstance(copyFrom, str): 
                 copyFrom = volume(copyFrom)
@@ -121,7 +143,7 @@ class volume(object):
     def load(self):
         """Reads an entire Geoprobe volume into memory and returns 
         a numpy array contining the volume."""
-        dat = self._infile.load()
+        dat = self._infile.read_data()
         dat = self._fixAxes(dat)
         return dat
 
@@ -586,15 +608,18 @@ class volume(object):
         return m
 
 class GeoprobeVolumeFileV2(object):
+    """Low-level operations for reading and writing to Geoprobe Volume format
+    version 2.0 seismic data files."""
     def __init__(self, filename, mode):
         self.filename = filename
         self.mode = mode
         self._file = BinaryFile(self.filename, self.mode)
 
     def is_valid(self):
+        """Returns a boolean indicating whether this is a valid file."""
         header = self.read_header()
         nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
-        volSize = os.stat(filename).st_size
+        volSize = os.stat(self.filename).st_size
         predSize = nx*ny*nz + _headerLength
 
         if (header['magicNum'] != 43970) or (volSize != predSize): 
@@ -615,7 +640,7 @@ class GeoprobeVolumeFileV2(object):
     def read_data(self):
         """Reads an entire Geoprobe volume into memory and returns 
         a numpy array contining the volume."""
-        header = self.read_header
+        header = self.read_header()
         nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
         dat = np.fromfile(self.filename, dtype=np.uint8)
         dat = dat[_headerLength:]
@@ -623,6 +648,7 @@ class GeoprobeVolumeFileV2(object):
         return dat
 
     def memmap_data(self):
+        """Return an object similar to a memory-mapped numpy array."""
         header = self.read_header()
         nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
         dat = np.memmap(filename=self.filename, mode='r',
@@ -632,6 +658,7 @@ class GeoprobeVolumeFileV2(object):
         return dat
 
     def write_header(self, header):
+        """Write the values in the dict "header" to the file."""
         for varname, info in _headerDef.iteritems():
             value = header.get(varname, info['default'])
             self._file.seek(info['offset'])
@@ -647,4 +674,73 @@ class GeoprobeVolumeFileV2(object):
         #  C-order regardless of the order of the input array, thus
         #  requring the transpose for both F and C ordered arrays)
         data.T.tofile(self._file)
+
+    def close(self):
+        return self._file.close()
+
+class HDFVolumeFile(object):
+    import h5py
+    dataset_name = '/volume'
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+        if 'b' in self.mode:
+            self.mode = self.mode.replace('b', '')
+        self._file = h5py.File(self.filename, self.mode)
+        if 'w' not in self.mode:
+            self.dataset = self._file[self.dataset_name]
+
+    def is_valid(self):
+        return self.dataset_name in self._file
+
+    def read_header(self):
+        return self._file.attrs
+
+    def read_data(self):
+        out = np.empty(self.dataset.shape, self.dataset.dtype)
+        self.dataset.read_direct(out)
+        return out
+
+    def memmap_data(self):
+        return self.dataset
+
+    def write_header(self, header):
+        for key, value in header.iteritems():
+            self._file.attrs[key] = value
+
+    def write_data(self, data):
+        header = self.read_header()
+        dx, dy, dz = [header[item] for item in ['dx', 'dy', 'dz']]
+
+        # Because h5py doesn't support negative steps when indexing, we have to
+        # reverse the data before writing and make all dx, dy, dz's positive!
+        if dz < 0:
+            data = data[:,:,::-1]
+        if dy < 0:
+            data = data[:,::-1,:]
+        if dx < 0:
+            data = data[::-1,:,:]
+
+        self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz)))
+        self.dataset = self._file.create_dataset(self.dataset_name, data=data)
+
+    def close(self):
+        return self._file.close()
+
+#-- Valid file formats --------------------------------------------------------
+class GeoprobeVolumeV2(Volume):
+    format_type = GeoprobeVolumeFileV2
+
+class HDFVolume(Volume):
+    format_type = HDFVolumeFile
+
+formats = [GeoprobeVolumeV2]
+
+# If h5py is available, add HDFVolume's to the list of available formats
+try:
+    import h5py
+    formats.append(HDFVolume)
+except ImportError:
+    pass
+
 
