@@ -679,6 +679,7 @@ class GeoprobeVolumeFileV2(object):
         return self._file.close()
 
 class HDFVolumeFile(object):
+    """Low level operations for reading and writing to hdf5 files."""
     import h5py
     dataset_name = '/volume'
     def __init__(self, filename, mode):
