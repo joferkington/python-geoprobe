@@ -23,8 +23,9 @@ from volume import volume
 from ezfault import ezfault
 from data2d import data2d
 import utilities
+from colormap import colormap
 
 from volume import isValidVolume
 
 __all__ = ['horizon', 'volume', 'ezfault', 'data2d', 'utilities', 
-           'isValidVolume']
+           'isValidVolume', 'colormap']
