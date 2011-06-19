@@ -35,6 +35,9 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
                     will not be rescaled before converting to type uint8.
                     (i.e. 0.9987 --> 0, 257.887 --> 1, etc due to rounding
                     and wrap around)
+            voltype (default: None): Explicitly set the type of volume.
+                    By default, the volume type will be guessed from the
+                    input file. Valid options are: "hdf", "geoprobe_v2"
     """ 
     typestrings = {'hdf':HDFVolume, 'geoprobe_v2':GeoprobeVolumeV2}
     if voltype is None:
@@ -51,6 +54,9 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
                 vol = vol_format()
                 vol._readVolume(input)
                 return vol
+        else:
+            raise IOError('This does not appear to be a valid geoprobe file!')
+
     else:
         # If it's not a string, just assume it's a numpy array or
         # convertable into one and try to make a new volume out of it
@@ -143,8 +149,14 @@ class Volume(object):
     def load(self):
         """Reads an entire Geoprobe volume into memory and returns 
         a numpy array contining the volume."""
-        dat = self._infile.read_data()
-        dat = self._fixAxes(dat)
+        try:
+            dat = self._infile.read_data()
+            dat = self._fixAxes(dat)
+        except AttributeError:
+            # If there's no self._infile attribute, then the volume
+            # has been initialized from an array in memory, and we don't
+            # need to load the data...
+            dat = self.data
         return dat
 
     def write(self, filename):
@@ -186,7 +198,8 @@ class Volume(object):
             data = data.copy()
 
         # Make a new volume instance and set it's mininum model coords
-        vol = type(self)(data, copyFrom=self, rescale=False)
+        vol = type(self)()
+        vol._newVolume(data, copyFrom=self, rescale=False)
         vol.xmin, vol.ymin, vol.zmin = xmin, ymin, zmin
 
         return vol
@@ -680,9 +693,9 @@ class GeoprobeVolumeFileV2(object):
 
 class HDFVolumeFile(object):
     """Low level operations for reading and writing to hdf5 files."""
-    import h5py
     dataset_name = '/volume'
     def __init__(self, filename, mode):
+        import h5py
         self.filename = filename
         self.mode = mode
         if 'b' in self.mode:
