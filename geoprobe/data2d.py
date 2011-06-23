@@ -59,6 +59,7 @@ class data2d(object):
         data = np.fromfile(self._infile, dtype=dtype, count=self._numTraces)
         self.x = data['x']
         self.y = data['y']
+        self.tracenumbers = data['tracenum']
         self.data = data['traces']
 
     @property
