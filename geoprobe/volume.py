@@ -725,17 +725,22 @@ class HDFVolumeFile(object):
     def write_data(self, data):
         header = self.read_header()
         dx, dy, dz = [header[item] for item in ['dx', 'dy', 'dz']]
+        x0, y0, z0 = [header[item] for item in ['x0', 'y0', 'z0']]
 
         # Because h5py doesn't support negative steps when indexing, we have to
         # reverse the data before writing and make all dx, dy, dz's positive!
         if dz < 0:
             data = data[:,:,::-1]
+            z0 = z0 + (data.shape[2] - 1) * dz
         if dy < 0:
             data = data[:,::-1,:]
+            y0 = y0 + (data.shape[1] - 1) * dy
         if dx < 0:
             data = data[::-1,:,:]
+            x0 = x0 + (data.shape[0] - 1) * dx
 
-        self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz)))
+        self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz), 
+                          x0=x0, y0=y0, z0=z0))
         self.dataset = self._file.create_dataset(self.dataset_name, data=data)
 
     def close(self):
