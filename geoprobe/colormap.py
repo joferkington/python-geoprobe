@@ -30,9 +30,17 @@ class colormap(object):
     def as_matplotlib(self):
         from matplotlib.colors import LinearSegmentedColormap
         cdict = dict(red=[], green=[], blue=[])
-        for stop_value, red, green, blue, alpha, in self.keys:
+
+        # Make sure that there is a key at 0.0 and 1.0
+        keys = self.keys.tolist()
+        if keys[0][0] != 0:
+            keys = [[0.0] + keys[0][1:]] + keys
+        if keys[-1][0] != 1.0:
+            keys.append([1.0] + keys[-1][1:])
+
+        for stop_value, red, green, blue, alpha, in keys:
             for name, val in zip(['red', 'green', 'blue'], [red, green, blue]):
-                cdict[name].append(stop_value, val, val)
+                cdict[name].append([stop_value, val, val])
         return LinearSegmentedColormap(self.filename, cdict, self.num_colors)
 
     @property
