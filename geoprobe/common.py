@@ -1,5 +1,4 @@
 #! /usr/bin/python
-import sys, os
 import struct
 import textwrap
 import numpy as np

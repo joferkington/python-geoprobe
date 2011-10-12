@@ -1,4 +1,3 @@
-import struct
 import numpy as np
 from common import BinaryFile
 from common import format_headerDef_docs

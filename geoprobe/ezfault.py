@@ -8,6 +8,7 @@ import numpy as np
 
 # Local files
 import utilities
+from volume import volume
 
 class ezfault(object):
     """Simple geoprobe ezfault reader."""
@@ -178,7 +179,8 @@ class ezfault(object):
 
         if vol is not None:
             # Interpolate ezfault at volume indicies
-            if type(vol) == type('String'): vol = volume(vol)
+            if type(vol) == type('String'): 
+                vol = volume(vol)
             dx, dy = abs(vol.dx), abs(vol.dy)
 
             # Make sure we start at a volume index
@@ -195,7 +197,6 @@ class ezfault(object):
 
         X = np.arange(xstart, xstop, dx)
         Y = np.arange(ystart, ystop, dy)
-        print X.shape, Y.shape
         # Not needed w/ new way of interpolating?
 #        X,Y = np.meshgrid(X,Y)
         grid = self.interpolate(X,Y)
