@@ -1,5 +1,4 @@
 import numpy as np
-import struct
 
 #-- Imports from local files --------------------------------------
 from volume import volume
