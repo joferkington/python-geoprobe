@@ -16,53 +16,125 @@ class data2d(object):
         y: a list of the y-coordinates of each trace\n%s
     """ % format_headerDef_docs(_headerDef)
 
-    def __init__(self, filename):
+    def __init__(self, arg, x=None, y=None, tracenumbers=None, copyFrom=None):
         """
         Input:
             filename: The name of the 2D data file
         """
-        self._infile = BinaryFile(filename, 'r')
-        self._readHeader()
-        self._readTraces()
+        if isinstance(arg, basestring):
+            filename = arg
+            infile = BinaryFile(filename, 'rb')
+            self._read_header(infile)
+            self._read_traces(infile)
+            infile.close()
+        else:
+            if x is None or y is None:
+                raise ValueError('When creating a new data2d object, '\
+                        'x and y must both be specified.')
+            self._new_file(arg, x, y, tracenumbers, copyFrom)
 
-    def _readHeader(self):
+    def _new_file(self, data, x, y, tracenumbers=None, copyFrom=None,
+                  starttime=0.0, endtime=None, samplerate=1.0):
+        self.data, self.x, self.y = data, x, y
+        if tracenumbers is None:
+            tracenumbers = np.arange(1, self.numtraces+1, dtype='>f4')
+        self.tracenumbers = tracenumbers
+        # Set up the header Dictionary
+        if copyFrom is not None:
+            # Assume the string is the filename of a 2d data file
+            if isinstance(copyFrom, basestring):
+                copyFrom = data2d(copyFrom)
+            try:
+                self.headerValues = copyFrom.headerValues
+            except AttributeError:
+                raise TypeError('This does not appear to be a valid geoprobe'\
+                                ' 2d data object')
+        else:
+            # Set default attributes
+            for varname, info in _headerDef.iteritems():
+                setattr(self, varname, info['default'])
+            self._numtraces, self._numsamples = data.shape
+
+            if endtime is None:
+                endtime = starttime + samplerate * self.numsamples
+            self.starttime = starttime
+            self.samplerate = samplerate
+            self.endtime = endtime
+
+    def write(self, outfile):
+        if isinstance(outfile , basestring):
+            outfile = BinaryFile(outfile, 'wb')
+        self._write_header(outfile)
+        self._write_traces(outfile)
+        outfile.close()
+
+    def _read_header(self, infile):
         """
         Read the values stored in the file header and set each one as
         an attribue of the data2d object.
         """
-        for varname, props in _headerDef.iteritems():
-            offset, fmt = props['offset'], props['type']
-            self._infile.seek(offset)
-            var = self._infile.readBinary(fmt)
+        for varname, info in _headerDef.iteritems():
+            offset, fmt = info['offset'], info['type']
+            infile.seek(offset)
+            var = infile.readBinary(fmt)
             setattr(self, varname, var)
 
-    @property
-    def headerValues(self):
+    def _write_header(self, outfile):
+        """Write the values in self.headerValues to "outfile"."""
+        for varname, info in _headerDef.iteritems():
+            value = getattr(self, varname, info['default'])
+            outfile.seek(info['offset'])
+            outfile.writeBinary(info['type'], value)
+
+    def _getHeaderValues(self):
         """
         A dict of all the values stored in the file header
         (Each of these is also an attribute of any data2d object)
         """
-        output = {}
-        for varname in _headerDef.keys():
-            output[varname] = getattr(self, varname)
-        return output
-        
-    def _readTraces(self):
+        # Return the current instance attributes that are a part of the 
+        # header definition  
+        values = {}
+        for key in _headerDef.keys():
+            # If it's been deleted for some reason, return the default value
+            default = _headerDef[key]['default']  
+            values[key] = getattr(self, key, default)
+        return values
+     
+    def _setHeaderValues(self, input):
+        for key, value in input.iteritems():
+            # Only set things in input that are normally in the header
+            if key in _headerDef:
+                setattr(self, key, value)
+
+    headerValues = property(_getHeaderValues, _setHeaderValues)
+   
+    def _read_traces(self, infile):
         """
         Read all traces (everything other than the file header) 
-        from self._infile
+        from "infile".
         """
         dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), 
-                ('traces', '%i>u1'%self._numSamples)]
-        self._infile.seek(_headerLength)
-        data = np.fromfile(self._infile, dtype=dtype, count=self._numTraces)
+                ('traces', '%i>u1'%self._numsamples)]
+        infile.seek(_headerLength)
+        data = np.fromfile(infile, dtype=dtype, count=self._numtraces)
         self.x = data['x']
         self.y = data['y']
         self.tracenumbers = data['tracenum']
         self.data = data['traces']
 
+    def _write_traces(self, outfile):
+        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), 
+                 ('traces', '%i>u1'%self._numsamples)]
+        outfile.seek(_headerLength)
+        data = np.empty(self.numtraces, dtype=dtype)
+        data['x'] = self.x
+        data['y'] = self.y
+        data['traces'] = self.data
+        data['tracenum'] = self.tracenumbers
+        data.tofile(outfile, sep='')
+
     @property
-    def numTraces(self):
+    def numtraces(self):
         """
         The number of traces stored in the file.
         Equivalent to self.data.shape[0]
@@ -70,7 +142,7 @@ class data2d(object):
         return self.data.shape[0]
 
     @property
-    def numSamples(self):
+    def numsamples(self):
         """
         The number of samples in each trace stored in the file
         Equivalent to self.data.shape[1]
