@@ -46,7 +46,7 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
             voltype = typestrings[voltype]
 
     # What were we given as input?  
-    if isinstance(input, str):  
+    if isinstance(input, basestring):  
         # Assume strings are filenames of a geoprobe array
         for vol_format in formats:
             if _check_validity(vol_format, input):
@@ -140,7 +140,7 @@ class Volume(object):
         #Set up the header Dictionary
         if copyFrom is not None:
             # Assume the string is the filname of a geoprobe volume
-            if isinstance(copyFrom, str): 
+            if isinstance(copyFrom, basestring): 
                 copyFrom = volume(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
@@ -531,7 +531,7 @@ class Volume(object):
             raise ValueError('"axis" must be one of 0,1,2 or "x","y","z"')
 
         # Allow both 0,1,2 and 'x','y','z' (or 'X','Y','Z') for axis
-        if isinstance(axis, str): 
+        if isinstance(axis, basestring): 
             axis = axis.upper()
             axis = {'X':0, 'Y':1, 'Z':2}[axis]
 
