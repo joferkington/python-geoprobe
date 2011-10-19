@@ -72,7 +72,7 @@ class horizon(object):
 
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
-        if (len(args) == 1) and isinstance(args[0], str):
+        if (len(args) == 1) and isinstance(args[0], basestring):
             self._readHorizon(args[0])    
 
         # Otherwise, pass the args on to _make_horizon_from_data for

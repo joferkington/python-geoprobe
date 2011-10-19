@@ -19,7 +19,7 @@ def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
     for key in sorted(headerDef.keys()):
         value = headerDef[key]
         default = value['default']
-        if isinstance(default, str):
+        if isinstance(default, basestring):
             default = default.strip()
 
         doc = '%s: %s (default=%s)' % (key, value['doc'], repr(default))
@@ -72,7 +72,7 @@ class BinaryFile(file):
 
         for item in data:
             # Strip trailing zeros in strings 
-            if isinstance(item, str):
+            if isinstance(item, basestring):
                 item = item.strip('\x00')
 
         # Unpack the tuple if it only has one value
