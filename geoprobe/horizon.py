@@ -262,6 +262,7 @@ class horizon(object):
             return self._grid_extents
         except AttributeError:
             self._grid_extents = (self.xmin, self.xmax, self.ymin, self.ymax)
+            return self._grid_extents
     def _set_grid_extents(self, value):
         xmin, xmax, ymin, ymax = value
         if (xmin > xmax) or (ymin > ymax):
@@ -287,9 +288,9 @@ class horizon(object):
             ny, nx = (ymax - ymin + 1), (xmax - xmin + 1)
             grid = np.ma.masked_all((ny, nx), dtype=np.float32)
             grid.fill_value = self.nodata
-            I = np.array(x - x.min(), dtype=np.int)
-            J = np.array(y - y.min(), dtype=np.int)
-            inside_extents = (I >= 0) & (I < nx) & (J >= 0) & (J < nx)
+            I = np.array(x - xmin, dtype=np.int)
+            J = np.array(y - ymin, dtype=np.int)
+            inside_extents = (I >= 0) & (I < nx) & (J >= 0) & (J < ny)
             I = I[inside_extents]
             J = J[inside_extents]
             grid[J,I] = z[inside_extents]
