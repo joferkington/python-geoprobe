@@ -35,7 +35,7 @@ headerDef = {
         'v0user':           {'offset':196,  'type':'>f',    'default':0.0  ,       'doc':'User-specified voxel value calibration factor (No idea what that means!)'},
         'dx':               {'offset':200,  'type':'>f',    'default':1.0  ,       'doc':'X-axis scaling factor'},
         'dy':               {'offset':204,  'type':'>f',    'default':1.0  ,       'doc':'Y-axis scaling factor'},
-        'dz':               {'offset':208,  'type':'>f',    'default':1.0  ,       'doc':'Z-axis scaling factor'},
+        'dz':               {'offset':208,  'type':'>f',    'default':-1.0 ,       'doc':'Z-axis scaling factor'},
         'dv':               {'offset':212,  'type':'>f',    'default':1.0  ,       'doc':'Voxel value scaling factor'},
         'dvuser':           {'offset':216,  'type':'>f',    'default':1.0  ,       'doc':'User-specified voxel value scaling factor (No idea what that means!)'},
         'xunit':            {'offset':220,  'type':'16s',   'default':'Unknown' ,  'doc':'Physical units for the X-axis'},
