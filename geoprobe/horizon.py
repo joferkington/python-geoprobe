@@ -19,8 +19,10 @@ class horizon(object):
     These are views into horizon.data, so any changes made to these will 
     update horizon.data and vice versa.
 
-    horizon.grid is a 2d numpy array of the z-values in the horizon filled
-    with horizon.nodata in regions where there aren't any z-values
+    horizon.grid is a 2d numpy masked array of the z-values in the horizon
+    masked in regions where there aren't any z-values. The extent of the grid
+    is controlled by horizon.grid_extents (a tuple of xmin, xmax, ymin, ymax)
+    which is inferred from the underlying x,y data if it is not specified.
 
     Useful attributes set at initialization:
         data: A structured numpy array with the fields 'x', 'y', 'z',
@@ -250,6 +252,29 @@ class horizon(object):
             doc='Z-coordinates of all points stored in the horizon')
     #--------------------------------------------------------------------------
 
+    #-- Grid Extents Property -------------------------------------------------
+    def _get_grid_extents(self):
+        """A tuple of (xmin, ymin, xmax, ymax) indicating the extent (in model
+        coordinates) of self.grid. This is inferred from the extents of the
+        horizon's data unless it is manually set, in which case the self.grid
+        will cover the indicated area."""
+        try:
+            return self._grid_extents
+        except AttributeError:
+            self._grid_extents = (self.xmin, self.xmax, self.ymin, self.ymax)
+    def _set_grid_extents(self, value):
+        xmin, xmax, ymin, ymax = value
+        if (xmin > xmax) or (ymin > ymax):
+            raise ValueError('Grid extents must be (xmin, xmax, ymin, ymax)')
+        self._grid_extents = value
+        # Delete the cache of self.grid, as it will now be invalid.
+        try:
+            del self._grid
+        except AttributeError:
+            pass
+    grid_extents = property(_get_grid_extents, _set_grid_extents)
+    #--------------------------------------------------------------------------
+
     #-- Grid Property ---------------------------------------------------------
     def _get_grid(self):
         """An nx by ny numpy array (dtype=float32) of the z values contained
@@ -258,13 +283,16 @@ class horizon(object):
             return self._grid
         except AttributeError:
             x, y, z = self.x, self.y, self.z
-            grid = np.ma.masked_all(
-                            (y.ptp() + 1, x.ptp() + 1 ), 
-                            dtype=np.float32)
+            xmin, xmax, ymin, ymax = self.grid_extents
+            ny, nx = (ymax - ymin + 1), (xmax - xmin + 1)
+            grid = np.ma.masked_all((ny, nx), dtype=np.float32)
             grid.fill_value = self.nodata
             I = np.array(x - x.min(), dtype=np.int)
             J = np.array(y - y.min(), dtype=np.int)
-            grid[J,I] = z
+            inside_extents = (I >= 0) & (I < nx) & (J >= 0) & (J < nx)
+            I = I[inside_extents]
+            J = J[inside_extents]
+            grid[J,I] = z[inside_extents]
             self._grid = grid
             return self._grid
     def _set_grid(self, value):
