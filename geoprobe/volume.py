@@ -98,7 +98,7 @@ class Volume(object):
         of volume.data as a numpy array."""
         new_values = self._convert_slice_to_indicies(value)
         dataslice = self.data.__getitem__(new_values)
-        return dataslice.T
+        return dataslice
 
     def _convert_slice_to_indicies(self, value):
         """Converts a slice or integer passed into __getitem__ into indicies"""
