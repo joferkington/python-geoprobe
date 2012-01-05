@@ -121,7 +121,7 @@ def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     if transform is not None:
         try:
             transform = transform.transform
-        except AttribueError:
+        except AttributeError:
             # Else, assume it's already 2x3 array containg an affine transformation
             pass
     if extents is not None:
@@ -143,7 +143,7 @@ def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     else: 
         # Assume geotiff and append ".tif"
         format = 'GTiff'
-        outputFilename += '.tif'
+        filename += '.tif'
 
     # Need to change horizon.grid, and change this when I do... 
     # Everything should probably expect a x by y array to maintain consistency with volume.data
@@ -321,7 +321,7 @@ def normal2SD(x,y,z):
         strike: The strike of the plane, in degrees clockwise from north
         dip: The dip of the plane, in degrees downward from horizontal
     """
-    from math import acos, asin, atan2,  sqrt, degrees
+    from math import asin, atan2,  sqrt, degrees
 
     # Due to geologic conventions, positive angles are downwards
     z = -z
