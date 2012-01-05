@@ -59,7 +59,6 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
     else:
         # If it's not a string, just assume it's a numpy array or
         # convertable into one and try to make a new volume out of it
-        print copyFrom
         vol = voltype()
         vol._newVolume(input, copyFrom=copyFrom, rescale=rescale)
         return vol
@@ -760,10 +759,13 @@ class HDFVolumeFile(object):
         # reverse the x0, y0, z0 before writing and make all d's positive!
         if dz < 0:
             z0 = z0 + (data.shape[2] - 1) * dz
+            data = data[:,:,::-1]
         if dy < 0:
             y0 = y0 + (data.shape[1] - 1) * dy
+            data = data[:,::-1,:]
         if dx < 0:
             x0 = x0 + (data.shape[0] - 1) * dx
+            data = data[::-1,:,:]
 
         self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz), 
                           x0=x0, y0=y0, z0=z0))
