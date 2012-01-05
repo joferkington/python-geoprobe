@@ -127,7 +127,7 @@ class horizon(object):
             
         elif len(args) == 2:
             # Assume arguments are surface + lines
-            init_from_surface_lines(self, surface=args[0], lines=args[1])
+            self._init_from_surface_lines(self, surface=args[0], lines=args[1])
 
         elif len(args) == 3:
             # Assume arguments are x, y, and z arrays
@@ -363,6 +363,7 @@ class horizon(object):
         data = self.grid
         data.fill_value = nodata
         data *= zscale
+        data = data.filled()
 
         array2geotiff(data, filename, nodata=nodata, 
                       extents=(Xoffset, Yoffset), transform=transform)
