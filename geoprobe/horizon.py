@@ -3,7 +3,7 @@ import numpy as np
 #-- Imports from local files --------------------------------------
 from volume import volume
 from common import BinaryFile 
-from common import array2geotiff
+from utilities import array2geotiff
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
