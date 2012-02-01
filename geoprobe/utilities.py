@@ -375,6 +375,41 @@ def array2geotiff(data, filename, nodata=-9999, transform=None, extents=None):
     # Write dataset
     dataset.GetRasterBand(1).WriteArray(data)
 
+def extract_section(data, x, y, zmin=None, zmax=None):
+    """Extracts an "arbitrary" section from data defined by vertices in *x*,*y*.
+    Input:
+        *data*: A 2D or 3D numpy array.
+        *x*: A sequence of indicies along the first axis.
+        *y*: A sequence of indicies along the second axis.
+        *zmin*: The minimum "z" index along the 3rd axis to be extracted.
+        *zmin*: The maximum "z" index along the 3rd axis to be extracted."""
+    def interpolate_endpoints(x, y):
+        xi, yi = [], []
+        for i in range(x.size-1):
+            line_length = np.sqrt(
+                    (x[i] - x[i+1])**2 + (y[i] - y[i+1])**2
+                    ).astype(np.int)
+            a = np.linspace(x[i], x[i+1], line_length, endpoint=False)
+            b = np.linspace(y[i], y[i+1], line_length, endpoint=False)
+            xi.append(a.astype(np.int))
+            yi.append(b.astype(np.int))
+        xi = np.hstack(xi)
+        yi = np.hstack(yi)
+        return xi, yi
+
+    data = np.atleast_3d(data)
+    nx, ny, nz = data.shape
+    zslice = slice(zmin, zmax)
+
+    xi, yi = interpolate_endpoints(x, y)
+    inside = (xi >= 0) & (xi < nx) & (yi >= 0) & (yi < ny)
+    xi, yi = xi[inside], yi[inside]
+    output = []
+    for i, j in zip(xi, yi):
+        output.append(data[i, j, zslice])
+    section = np.vstack(output)
+    return section, xi, yi
+
 def points2strikeDip(x, y, z, vol=None, velocity=None, independent=None):
     """
     Takes a point cloud defined by 3 vectors and returns a strike and dip 

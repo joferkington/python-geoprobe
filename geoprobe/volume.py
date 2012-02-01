@@ -13,6 +13,8 @@ from _volHeader import headerLength as _headerLength
 from common import BinaryFile
 from common import format_headerDef_docs
 
+import utilities
+
 # Factory function for creating new Volume objects...
 def volume(input, copyFrom=None, rescale=True, voltype=None):
     """
@@ -438,6 +440,33 @@ class Volume(object):
         Zpos = self.model2index(Zpos, axis='z')
         return self.data[:,:,Zpos].transpose()
 
+    def extract_section(self, x, y, zmin=None, zmax=None, coords='model'):
+        """Extracts an "arbitrary" section defined by vertices in *x* and *y*.
+        Input:
+            *x*: A sequence of x coords in the coordinate system specified by
+                *coords*. (*coords* defaults to "model")
+            *y*: A sequence of y coords in the coordinate system specified by
+                *coords*
+            *zmin*: The minimum "z" value for the returned section
+                (in depth/time) 
+            *zmax*: The maximum "z" value for the returned section
+                (in depth/time) 
+            *coords*: Either "model" or "world", specifying whether *x* and *y*
+                are given in model or world coordinates."""
+        if coords == 'world':
+            x, y = self.world2model(x, y)
+        elif coords != 'model':
+            raise ValueError('"coords" must be either "world" or "model".')
+        if zmin is not None:
+            zmin = self.model2index(zmin, axis='z')
+        if zmax is not None:
+            zmax = self.model2index(zmax, axis='z')
+        x, y = self.model2index(x, y)
+        section, xi, yi = utilities.extract_section(self.data, x, y, zmin, zmax)
+        if coords == 'world':
+            xi, yi = self.model2world(xi, yi)
+        return section, xi, yi
+
     def model2index(self, *coords, **kwargs):
         """Converts model coordinates into array indicies
         Input: 
@@ -510,13 +539,13 @@ class Volume(object):
             axis = axis % 3 
             mins = [self.xmin, self.ymin, self.zmin]
             Ds = [abs(self.dx), abs(self.dy), abs(self.dz)]
-            min, d = mins[axis], Ds[axis]
+            minimum, d = mins[axis], Ds[axis]
 
             # Convert the coordinates
             if inverse:  # index2model
-                return value * d + min
+                return value * d + minimum
             else: # model2index
-                idx = (value - min) / d
+                idx = (value - minimum) / d
                 return idx.astype(np.int)
 
         #-- Handle user input -------------------------------------------------
@@ -537,9 +566,11 @@ class Volume(object):
         # Handle calling f(x), f(x,y), f(x,y,z), f(z,axis=2), etc 
         converted = [convert(x, i+axis, inverse) for i,x in enumerate(coords)]
 
-        # If there's just one value, return it, otherwise return a tuple
-        if len(converted) == 1: return converted[0]
-        else: return converted
+        # If there's just one value, return it, otherwise return a sequence
+        if len(converted) == 1:
+            return converted[0]
+        else:
+            return converted
 
     def model2world(self,crossline,inline=None):
         """
