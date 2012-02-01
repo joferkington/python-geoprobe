@@ -246,7 +246,7 @@ class Volume(object):
 
     def _setData(self, newData):
         """Set self.data without making a copy in-memory"""
-        newData = np.asarray(newData, dtype=np.uint8)
+        newData = np.asanyarray(newData, dtype=np.uint8)
         # Make sure we're dealing with a 3D numpy array
         try:
             self._nx, self._ny, self._nz = newData.shape
