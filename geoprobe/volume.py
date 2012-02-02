@@ -463,6 +463,7 @@ class Volume(object):
             zmax = self.model2index(zmax, axis='z')
         x, y = self.model2index(x, y)
         section, xi, yi = utilities.extract_section(self.data, x, y, zmin, zmax)
+        xi, yi = self.index2model(xi, yi)
         if coords == 'world':
             xi, yi = self.model2world(xi, yi)
         return section, xi, yi
