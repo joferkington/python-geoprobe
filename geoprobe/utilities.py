@@ -397,7 +397,14 @@ def extract_section(data, x, y, zmin=None, zmax=None):
         yi = np.hstack(yi)
         return xi, yi
 
-    data = np.atleast_3d(data)
+    # For some things (e.g. hdf arrays), atleast_3d will inadvertently load
+    # the entire array into memory. In those cases, we'll skip it...
+    try:
+        ndims = len(data.shape)
+    except AttributeError:
+        data = np.asarray(data)
+    if ndims != 3:
+        data = np.atleast_3d(data)
     nx, ny, nz = data.shape
     zslice = slice(zmin, zmax)
 
@@ -405,9 +412,15 @@ def extract_section(data, x, y, zmin=None, zmax=None):
     inside = (xi >= 0) & (xi < nx) & (yi >= 0) & (yi < ny)
     xi, yi = xi[inside], yi[inside]
     output = []
+    # Using fancy indexing will only work in certain cases for hdf arrays...
     for i, j in zip(xi, yi):
         output.append(data[i, j, zslice])
-    section = np.vstack(output)
+    try:
+        # Need to make sure we properly handle masked arrays, thus np.ma...
+        section = np.ma.vstack(output)
+    except ValueError:
+        # Just return an empty array if nothing is inside...
+        section = np.array([])
     return section, xi, yi
 
 def points2strikeDip(x, y, z, vol=None, velocity=None, independent=None):
