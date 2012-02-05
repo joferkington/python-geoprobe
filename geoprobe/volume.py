@@ -457,10 +457,20 @@ class Volume(object):
             x, y = self.world2model(x, y)
         elif coords != 'model':
             raise ValueError('"coords" must be either "world" or "model".')
-        if zmin is not None:
-            zmin = self.model2index(zmin, axis='z')
-        if zmax is not None:
-            zmax = self.model2index(zmax, axis='z')
+        if zmin is None:
+            zmin = self.zmin
+        if zmax is None:
+            zmax = self.zmax
+        zmax = self.model2index(zmax, axis='z')
+        zmin = self.model2index(zmin, axis='z')
+
+        # If zmin and zmax are out of bounds, things will work fine, but the
+        # returned array won't represent data between zmin and zmin, only the
+        # data between self.zmin and self.zmax. Best to be noisy!
+        if (zmin < 0) or (zmax > self.nz):
+            msg = '"zmin" and "zmax" must be between %.1f and %.1f'
+            raise ValueError(msg % (self.zmin, self.zmax))
+
         x, y = self.model2index(x, y)
         section, xi, yi = utilities.extract_section(self.data, x, y, zmin, zmax)
         xi, yi = self.index2model(xi, yi)
