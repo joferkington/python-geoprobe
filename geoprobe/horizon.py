@@ -286,14 +286,15 @@ class horizon(object):
             x, y, z = self.x, self.y, self.z
             xmin, xmax, ymin, ymax = self.grid_extents
             ny, nx = (ymax - ymin + 1), (xmax - xmin + 1)
-            grid = np.ma.masked_all((ny, nx), dtype=np.float32)
-            grid.fill_value = self.nodata
+            grid = self.nodata * np.ones((ny, nx), dtype=np.float32)
             I = np.array(x - xmin, dtype=np.int)
             J = np.array(y - ymin, dtype=np.int)
             inside_extents = (I >= 0) & (I < nx) & (J >= 0) & (J < ny)
             I = I[inside_extents]
             J = J[inside_extents]
             grid[J,I] = z[inside_extents]
+            grid = np.ma.masked_values(grid, self.nodata, copy=False)
+            grid.fill_value = self.nodata
             self._grid = grid
             return self._grid
     def _set_grid(self, value):
