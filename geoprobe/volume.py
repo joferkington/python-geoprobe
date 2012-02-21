@@ -314,7 +314,6 @@ class Volume(object):
         axisLetter = ['x','y','z'][axis]
         n = [self.nx, self.ny, self.nz][axis]
         d = [self.dx, self.dy, self.dz][axis]
-        offset = [self.x0, self.y0, self.z0][axis]
         if ((max is True) & (d>0)) or ((max is False) & (d<0)):
             value = value + (n-1) * abs(d)
         setattr(self, axisLetter+'0', value)
