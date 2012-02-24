@@ -384,17 +384,11 @@ def extract_section(data, x, y, zmin=None, zmax=None):
         *zmin*: The minimum "z" index along the 3rd axis to be extracted.
         *zmin*: The maximum "z" index along the 3rd axis to be extracted."""
     def interpolate_endpoints(x, y):
-        xi, yi = [], []
-        for i in range(x.size-1):
-            line_length = np.sqrt(
-                    (x[i] - x[i+1])**2 + (y[i] - y[i+1])**2
-                    ).astype(np.int)
-            a = np.linspace(x[i], x[i+1], line_length, endpoint=False)
-            b = np.linspace(y[i], y[i+1], line_length, endpoint=False)
-            xi.append(a.astype(np.int))
-            yi.append(b.astype(np.int))
-        xi = np.hstack(xi)
-        yi = np.hstack(yi)
+        distance = np.cumsum(np.hypot(np.diff(x), np.diff(y)))
+        distance = np.r_[0, distance]
+        i = np.arange(int(distance.max()))
+        xi = np.interp(i, distance, x)
+        yi = np.interp(i, distance, y)
         return xi, yi
 
     # For some things (e.g. hdf arrays), atleast_3d will inadvertently load
