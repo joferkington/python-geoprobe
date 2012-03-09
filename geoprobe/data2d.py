@@ -5,16 +5,17 @@ from _2dHeader import headerDef as _headerDef
 from _2dHeader import headerLength as _headerLength
 
 class data2d(object):
-    # Not a "normal" docstring so that "useful attributes" is set 
-    # at initialization
     __doc__ = """
     Reads geoprobe 2D data files.
 
     Useful Attributes:
         data: array containg the seismic data as uint8's
         x: a list of the x-coordinates of each trace
-        y: a list of the y-coordinates of each trace\n%s
+        y: a list of the y-coordinates of each trace
+        z: a list of the z-coordinates of each trace\n%s
     """ % format_headerDef_docs(_headerDef)
+    # Not a "normal" docstring so that "useful attributes" is set 
+    # at initialization
 
     def __init__(self, arg, x=None, y=None, tracenumbers=None, copyFrom=None):
         """
@@ -107,6 +108,14 @@ class data2d(object):
                 setattr(self, key, value)
 
     headerValues = property(_getHeaderValues, _setHeaderValues)
+
+    # Unused... Damnit, I need to decide what I'm doing here...
+    def _fix_axes(self, data):
+        """Reverses the z axis if dz is negative. This ensures that 
+        self.data[:,0] always corresponds to self.zmin."""
+        if self.dz < 0:
+            data = data[:, ::-1]
+        return data
    
     def _read_traces(self, infile):
         """
@@ -132,6 +141,41 @@ class data2d(object):
         data['traces'] = self.data
         data['tracenum'] = self.tracenumbers
         data.tofile(outfile, sep='')
+
+    def _get_z(self):
+        """Z-values (time/depth) for each trace."""
+        try:
+            return self._z
+        except AttributeError:
+            self._z = np.linspace(self.zmin, self.zmax, self.numsamples)
+            return self._z
+    def _set_z(self, value):
+        self._z = value
+    z = property(_get_z, _set_z)
+
+    def _bounds(self):
+        start = self.z0
+        # Fix this!!! "abs" is temporary!!!!
+        stop = start + abs(self.dz) * (self.numsamples - 1)
+        return start, stop
+
+    def _get_scaled_data(self):
+        """Trace array in its original units."""
+        return self.data * self.dv + self.v0
+    def _set_scaled_data(self, value):
+        self.v0 = value.min()
+        self.dv = value.ptp() / 256.0
+        self.data = (value - self.v0) / self.dv
+    scaled_data = property(_get_scaled_data, _set_scaled_data)
+
+
+    @property
+    def zmin(self):
+        return min(self._bounds())
+
+    @property
+    def zmax(self):
+        return max(self._bounds())
 
     @property
     def numtraces(self):
