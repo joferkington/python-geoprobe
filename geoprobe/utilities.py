@@ -83,7 +83,6 @@ def create_isopach(hor1, hor2, extent='intersection'):
     hor2.grid_extents = extent
 
     grid = hor1.grid - hor2.grid
-    print x.shape, grid.shape
     mask = ~grid.mask * np.ones_like(grid, dtype=np.bool) 
     x, y, z, mask = x.ravel(), y.ravel(), grid.ravel(), mask.ravel()
     iso = horizon.horizon(x=x[mask], y=y[mask], z=z[mask])
