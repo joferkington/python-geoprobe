@@ -6,8 +6,92 @@ import numpy as np
 import volume
 import horizon
 
-def extractWindow(hor, vol, upper=0, lower=None, offset=0, 
-                region=None, masked=False):
+def bbox_intersects(bbox1, bbox2):
+    """
+    Checks whether two bounding boxes overlap or touch.
+    Input: 
+        bbox1: 4-tuple of (xmin, xmax, ymin, ymax) for the first region
+        bbox2: 4-tuple of (xmin, xmax, ymin, ymax) for the second region
+    Output:
+        boolean True/False
+    """
+    # Check for intersection
+    xmin1, xmax1, ymin1, ymax1 = bbox1
+    xmin2, xmax2, ymin2, ymax2 = bbox2
+    xdist = abs( (xmin1 + xmax1) / 2.0 - (xmin2 + xmax2) / 2.0 )
+    ydist = abs( (ymin1 + ymax1) / 2.0 - (ymin2 + ymax2) / 2.0 )
+    xwidth = (xmax1 - xmin1 + xmax2 - xmin2) / 2.0
+    ywidth = (ymax1 - ymin1 + ymax2 - ymin2) / 2.0
+    return (xdist <= xwidth) and (ydist <= ywidth)
+
+def bbox_intersection(bbox1, bbox2):
+    """
+    Extract the intersection of two bounding boxes.
+    Input: 
+        bbox1: 4-tuple of (xmin, xmax, ymin, ymax) for the first region
+        bbox2: 4-tuple of (xmin, xmax, ymin, ymax) for the second region
+    Output:
+        Returns a 4-tuple of (xmin, xmax, ymin, ymax) for overlap between 
+        the two input bounding-box regions or None if they are disjoint.
+    """
+    if not bbox_intersects(bbox1, bbox2):
+        return None
+
+    output = []
+    for i, comparison in enumerate(zip(bbox1, bbox2)):
+        # mininum x or y coordinate
+        if i % 2 == 0:
+            output.append(max(comparison))
+        # maximum x or y coordinate
+        elif i % 2 == 1:
+            output.append(min(comparison))
+    return output
+
+def bbox_union(bbox1, bbox2):
+    """
+    Extract the union of two bounding boxes.
+    Input: 
+        bbox1: 4-tuple of (xmin, xmax, ymin, ymax) for the first region
+        bbox2: 4-tuple of (xmin, xmax, ymin, ymax) for the second region
+    Output:
+        Returns a 4-tuple of (xmin, xmax, ymin, ymax)    
+    """
+    output = []
+    for i, comparison in enumerate(zip(bbox1, bbox2)):
+        # mininum x or y coordinate
+        if i % 2 == 0:
+            output.append(min(comparison))
+        # maximum x or y coordinate
+        elif i % 2 == 1:
+            output.append(max(comparison))
+    return output
+
+def create_isopach(hor1, hor2, extent='intersection'):
+    """Create new horizon with the difference between hor1 and hor2."""
+    if isinstance(extent, basestring):
+        if extent.lower() == 'union':
+            extent = bbox_union(hor1.grid_extents, hor2.grid_extents)
+        elif extent.lower() == 'intersection':
+            extent = bbox_intersection(hor1.grid_extents, hor2.grid_extents)
+            if extent is None:
+                raise ValueError('Horizons do not overlap!')
+        else:
+            raise ValueError('Invalid extent type specified')
+    xmin, xmax, ymin, ymax = extent
+    x, y = np.mgrid[xmin:xmax+1, ymin:ymax+1]
+    hor1.grid_extents = extent
+    hor2.grid_extents = extent
+
+    grid = hor1.grid - hor2.grid
+    print x.shape, grid.shape
+    mask = ~grid.mask * np.ones_like(grid, dtype=np.bool) 
+    x, y, z, mask = x.ravel(), y.ravel(), grid.ravel(), mask.ravel()
+    iso = horizon.horizon(x=x[mask], y=y[mask], z=z[mask])
+    iso._grid = grid
+    return iso
+
+def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None, 
+                  masked=False):
     """Extracts a window around a horizion out of a geoprobe volume
     Input:
         hor: a geoprobe horizion object or horizion filename
@@ -25,38 +109,6 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0,
     Output:
         returns a numpy volume "flattened" along the horizion
     """
-    def bbox_overlap(bbox1, bbox2):
-        """
-        Input: 
-            bbox1: 4-tuple of (xmin, xmax, ymin, ymax) for the first region
-            bbox2: 4-tuple of (xmin, xmax, ymin, ymax) for the second region
-        Output:
-            Returns a 4-tuple of (xmin, xmax, ymin, ymax) for overlap between 
-            the two input bounding-box regions
-        """
-        def intersects(bbox1, bbox2):
-            # Check for intersection
-            xmin1, xmax1, ymin1, ymax1 = bbox1
-            xmin2, xmax2, ymin2, ymax2 = bbox2
-            xdist = abs( (xmin1 + xmax1) / 2.0 - (xmin2 + xmax2) / 2.0 )
-            ydist = abs( (ymin1 + ymax1) / 2.0 - (ymin2 + ymax2) / 2.0 )
-            xwidth = (xmax1 - xmin1 + xmax2 - xmin2) / 2.0
-            ywidth = (ymax1 - ymin1 + ymax2 - ymin2) / 2.0
-            return (xdist <= xwidth) and (ydist <= ywidth)
-
-        if not intersects(bbox1, bbox2):
-            return None
-
-        output = []
-        for i, comparison in enumerate(zip(bbox1, bbox2)):
-            # mininum x or y coordinate
-            if i % 2 == 0:
-                output.append(max(comparison))
-            # maximum x or y coordinate
-            elif i % 2 == 1:
-                output.append(min(comparison))
-        return output
-
     # If the lower window isn't specified, assume it's equal to the 
     # upper window
     if lower == None: lower=upper
@@ -74,7 +126,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0,
     # Find the overlap between the horizon and volume
     vol_extents = [vol.xmin, vol.xmax, vol.ymin, vol.ymax]
     hor_extents = [hor.xmin, hor.xmax, hor.ymin, hor.ymax]
-    extents = bbox_overlap(hor_extents, vol_extents)
+    extents = bbox_intersection(hor_extents, vol_extents)
 
     # Raise ValueError if horizon and volume do not intersect
     if extents is None:
@@ -82,7 +134,7 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0,
 
     # Find the overlap between the (optional) subregion current extent
     if region is not None: 
-        extents = bbox_overlap(extents, region)
+        extents = bbox_intersection(extents, region)
         if extents is None:
             raise ValueError('Specified region does not overlap with'\
                              ' horizon and volume')
