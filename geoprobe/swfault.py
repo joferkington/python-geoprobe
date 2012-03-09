@@ -1,7 +1,8 @@
 import numpy as np
-from matplotlib.delaunay import Triangulation, LinearInterpolator
 import xml.etree.ElementTree as et
 import xml.dom.minidom as minidom
+# Note: matplotlib.delaunay is required for interpolation and triangulation.
+# If it isn't available
 
 class swfault(object):
     def __init__(self, arg):
@@ -96,6 +97,11 @@ class swfault(object):
     @property
     def tri(self):
         try:
+            from matplotlib.delaunay import Triangulation
+        except ImportError:
+            raise ImportError('Maplotlib is required for geoprobe.swfault '
+                              'triangulation')
+        try:
             return self._tri
         except AttributeError:
             self._tri = Triangulation(self.x, self.y)
@@ -103,6 +109,11 @@ class swfault(object):
 
     @property
     def interp(self):
+        try:
+            from matplotlib.delaunay import LinearInterpolator
+        except ImportError:
+            raise ImportError('Maplotlib is required for geoprobe.swfault '
+                              'interpolation')
         try:
             return self._interp
         except AttributeError:
