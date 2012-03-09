@@ -460,7 +460,7 @@ class Volume(object):
             zmin = self.zmin
         if zmax is None:
             zmax = self.zmax
-        zmax = self.model2index(zmax, axis='z')
+        zmax = self.model2index(zmax, axis='z') + 1
         zmin = self.model2index(zmin, axis='z')
 
         # If zmin and zmax are out of bounds, things will work fine, but the
@@ -556,7 +556,7 @@ class Volume(object):
                 return value * d + minimum
             else: # model2index
                 idx = (value - minimum) / d
-                return idx.astype(np.int)
+                return idx
 
         #-- Handle user input -------------------------------------------------
 
