@@ -3,7 +3,7 @@ import numpy as np
 #-- Imports from local files --------------------------------------
 from volume import volume
 from common import BinaryFile 
-from utilities import array2geotiff
+from utilities import array2geotiff, points2strikeDip
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
@@ -302,7 +302,7 @@ class horizon(object):
     grid = property(_get_grid, _set_grid)
     #--------------------------------------------------------------------------
 
-    def strikeDip(self, vol=None, velocity=None, independent='z'):
+    def strikeDip(self, vol=None, velocity=None):
         """
         Returns a strike and dip of the horizon following the Right-hand-rule. 
         Input:
@@ -313,17 +313,11 @@ class horizon(object):
                 If specified, the z units will be converted from time
                 into depth using the velocity given.  Assumes the z
                 units are milliseconds!!
-        independent (optional): Independent variable to use when 
-                fitting the plane. Defaults to 'z', as most horizons
-                are assumed to be closer to horizontal than vertical
-                Set to None to choose the best option (slower) or 'x'
-                or 'y' when fitting near-vertical horizons.
         Output:
             strike, dip
         """
-        return utilities.points2strikeDip(self.x, self.y, self.z, 
-                                          vol=vol, velocity=velocity, 
-                                          independent=independent)
+        return points2strikeDip(self.x, self.y, self.z, 
+                                          vol=vol, velocity=velocity)
 
     def toGeotiff(self, filename, vol=None, nodata=None, zscale=None):
         """
