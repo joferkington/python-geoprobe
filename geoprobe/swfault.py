@@ -37,7 +37,10 @@ class swfault(object):
         self.seisworks_ids = ['2147483647'] * len(segments)
 
     def _get_coord(self, axis):
-        return self.xyz[:,axis]
+        try:
+            return self.xyz[:,axis]
+        except IndexError:
+            return np.array([])
     def _set_coord(self, value, axis):
         self.xyz[:,axis] = value
     x = property(lambda self: self._get_coord(0),
@@ -72,13 +75,6 @@ class swfault(object):
     def grid_extents(self, value):
         xmin, xmax, ymin, ymax = value
         self._grid_extents = (xmin, xmax, ymin, ymax)
-
-    @property
-    def xyz(self):
-        return self._xyz
-    @xyz.setter
-    def xyz(self, value):
-        self._xyz = value
 
     @property
     def segments(self):
