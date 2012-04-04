@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="3">
+<swFault class_id="0" tracking_level="0" version="3">
+	<name>jdk_piggyback_normal10</name>
+	<lineColor_r>0.42249992</lineColor_r>
+	<lineColor_g>0</lineColor_g>
+	<lineColor_b>0</lineColor_b>
+	<lineColor_a>1</lineColor_a>
+	<lineWidth>1</lineWidth>
+	<segments class_id="1" tracking_level="0" version="0">
+		<count>0</count>
+	</segments>
+</swFault>
