@@ -64,7 +64,6 @@ class swfault(object):
     zmax = property(lambda self: self.z.max(),
             doc='Maximum Z-coordinate (in inline/crossline)')
 
-
     @property
     def grid_extents(self):
         try:
@@ -82,10 +81,10 @@ class swfault(object):
     @segments.setter
     def segments(self, value):
         def sequence(item):
-                length = len(item)
-                sli = slice(sequence.i, sequence.i + length)
-                sequence.i += length 
-                return sli
+            length = len(item)
+            sli = slice(sequence.i, sequence.i + length)
+            sequence.i += length 
+            return sli
         sequence.i = 0
         self.xyz = np.array([item for segment in value for item in segment])
         self._indices = [sequence(item) for item in value]
@@ -149,10 +148,11 @@ class SwfaultXMLReader(object):
         self.color = [float(fault.find(item).text) for item in color_fields]
         self.linewidth = float(fault.find('lineWidth').text)
 
-        self.segments = [get_xyz(elem) for elem in fault.findall('segments/item/Project_Coordinates')]
+        self.segments = [get_xyz(elem) for elem in 
+                            fault.findall('segments/item/Project_Coordinates')]
 
-        self.seisworks_ids = [item.find('SWSegID').text for item in fault.findall('segments/item')]
-
+        self.seisworks_ids = [item.find('SWSegID').text for item in 
+                                fault.findall('segments/item')]
 
 class SwfaultXMLWriter(object):
     def __init__(self, parent):
