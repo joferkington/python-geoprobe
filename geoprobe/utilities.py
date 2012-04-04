@@ -522,27 +522,27 @@ def fit_plane(x, y, z):
     d = a * x + b * y + c * z
     return a, b, c, -d.mean()
 
-def principal_axes(x, y, z, eigvals=False):
+def principal_axes(x, y, z, return_eigvals=False):
     """Finds the principal axes of a 3D point cloud.
     Input:
         x, y, z:
             numpy arrays of x, y, and z, respectively
-        eigvals (default: False):
+        return_eigvals (default: False):
             A boolean specifying whether to return the eigenvalues.
     Returns:
         eigvecs : A 3x3 numpy array whose columns represent 3 orthogonal
             vectors. The first column corresponds to the axis with the largest
             degree of variation (the principal axis) and the last column 
             correspons to the axis with the smallest degree of variation.
-        eigvals : (Only returned if `eigvals` is True) A 3-length vector of the
-            eigenvalues of the point cloud.
+        eigvals : (Only returned if `return_eigvals` is True) A 3-length vector
+            of the eigenvalues of the point cloud.
     """
     coords = np.vstack([x,y,z]).T
     coords -= coords.mean(axis=0)
     cov = coords.T.dot(coords)
     eigvals, eigvecs = np.linalg.eigh(cov)
     eigvecs = eigvecs[:, eigvals.argsort()[::-1]]
-    if eigvals:
+    if return_eigvals:
         return eigvecs, eigvals
     else:
         return eigvecs
