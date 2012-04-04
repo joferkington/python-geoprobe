@@ -24,8 +24,10 @@ from ezfault import ezfault
 from data2d import data2d
 import utilities
 from colormap import colormap
+from swfault import swfault
+from tsurf import tsurf
 
 from volume import isValidVolume
 
 __all__ = ['horizon', 'volume', 'ezfault', 'data2d', 'utilities', 
-           'isValidVolume', 'colormap']
+           'isValidVolume', 'colormap', 'swfault', 'tsurf']
