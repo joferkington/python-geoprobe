@@ -285,8 +285,6 @@ def wiggles(grid, wiggleInterval=10, overlap=0.7, posFill='black',
     Output:
         a matplotlib plot on the current axes
     """
-    from matplotlib import pyplot as plt
-
     # Rescale so that the grid ranges from -1 to 1
     if rescale:
         grid = grid.astype(np.float)
@@ -518,7 +516,7 @@ def fit_plane(x, y, z):
         (The normal vector is < a, b, c >)
     """
     basis = principal_axes(x, y, z)
-    a, b, c = basis[:,-1]
+    a, b, c = basis[:, -1]
     d = a * x + b * y + c * z
     return a, b, c, -d.mean()
 
@@ -541,7 +539,9 @@ def principal_axes(x, y, z, return_eigvals=False):
     coords -= coords.mean(axis=0)
     cov = coords.T.dot(coords)
     eigvals, eigvecs = np.linalg.eigh(cov)
-    eigvecs = eigvecs[:, eigvals.argsort()[::-1]]
+    order = eigvals.argsort()[::-1]
+    eigvecs = eigvecs[:, order]
+    eigvals = eigvals[order]
     if return_eigvals:
         return eigvecs, eigvals
     else:
