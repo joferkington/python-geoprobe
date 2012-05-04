@@ -1,6 +1,7 @@
 import numpy as np
 import xml.etree.ElementTree as et
 import xml.dom.minidom as minidom
+import utilities
 # Note: matplotlib.delaunay is required for interpolation and triangulation.
 # If it isn't available
 
@@ -99,7 +100,10 @@ class swfault(object):
         try:
             return self._tri
         except AttributeError:
-            self._tri = Triangulation(self.x, self.y)
+            x, y, z = self._internal_xyz.T
+            self._tri = Triangulation(x, y)
+            self._tri.x = self.x
+            self._tri.y = self.y
             return self._tri
 
     @property
@@ -125,6 +129,46 @@ class swfault(object):
             nx, ny = int((xmax-xmin) / self.dx)+1, int((ymax-ymin) / self.dy)+1
             self._grid = self.interp[ymin:ymax:ny*1j, xmin:xmax:nx*1j]
             return self._grid
+
+    @property
+    def _internal_xyz(self):
+        try:
+            return self._internal_xyz_data
+        except:
+            vecs, vals = utilities.principal_axes(self.x, self.y, self.z, True)
+            rotated = self.xyz.dot(vecs)
+            rotated -= rotated.mean(axis=0)
+            rotated /= np.sqrt(vals)
+            self._internal_xyz_data = rotated
+            return rotated
+
+    @property
+    def _outline_order(self):
+        rotated_segments = [self._internal_xyz[item] for item in self._indices]
+        xyz = np.array(self._segment_endpoints(rotated_segments))
+        x, y, z = xyz.T
+
+        theta = np.arctan2(y, x)
+        order = theta.argsort()
+        return order
+
+    def _segment_endpoints(self, segments):
+        return [seg[0] for seg in segments] + [seg[-1] for seg in segments]
+
+    @property
+    def outline(self):
+        try:
+            return self._outline
+        except:
+            xyz = np.array(self._segment_endpoints(self.segments))
+            outline = xyz[self._outline_order]
+            return np.squeeze(outline)
+
+    @property
+    def _rotated_outline(self):
+        rotated_segments = [self._internal_xyz[item] for item in self._indices]
+        xyz = np.array(self._segment_endpoints(rotated_segments))
+        return np.squeeze(xyz[self._outline_order])
 
 class SwfaultXMLReader(object):
     def __init__(self, f):
