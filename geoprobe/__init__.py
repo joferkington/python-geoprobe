@@ -19,7 +19,7 @@ __license__ = 'MIT License'
 
 
 from horizon import horizon
-from volume import volume
+from volume import volume, Volume
 from ezfault import ezfault
 from data2d import data2d
 import utilities
@@ -29,5 +29,5 @@ from tsurf import tsurf
 
 from volume import isValidVolume
 
-__all__ = ['horizon', 'volume', 'ezfault', 'data2d', 'utilities', 
+__all__ = ['horizon', 'volume', 'Volume', 'ezfault', 'data2d', 'utilities', 
            'isValidVolume', 'colormap', 'swfault', 'tsurf']
