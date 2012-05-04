@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 #-- Imports from local files --------------------------------------
 from volume import volume
@@ -301,6 +302,14 @@ class horizon(object):
         self._grid = np.ma.asarray(value)
     grid = property(_get_grid, _set_grid)
     #--------------------------------------------------------------------------
+
+    @property
+    def name(self):
+        basedir, basename = os.path.split(self._file.name)
+        if basename.endswith('.hzn'):
+            return basename[:-4]
+        else:
+            return basename
 
     def strikeDip(self, vol=None, velocity=None):
         """
