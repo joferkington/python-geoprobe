@@ -483,7 +483,6 @@ def points2strikeDip(x, y, z, vol=None, velocity=None):
     Output:
         strike, dip (in degrees)
     """
-
     # Get x,y, and z, converting to world coords if necessary
     if vol is not None:
         # If given a string, assume it's the filename of a volume
@@ -535,9 +534,8 @@ def principal_axes(x, y, z, return_eigvals=False):
         eigvals : (Only returned if `return_eigvals` is True) A 3-length vector
             of the eigenvalues of the point cloud.
     """
-    coords = np.vstack([x,y,z]).T
-    coords -= coords.mean(axis=0)
-    cov = coords.T.dot(coords)
+    coords = np.vstack([x,y,z])
+    cov = np.cov(coords)
     eigvals, eigvecs = np.linalg.eigh(cov)
     order = eigvals.argsort()[::-1]
     eigvecs = eigvecs[:, order]
