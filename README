@@ -15,7 +15,7 @@ Dependencies:
 =============
 Requires python >= 2.5 and numpy. Some functions (e.g.  horizon.toGeotiff)
 require gdal and its python bindings. The plotting functions in utilities (e.g.
-utilities.wiggles) require matplotlib.
+utilities.wiggles) and some swfault functionality requires matplotlib.
 
 Installation: 
 =============
