@@ -305,7 +305,11 @@ class horizon(object):
 
     @property
     def name(self):
-        basedir, basename = os.path.split(self._file.name)
+        try:
+            _file = self._file
+        except AttributeError:
+            return ''
+        basedir, basename = os.path.split(_file.name)
         if basename.endswith('.hzn'):
             return basename[:-4]
         else:
