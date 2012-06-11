@@ -9,7 +9,7 @@ class TestBasic:
     def setup(self):
         self.normal = geoprobe.swfault(faultdir + '/example_normal.swf')
         self.strike_slip = geoprobe.swfault(faultdir + '/example_ss.swf')
-        self.empty = geoprobe.swfault(faultdir + '/jdk_piggyback_normal10.swf')
+        self.empty = geoprobe.swfault(faultdir + '/empty.swf')
     
     def test_empty(self):
         x, y, z = self.empty.x, self.empty.y, self.empty.z
