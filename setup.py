@@ -7,7 +7,7 @@ setup(
     author = 'Joe Kington',
     author_email = 'joferkington@gmail.com',
     license = 'MIT',
-    url = 'http://code.google.com/p/python-geoprobe/',
+    url = 'https://github.com/joferkington/python-geoprobe',
     packages = ['geoprobe'],
     package_data = {'geoprobe' : ['__init__.py', 'volume.py', 'horizon.py', 
                                   '_volHeader.py', 'ezfault.py', 'utilities.py',
