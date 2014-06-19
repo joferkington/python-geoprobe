@@ -449,14 +449,19 @@ def extract_section(data, x, y, zmin=None, zmax=None):
     if ndims != 3:
         data = np.atleast_3d(data)
     nx, ny, nz = data.shape
-    zslice = slice(zmin, zmax)
 
     xi, yi = interpolate_endpoints(x, y)
     inside = (xi >= 0) & (xi < nx) & (yi >= 0) & (yi < ny)
     xi, yi = xi[inside], yi[inside]
     output = []
+
+    # Indicies must be ints with recent versions of h5py
+    convert = lambda x: int(x) if x is not None else None
+    zslice = slice(convert(zmin), convert(zmax))
+
     # Using fancy indexing will only work in certain cases for hdf arrays...
-    for i, j in zip(xi, yi):
+    # Therefore we need to iterate through and take a slice at each point.
+    for i, j in zip(xi.astype(int), yi.astype(int)):
         output.append(data[i, j, zslice])
     try:
         # Need to make sure we properly handle masked arrays, thus np.ma...
