@@ -107,12 +107,12 @@ class Volume(object):
         new_values = []
         for item, axis in zip(value, ('x', 'y', 'z')):
             if isinstance(item, int) or isinstance(item, float):
-                new_values.append(self.model2index(item, axis=axis))
+                new_values.append(int(self.model2index(item, axis=axis)))
             elif isinstance(item, slice):
                 newslice = []
-                for val in [item.start, item.stop]:
+                for val in [item.start, item.stop, item.step]:
                     if val is not None:
-                        newslice.append(self.model2index(val, axis=axis))
+                        newslice.append(int(self.model2index(val, axis=axis)))
                     else:
                         newslice.append(None)
                 new_values.append(slice(*newslice))
@@ -556,7 +556,7 @@ class Volume(object):
                 return value * d + minimum
             else: # model2index
                 idx = (value - minimum) / d
-                return idx
+                return idx.astype(int)
 
         #-- Handle user input -------------------------------------------------
 
