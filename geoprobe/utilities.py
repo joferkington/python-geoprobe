@@ -148,10 +148,11 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
     data = vol.data[xstart:xstop, ystart:ystop, :]
 
-    # Convert extents to horizion grid indicies and select 
-    # subset of the horizion 
-    xstart, ystart = xmin - hor.xmin, ymin - hor.ymin
-    xstop, ystop = xmax - hor.xmin, ymax - hor.ymin
+    # Convert extents to horizion grid indicies and select
+    # subset of the horizion
+    hxmin, hxmax, hymin, hymax = hor.grid_extents
+    xstart, ystart = xmin - hxmin, ymin - hymin
+    xstop, ystop = xmax - hxmin, ymax - hymin
     depth = depth[xstart:xstop, ystart:ystop]
 
     nx,ny,nz = data.shape
