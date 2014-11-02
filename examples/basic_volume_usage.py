@@ -30,7 +30,7 @@ def plot(vol):
     plt.imshow(vol.XSlice(vol.xmin))
     # Note: instead of vol.XSlice, we could have used vol.data[0,:,:].T
     plt.title('Inline %i' % vol.xmin)
-    
+
     # Plot the first crossline in the volume
     plt.figure()
     plt.imshow(vol.YSlice(vol.ymin))
@@ -41,7 +41,7 @@ def plot(vol):
 
 def print_info(vol):
     """Print some basic information about "vol", a geoprobe.volume instance."""
-    # Print out some basic information 
+    # Print out some basic information
     print 'The volume has dimensions of (nx, ny, nz):', vol.nx, vol.ny, vol.nz
     print 'The inline coordinates range from', vol.xmin, 'to', vol.xmax
     print 'The inline spacing is:', vol.dxW, 'world units'

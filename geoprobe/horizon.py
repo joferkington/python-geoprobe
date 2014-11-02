@@ -3,7 +3,7 @@ import os
 
 #-- Imports from local files --------------------------------------
 from volume import volume
-from common import BinaryFile 
+from common import BinaryFile
 from utilities import array2geotiff, points2strikeDip
 
 #-- Build dtype for points ----------------------------------------
@@ -16,8 +16,8 @@ class horizon(object):
     Reads and writes geoprobe horizon files
 
     horizon.x, horizon.y, and horizon.z are the x,y, and z coordinates
-    stored in the horizon file (in model coordinates, i.e. inline/crossline).  
-    These are views into horizon.data, so any changes made to these will 
+    stored in the horizon file (in model coordinates, i.e. inline/crossline).
+    These are views into horizon.data, so any changes made to these will
     update horizon.data and vice versa.
 
     horizon.grid is a 2d numpy masked array of the z-values in the horizon
@@ -27,38 +27,38 @@ class horizon(object):
 
     Useful attributes set at initialization:
         data: A structured numpy array with the fields 'x', 'y', 'z',
-            'conf', 'type', 'herid', and 'tileSize'. This array 
-            contains all the data stored in the horizon file. 
+            'conf', 'type', 'herid', and 'tileSize'. This array
+            contains all the data stored in the horizon file.
         surface: A view into horizon.data that contains only the points
             in the file that make up a "filled" surface. (Usually points
             interpolated between manual picks).
         lines: A list of manual picks stored in the horizon file. Each item
-            in the list is a tuple of a) a 4-tuple of line information 
-            (xdir, ydir, zdir, ID) and b) a view into horizon.data 
-            containing the points in the line.    
+            in the list is a tuple of a) a 4-tuple of line information
+            (xdir, ydir, zdir, ID) and b) a view into horizon.data
+            containing the points in the line.
     """
     def __init__(self, *args, **kwargs):
         """
         Takes either a filename or a numpy array
-        
-        If a single string is given as input, the string is assumed to be a 
+
+        If a single string is given as input, the string is assumed to be a
         filename, and a new horizon object is constructed by reading the file
         from disk.
 
-        Otherwise, a horizon object can be created from existing data, as 
+        Otherwise, a horizon object can be created from existing data, as
         described below:
 
-        If one input argument is given, it is assumed to be a structured 
-            numpy array and is used as the filled surface portion of the 
-            horizon. The input array must be convertable into an array 
+        If one input argument is given, it is assumed to be a structured
+            numpy array and is used as the filled surface portion of the
+            horizon. The input array must be convertable into an array
             with a dtype of horizon.POINT_DTYPE.
         If two input arguments are given, the first is used as the filled
             surface portion of the horizon file and the second a list of lines
             in the same format as horizon.lines. The arrays must be convertable
             into an array with dtype horizon.POINT_DTYPE
         If three input arguments are given, they are assumed to be lists/arrays
-            of x, y, and z coordinates (respectively) of the points in the new 
-            horizon. 
+            of x, y, and z coordinates (respectively) of the points in the new
+            horizon.
         Alternatively, you may specify these options using the following
             keyword arguments: surface, lines, or x, y, and z.
 
@@ -76,7 +76,7 @@ class horizon(object):
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
         if (len(args) == 1) and isinstance(args[0], basestring):
-            self._readHorizon(args[0])    
+            self._readHorizon(args[0])
 
         # Otherwise, pass the args on to _make_horizon_from_data for
         # parsing
@@ -86,11 +86,11 @@ class horizon(object):
         # For gridding:
         self.nodata = -9999
 
-        # Need to make dx, dy, and dz properties... 
+        # Need to make dx, dy, and dz properties...
         # How do we determine spacing without a volume?
         #    d = np.abs(np.diff(self.x)); np.mean(d[d!=0]) (ideally, mode)?
 
-    # Adding this constant so that the "correct" dtype is visible before a 
+    # Adding this constant so that the "correct" dtype is visible before a
     # horizon object is initialized
     POINT_DTYPE = _point_dtype
 
@@ -104,7 +104,7 @@ class horizon(object):
         elif self._header != "#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe'\
                             ' horizon')
-        
+
         self.data = self._file.readAll()
 
         # Surface and line attributes
@@ -112,20 +112,20 @@ class horizon(object):
         self.lines = self._file.lines
 
         # Oddly enough, Geoprobe (the actual Landmark application) seems to
-        # do this a lot... 
+        # do this a lot...
         # Raise the error here to avoid problems down the road!
         if self.data.size == 0:
             raise ValueError('This file does not contain any points!')
 
     def _parse_new_horizon_input(self, *args, **kwargs):
         """Parse input when given something other than a filename"""
-        
+
         #-- Parse Arguments ---------------------------------------------------
         if len(args) == 1:
             # Assume argument is data (numpy array with dtype of _point_dtype)
             self.data = self._ensure_correct_dtype(args[0])
             self.surface = self.data
-            
+
         elif len(args) == 2:
             # Assume arguments are surface + lines
             self._init_from_surface_lines(self, surface=args[0], lines=args[1])
@@ -137,7 +137,7 @@ class horizon(object):
         #-- Parse keyword arguments -------------------------------------------
         elif ('x' in kwargs) and ('y' in kwargs) and ('z' in kwargs):
             self._init_from_xyz(kwargs['x'], kwargs['y'], kwargs['z'])
-            
+
         elif ('surface' in kwargs) or ('lines' in kwargs):
             surface = kwargs.pop('surface', None)
             lines = kwargs.pop('lines', None)
@@ -171,7 +171,7 @@ class horizon(object):
 
     def _init_from_surface_lines(self, surface=None, lines=None):
         """
-        Make a new horizon object from either a surface array or a list of 
+        Make a new horizon object from either a surface array or a list of
         line arrays
         """
         if surface is not None:
@@ -224,7 +224,7 @@ class horizon(object):
 
     @property
     def numpoints(self):
-        """The total number of points stored in the horizon 
+        """The total number of points stored in the horizon
         (equivalent to horizon.data.size)"""
         return self.data.size
 
@@ -317,7 +317,7 @@ class horizon(object):
 
     def strikeDip(self, vol=None, velocity=None):
         """
-        Returns a strike and dip of the horizon following the Right-hand-rule. 
+        Returns a strike and dip of the horizon following the Right-hand-rule.
         Input:
             vol (optional): A geoprobe volume object
                 If specified, the x, y, and z units will be converted
@@ -329,7 +329,7 @@ class horizon(object):
         Output:
             strike, dip
         """
-        return points2strikeDip(self.x, self.y, self.z, 
+        return points2strikeDip(self.x, self.y, self.z,
                                           vol=vol, velocity=velocity)
 
     def toGeotiff(self, filename, vol=None, nodata=None, zscale=None):
@@ -338,7 +338,7 @@ class horizon(object):
         The Z values in the output tiff will be stored as 32bit floats.
         Input:
             filename:  Output filename
-            vol (optional): A geoprobe volume object or path to a geoprobe 
+            vol (optional): A geoprobe volume object or path to a geoprobe
                 volume file.  If vol is specified, the geotiff will be
                 georeferenced based on the data in the volume header (and will
                 therefore be in same projection as the volume's world
@@ -350,7 +350,7 @@ class horizon(object):
                 Otherwise this defaults to 1.
         """
         if vol is not None:
-            if type(vol) == type('string'): 
+            if type(vol) == type('string'):
                 vol = volume(vol)
             Xoffset, Yoffset = vol.model2world(self.xmin, self.ymin)
             transform = vol
@@ -358,10 +358,10 @@ class horizon(object):
             Xoffset, Yoffset = 0,0
             transform = None
 
-        if nodata==None: 
+        if nodata==None:
             nodata = self.nodata
 
-        # Zscale is not 1 by default, as I want the default to be set by vol.dz 
+        # Zscale is not 1 by default, as I want the default to be set by vol.dz
         # and any specified value to override the default
         if zscale is None:
             if vol is None: zscale = 1
@@ -373,7 +373,7 @@ class horizon(object):
         data *= zscale
         data = data.filled()
 
-        array2geotiff(data, filename, nodata=nodata, 
+        array2geotiff(data, filename, nodata=nodata,
                       extents=(Xoffset, Yoffset), transform=transform)
 
 
@@ -385,14 +385,14 @@ class HorizonFile(BinaryFile):
           Reverse engineered by JDK, Feb. 2009
         Format descrip:
             1 ascii line w/ version (terminated with newline)
-            There are two "sections" in every file. 
+            There are two "sections" in every file.
             The first section contains x,y,z points making a "filled" surface
                 (This is basically a sparse matrix)
             The second section contains lines (manual picks)
             Both section types have a 4 byte header (seems to be >I?)
-                The first section (surface) always (?) has a section header 
+                The first section (surface) always (?) has a section header
                 value of '\x00\x00\x00\x13' (unpacks to 19)
-                The section section (manual picks) contains the number of 
+                The section section (manual picks) contains the number of
                 manually picked lines in the file (packed as >I).
             Subsections
                 The first section only has one subsection, a "filled" surface
@@ -435,13 +435,13 @@ class HorizonFile(BinaryFile):
         fields ('x', 'y', 'z', 'conf', 'type', 'herid', 'tileSize') for each
         point in the horizon.
         """
-        # Note: The total number of points in the file is not directly stored 
-        #   on disk. Therefore, we must read through the entire file, store 
+        # Note: The total number of points in the file is not directly stored
+        #   on disk. Therefore, we must read through the entire file, store
         #   each section's points in a list, and then create a contigious array
         #   from them.  Using numpy.append is much simpler, but quite slow.
 
         # Jump to start of file, past header
-        self.readHeader() 
+        self.readHeader()
 
         # Read points section
         self.readSectionHeader() # Should always return 19
@@ -450,7 +450,7 @@ class HorizonFile(BinaryFile):
 
         # Read lines section
         line_info = [None]
-        self.numlines = self.readSectionHeader() 
+        self.numlines = self.readSectionHeader()
         for i in xrange(self.numlines):
             line_info.append(self.readLineHeader())
             currentPoints = self.readPoints()
@@ -468,7 +468,7 @@ class HorizonFile(BinaryFile):
                 self.surface = points[i:i+item.size]
             # self.lines is a list of tuples, the first item is a tuple of
             # (xdir,ydir,zdir,ID) where <xdir,ydir,zdir> form a vector in
-            # the direction of the line. The second item is a view into the 
+            # the direction of the line. The second item is a view into the
             # points array containg the relevant x,y,z,etc points.
             else:
                 self.lines.append((info, points[i:i+item.size]))

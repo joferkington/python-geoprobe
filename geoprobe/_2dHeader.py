@@ -1,17 +1,17 @@
-"""Provides a dictonary containing the name, offset, type, and default value 
+"""Provides a dictonary containing the name, offset, type, and default value
 for each known value in a GeoProbe 2DData header"""
 
 __license__   = "MIT License <http://http://www.opensource.org/licenses/mit-license.php>"
 __copyright__ = "2009, Free Software Foundation"
 __author__    = "Joe Kington <jkington@wisc.edu>"
 
-"""Reversed engineered Jan 18, 2010 by Joe Kington.  GeoProbe 2DData (.2dd) files consist of 
+"""Reversed engineered Jan 18, 2010 by Joe Kington.  GeoProbe 2DData (.2dd) files consist of
 a 8472 Byte header followed by "numtraces" traces stored as uint8's each with a 12 byte header.
 
 Trace format:
     A GeoProbe 2DData file stores amplitude values as a series of "traces" in the z-direction
     (rather than a regular grid). Each trace has a 12 Byte header (format: >3f) consisting of:
-    1) The model X-coordinate for the trace, 2) The model Y-coordinate for the trace, and 
+    1) The model X-coordinate for the trace, 2) The model Y-coordinate for the trace, and
     3) The trace number (stored as a float for some weird reason?)
     This is followed by "numsamples" uint8's containing the amplitude values
 """

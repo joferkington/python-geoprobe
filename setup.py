@@ -9,7 +9,7 @@ setup(
     license = 'MIT',
     url = 'https://github.com/joferkington/python-geoprobe',
     packages = ['geoprobe'],
-    package_data = {'geoprobe' : ['__init__.py', 'volume.py', 'horizon.py', 
+    package_data = {'geoprobe' : ['__init__.py', 'volume.py', 'horizon.py',
                                   '_volHeader.py', 'ezfault.py', 'utilities.py',
                                   '_2dHeader.py', 'data2d.py', 'common.py',
                                   'swfault.py', 'tsurf.py']}

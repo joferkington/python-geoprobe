@@ -21,8 +21,8 @@ class ezfault(object):
     def _readHeader(self):
         """ Blindly read the first 6 lines and set properties based on them
         This doesn't check order or sanity of any sort...."""
-        # This really is a bit of a dumb and brittle parser... Doesn't parse 
-        #   the {'s and }'s, just the position of the data in each line. 
+        # This really is a bit of a dumb and brittle parser... Doesn't parse
+        #   the {'s and }'s, just the position of the data in each line.
 
         self._infile.seek(0)
 
@@ -36,7 +36,7 @@ class ezfault(object):
         self.face = int(self.face[1])
 
         #3rd Line: "BOX {%xmin %ymin %zmin %xmax %ymax %zmax}"
-        #  Bounding Box (for some weird reason, this is in volume indicies 
+        #  Bounding Box (for some weird reason, this is in volume indicies
         #  instead of model units!!)
         self.box = self._infile.readline().strip()[5:-1].split()
         self.box = [int(item) for item in self.box]
@@ -88,9 +88,9 @@ class ezfault(object):
         while True:
             # Make sure that the next line is "CURVE"
             line = self._infile.readline()
-            if line == '':  
+            if line == '':
                 raise StopIteration #End of File
-            elif line.strip() != 'CURVE':  
+            elif line.strip() != 'CURVE':
                 raise ValueError('Expected next line to be "CURVE",'\
                                 ' got %s' % line.strip())
 
@@ -117,14 +117,14 @@ class ezfault(object):
         except AttributeError:
             dat = []
             self._readHeader()
-            for rib in self.ribs:  
+            for rib in self.ribs:
                 dat.extend(rib)
             self._allPoints = np.rec.fromrecords(dat, names='x,y,z')
             return self._allPoints
 
     def strikeDip(self, vol=None, velocity=None):
         """
-        Returns a strike and dip of the ezfault following the Right-hand-rule. 
+        Returns a strike and dip of the ezfault following the Right-hand-rule.
         Input:
             vol (optional): A geoprobe volume object
                 If specified, the x, y, and z units will be converted
@@ -136,7 +136,7 @@ class ezfault(object):
         Output:
             strike, dip
         """
-        return utilities.points2strikeDip(self.points.x, self.points.y, 
+        return utilities.points2strikeDip(self.points.x, self.points.y,
                         self.points.z, vol=vol, velocity=velocity)
 
     def interpolate(self, xi, yi):
@@ -179,19 +179,19 @@ class ezfault(object):
 
         if vol is not None:
             # Interpolate ezfault at volume indicies
-            if type(vol) == type('String'): 
+            if type(vol) == type('String'):
                 vol = volume(vol)
             dx, dy = abs(vol.dx), abs(vol.dy)
 
             # Make sure we start at a volume index
-            xstart, xstop = [vol.index2model(vol.model2index(item)) 
-                            for item in [xstart, xstop] ] 
+            xstart, xstop = [vol.index2model(vol.model2index(item))
+                            for item in [xstart, xstop] ]
             ystart, ystop= [vol.index2model(
-                                vol.model2index(item, axis='y'), 
-                                axis='y') 
-                            for item in [ystart, ystop] ] 
+                                vol.model2index(item, axis='y'),
+                                axis='y')
+                            for item in [ystart, ystop] ]
 
-        else: 
+        else:
             if dx is None: dx = 1
             if dy is None: dy = dx
 
@@ -204,7 +204,7 @@ class ezfault(object):
 #        grid = Z.reshape(X.shape)
 
         return grid
-        
+
 
 
 

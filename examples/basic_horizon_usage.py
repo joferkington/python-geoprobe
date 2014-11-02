@@ -29,13 +29,13 @@ def print_info(hor):
     print 'The depth/time coordinates range from', hor.zmin, 'to', hor.zmax
 
 def plot(hor):
-    """Plot the "filled" z-values and "manual picks" in the geoprobe.horizon 
+    """Plot the "filled" z-values and "manual picks" in the geoprobe.horizon
     instance"""
     #-- Plot the "filled" values ----------------------------------------------
     plt.figure()
 
     # hor.grid is a 2D array of the Z-values stored in the horizon
-    plt.imshow(hor.grid, cmap=plt.cm.jet_r, 
+    plt.imshow(hor.grid, cmap=plt.cm.jet_r,
             extent=(hor.xmin, hor.xmax, hor.ymax, hor.ymin))
 
     #-- Plot the "manual picks" -----------------------------------------------

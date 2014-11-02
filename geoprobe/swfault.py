@@ -84,7 +84,7 @@ class swfault(object):
         def sequence(item):
             length = len(item)
             sli = slice(sequence.i, sequence.i + length)
-            sequence.i += length 
+            sequence.i += length
             return sli
         sequence.i = 0
         self.xyz = np.array([item for segment in value for item in segment])
@@ -192,10 +192,10 @@ class SwfaultXMLReader(object):
         self.color = [float(fault.find(item).text) for item in color_fields]
         self.linewidth = float(fault.find('lineWidth').text)
 
-        self.segments = [get_xyz(elem) for elem in 
+        self.segments = [get_xyz(elem) for elem in
                             fault.findall('segments/item/Project_Coordinates')]
 
-        self.seisworks_ids = [item.find('SWSegID').text for item in 
+        self.seisworks_ids = [item.find('SWSegID').text for item in
                                 fault.findall('segments/item')]
 
 class SwfaultXMLWriter(object):
@@ -206,7 +206,7 @@ class SwfaultXMLWriter(object):
         self.write_metadata()
         self.write_all_segments()
 
-    def write(self, f): 
+    def write(self, f):
         f.write(self.doc.toprettyxml(indent='    '))
 
     def setup_document(self):

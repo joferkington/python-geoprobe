@@ -6,7 +6,7 @@ import textwrap
 #-- Miscellaneous -------------------------------------------------------------
 def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
     """
-    Format the attributes contained in a headerDef for pretty printing 
+    Format the attributes contained in a headerDef for pretty printing
     (i.e. for use in docstrings)
     """
     attribute_docs = ''
@@ -20,7 +20,7 @@ def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
             default = default.strip()
 
         doc = '%s: %s (default=%s)' % (key, value['doc'], repr(default))
-        doc = textwrap.fill(doc, initial_indent=initial_indent, 
+        doc = textwrap.fill(doc, initial_indent=initial_indent,
                 subsequent_indent=subsequent_indent)
 
         if not key.startswith('_'):
@@ -68,7 +68,7 @@ class BinaryFile(file):
         data = struct.unpack(fmt, data)
 
         for item in data:
-            # Strip trailing zeros in strings 
+            # Strip trailing zeros in strings
             if isinstance(item, basestring):
                 item = item.strip('\x00')
 
@@ -80,12 +80,12 @@ class BinaryFile(file):
     def writeBinary(self, fmt, dat):
         """Pack and write data to the file according to string fmt."""
         # Try expanding input arguments (struct.pack won't take a tuple)
-        try: 
-            dat = struct.pack(fmt, *dat) 
-        except (TypeError, struct.error): 
-            # If it's not a sequence (TypeError), or if it's a 
+        try:
+            dat = struct.pack(fmt, *dat)
+        except (TypeError, struct.error):
+            # If it's not a sequence (TypeError), or if it's a
             # string (struct.error), don't expand.
-            dat = struct.pack(fmt, dat) 
+            dat = struct.pack(fmt, dat)
         self.write(dat)
 
 

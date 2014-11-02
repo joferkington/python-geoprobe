@@ -14,7 +14,7 @@ class data2d(object):
         y: a list of the y-coordinates of each trace
         z: a list of the z-coordinates of each trace\n%s
     """ % format_headerDef_docs(_headerDef)
-    # Not a "normal" docstring so that "useful attributes" is set 
+    # Not a "normal" docstring so that "useful attributes" is set
     # at initialization
 
     def __init__(self, arg, x=None, y=None, tracenumbers=None, copyFrom=None):
@@ -92,15 +92,15 @@ class data2d(object):
         A dict of all the values stored in the file header
         (Each of these is also an attribute of any data2d object)
         """
-        # Return the current instance attributes that are a part of the 
-        # header definition  
+        # Return the current instance attributes that are a part of the
+        # header definition
         values = {}
         for key in _headerDef.keys():
             # If it's been deleted for some reason, return the default value
-            default = _headerDef[key]['default']  
+            default = _headerDef[key]['default']
             values[key] = getattr(self, key, default)
         return values
-     
+
     def _setHeaderValues(self, input):
         for key, value in input.iteritems():
             # Only set things in input that are normally in the header
@@ -111,18 +111,18 @@ class data2d(object):
 
     # Unused... Damnit, I need to decide what I'm doing here...
     def _fix_axes(self, data):
-        """Reverses the z axis if dz is negative. This ensures that 
+        """Reverses the z axis if dz is negative. This ensures that
         self.data[:,0] always corresponds to self.zmin."""
         if self.dz < 0:
             data = data[:, ::-1]
         return data
-   
+
     def _read_traces(self, infile):
         """
-        Read all traces (everything other than the file header) 
+        Read all traces (everything other than the file header)
         from "infile".
         """
-        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), 
+        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'),
                 ('traces', '%i>u1'%self._numsamples)]
         infile.seek(_headerLength)
         data = np.fromfile(infile, dtype=dtype, count=self._numtraces)
@@ -132,7 +132,7 @@ class data2d(object):
         self.data = data['traces']
 
     def _write_traces(self, outfile):
-        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'), 
+        dtype = [('x', '>f4'), ('y', '>f4'), ('tracenum', '>f4'),
                  ('traces', '%i>u1'%self._numsamples)]
         outfile.seek(_headerLength)
         data = np.empty(self.numtraces, dtype=dtype)

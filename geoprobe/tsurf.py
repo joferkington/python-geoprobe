@@ -17,7 +17,7 @@ class tsurf(object):
             self._init_from_xyz(*args)
         else:
             raise ValueError('Invalid input arguments')
-        color = kwargs.get('color', None) 
+        color = kwargs.get('color', None)
         name = kwargs.get('name', None)
         if color is not None:
             self.color = color
@@ -75,7 +75,7 @@ class tsurf(object):
             outfile.write('GOCAD TSurf 1\n')
             outfile.write('HEADER {\n')
             """
-            for key in ['name', 'color', 'moveAs', 'drawAs', 'line', 'clip', 
+            for key in ['name', 'color', 'moveAs', 'drawAs', 'line', 'clip',
                         'intersect', 'intercolor']:
                 value = self.header[key]
             """

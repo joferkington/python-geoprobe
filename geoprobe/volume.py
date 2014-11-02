@@ -8,7 +8,7 @@ import numpy as np
 # Dictonary of header values and offsets for a geoprobe volume
 from _volHeader import headerDef as _headerDef
 from _volHeader import headerLength as _headerLength
-    
+
 # Common methods
 from common import BinaryFile
 from common import format_headerDef_docs
@@ -19,8 +19,8 @@ import utilities
 def volume(input, copyFrom=None, rescale=True, voltype=None):
     """
     Read an existing geoprobe volue or make a new one based on input data
-        Input: 
-            input: Either the path to a geoprobe volume file or data to 
+        Input:
+            input: Either the path to a geoprobe volume file or data to
                     create a geoprobe object from (either a numpy array or
                     an object convertable into one). The following keyword
                     arguments only apply when creating a new volume from
@@ -29,7 +29,7 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
                     geoprobe volume file to copy relevant header values
                     from for the new volume object (used only when creating
                     a new volume from a numpy array).
-            rescale (default: True): Boolean True/False.  If True, the data 
+            rescale (default: True): Boolean True/False.  If True, the data
                     will be rescaled so that data.min(), data.max()
                     correspond to 0, 255 in volume.data before being
                     converted to 8-bit values.  If False, the data data
@@ -39,7 +39,7 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
             voltype (default: None): Explicitly set the type of volume.
                     By default, the volume type will be guessed from the
                     input file. Valid options are: "hdf", "geoprobe_v2"
-    """ 
+    """
     typestrings = {'hdf':HDFVolume, 'geoprobe_v2':GeoprobeVolumeV2}
     if voltype is None:
         voltype = formats[0]
@@ -47,8 +47,8 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
         if voltype in typestrings:
             voltype = typestrings[voltype]
 
-    # What were we given as input?  
-    if isinstance(input, basestring):  
+    # What were we given as input?
+    if isinstance(input, basestring):
         # Assume strings are filenames of a geoprobe array
         for vol_format in formats:
             if _check_validity(vol_format, input):
@@ -64,7 +64,7 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
         vol = voltype()
         vol._newVolume(input, copyFrom=copyFrom, rescale=rescale)
         return vol
- 
+
 def _check_validity(vol_format, filename):
     try:
         volfile = vol_format.format_type(filename, 'rb')
@@ -75,7 +75,7 @@ def _check_validity(vol_format, filename):
         return False
 
 def isValidVolume(filename):
-    """Tests whether a filename is a valid geoprobe file. Returns boolean 
+    """Tests whether a filename is a valid geoprobe file. Returns boolean
     True/False."""
     return any([_check_validity(format, filename) for format in formats])
 
@@ -84,12 +84,12 @@ class Volume(object):
     # Not a "normal" docstring so that "useful attributes" is set at runtime
     __doc__ = """
     Reads and writes geoprobe volumes
-    
+
     Useful attributes set at initialization:\n%s
     """ % format_headerDef_docs(_headerDef)
 
     format_type = None
-    
+
     def __init__(self):
         """See the "volume" function's docstring for constructor information"""
         pass
@@ -131,7 +131,7 @@ class Volume(object):
         self._filename = filename
         self._infile = self.format_type(filename, 'rb')
         self.headerValues = self._infile.read_header()
-          
+
     def _newVolume(self,data,copyFrom=None,rescale=True):
         """Takes a numpy array and makes a geoprobe volume. This
         volume can then be written to disk using the write() method."""
@@ -141,7 +141,7 @@ class Volume(object):
         #Set up the header Dictionary
         if copyFrom is not None:
             # Assume the string is the filname of a geoprobe volume
-            if isinstance(copyFrom, basestring): 
+            if isinstance(copyFrom, basestring):
                 copyFrom = volume(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
@@ -164,7 +164,7 @@ class Volume(object):
 
     def _fixAxes(self,data):
         """
-        Reverses the x, y, and z axes if dx, dy, or dz (respectively) are 
+        Reverses the x, y, and z axes if dx, dy, or dz (respectively) are
         negative.  This ensures that self.data[0,0,0] always corresponds
         to self.xmin, self.ymin, self.zmin.
         """
@@ -177,7 +177,7 @@ class Volume(object):
         return data
 
     def load(self):
-        """Reads an entire Geoprobe volume into memory and returns 
+        """Reads an entire Geoprobe volume into memory and returns
         a numpy array contining the volume."""
         try:
             dat = self._infile.read_data()
@@ -195,7 +195,7 @@ class Volume(object):
         outfile.write_header(self.headerValues)
         outfile.write_data(self.data)
 
-    def crop(self, xmin=None, xmax=None, ymin=None, ymax=None, 
+    def crop(self, xmin=None, xmax=None, ymin=None, ymax=None,
             zmin=None, zmax=None, copy_data=True):
         """Crops a volume to the limits specified (in model coordinates)
         by the input arguments.  Returns a new volume instance containing
@@ -239,7 +239,7 @@ class Volume(object):
         """A 3D numpy array of the volume data.  Contains raw uint8 values.
         If the volume object is based on a file, this is a memory-mapped-file
         array."""
-        # Prevents _getData from being called more than once 
+        # Prevents _getData from being called more than once
         try:
             return self._data
         except AttributeError:
@@ -265,7 +265,7 @@ class Volume(object):
     #--------------------------------------------------------------------------
 
 
-    #-- headerValues property (avoiding @headerValues.setter to keep 
+    #-- headerValues property (avoiding @headerValues.setter to keep
     #-- compatibility w/ python2.5)----
     def _getHeaderValues(self):
         """
@@ -277,17 +277,17 @@ class Volume(object):
         header values should be set directly through the volume's attributes,
         e.g. vol.something = newValue.
         """
-        # Return the current instance attributes that are a part of the 
-        # header definition  
+        # Return the current instance attributes that are a part of the
+        # header definition
         values = {}
         for key in _headerDef:
             # If it's been deleted for some reason, return the default value
-            default = _headerDef[key]['default']  
+            default = _headerDef[key]['default']
             values[key] = getattr(self, key, default)
         return values
 
     def _setHeaderValues(self, input):
-        # This needs to raise an error if set via headerValues['x'] = y! 
+        # This needs to raise an error if set via headerValues['x'] = y!
         # Don't know how to do it easily, though...
         for key, value in input.iteritems():
             # Only set things in input that are normally in the header
@@ -299,15 +299,15 @@ class Volume(object):
 
 
     #-- xmin, xmax, etc -------------------------------------------------------
-    def _getVolumeBound(self, axis, max=True): 
+    def _getVolumeBound(self, axis, max=True):
         n = [self.nx, self.ny, self.nz][axis]
         d = [self.dx, self.dy, self.dz][axis]
         offset = [self.x0, self.y0, self.z0][axis]
         stop = offset + d * (n-1)
         start = offset
-        if ((max is True) & (d>0)) or ((max is False) & (d<0)): 
+        if ((max is True) & (d>0)) or ((max is False) & (d<0)):
             return stop
-        else: 
+        else:
             return start
 
     def _setVolumeBound(self, value, axis, max=True):
@@ -318,27 +318,27 @@ class Volume(object):
             value = value + (n-1) * abs(d)
         setattr(self, axisLetter+'0', value)
 
-    xmin = property(lambda self: self._getVolumeBound(axis=0, max=False), 
+    xmin = property(lambda self: self._getVolumeBound(axis=0, max=False),
             lambda self, value: self._setVolumeBound(value, axis=0, max=False),
             doc="Mininum x model coordinate")
 
-    ymin = property(lambda self: self._getVolumeBound(axis=1, max=False), 
+    ymin = property(lambda self: self._getVolumeBound(axis=1, max=False),
             lambda self, value: self._setVolumeBound(value, axis=1, max=False),
             doc="Mininum y model coordinate")
 
-    zmin = property(lambda self: self._getVolumeBound(axis=2, max=False), 
+    zmin = property(lambda self: self._getVolumeBound(axis=2, max=False),
             lambda self, value: self._setVolumeBound(value, axis=2, max=False),
             doc="Mininum z model coordinate")
 
-    xmax = property(lambda self: self._getVolumeBound(axis=0, max=True), 
+    xmax = property(lambda self: self._getVolumeBound(axis=0, max=True),
             lambda self, value: self._setVolumeBound(value, axis=0, max=True),
             doc="Maximum x model coordinate")
 
-    ymax = property(lambda self: self._getVolumeBound(axis=1, max=True), 
+    ymax = property(lambda self: self._getVolumeBound(axis=1, max=True),
             lambda self, value: self._setVolumeBound(value, axis=1, max=True),
             doc="Maximum y model coordinate")
 
-    zmax = property(lambda self: self._getVolumeBound(axis=2, max=True), 
+    zmax = property(lambda self: self._getVolumeBound(axis=2, max=True),
             lambda self, value: self._setVolumeBound(value, axis=2, max=True),
             doc="Maximum z model coordinate")
     #--------------------------------------------------------------------------
@@ -360,7 +360,7 @@ class Volume(object):
     #--------------------------------------------------------------------------
 
 
-    # Need to fix these... should be 3x2 instead of 2x3... 
+    # Need to fix these... should be 3x2 instead of 2x3...
     # fix transform when I do!
 
     #-- worldCoords property-------------------------------------
@@ -377,7 +377,7 @@ class Volume(object):
 
     #-- modelCoords property-------------------------------------
     #   georef format: Xw1,Xw2,Xw3,Yw1,Yw2,Yw3,Ym1,Ym2,Ym3,Xm1,Xm2,Xm3
-    #   This means that we need to flipud the modelCoords!! 
+    #   This means that we need to flipud the modelCoords!!
     #   (looks suspicious, double-check)
     def _getModelCoords(self):
         """A 2x3 array containing 3 points in model coordinates corresponding
@@ -389,7 +389,7 @@ class Volume(object):
         self.georef[6:] = np.asarray(newValues).flatten()
     modelCoords = property(_getModelCoords, _setModelCoords)
     #-----------------------------------------------------------
-    
+
     @property
     def dxW(self):
         """X-spacing interval in world coordinates"""
@@ -405,7 +405,7 @@ class Volume(object):
 
     def YSlice(self, Ypos):
         """Takes a slice of the volume at a constant y-value (i.e. the
-        slice is in the direction of the x-axis) This is a convience 
+        slice is in the direction of the x-axis) This is a convience
         function to avoid calling volume.model2index before slicing
         and transposing (for easier plotting) after.
         Input:
@@ -417,7 +417,7 @@ class Volume(object):
 
     def XSlice(self, Xpos):
         """Takes a slice of the volume at a constant x-value (i.e. the
-        slice is in the direction of the y-axis) This is a convience 
+        slice is in the direction of the y-axis) This is a convience
         function to avoid calling volume.model2index before slicing
         and transposing (for easier plotting) after.
         Input:
@@ -428,9 +428,9 @@ class Volume(object):
         return self.data[Xpos,:,:].transpose()
 
     def ZSlice(self, Zpos):
-        """Takes a slice of the volume at a constant z-value (i.e. 
-        a depth slice) This is a convience function to avoid calling 
-        volume.model2index before slicing and transposing (for 
+        """Takes a slice of the volume at a constant z-value (i.e.
+        a depth slice) This is a convience function to avoid calling
+        volume.model2index before slicing and transposing (for
         easier plotting) after.
         Input:
             Zpos: Z-Value given in model coordinates
@@ -447,9 +447,9 @@ class Volume(object):
             *y*: A sequence of y coords in the coordinate system specified by
                 *coords*
             *zmin*: The minimum "z" value for the returned section
-                (in depth/time) 
+                (in depth/time)
             *zmax*: The maximum "z" value for the returned section
-                (in depth/time) 
+                (in depth/time)
             *coords*: Either "model" or "world", specifying whether *x* and *y*
                 are given in model or world coordinates."""
         if coords == 'world':
@@ -479,16 +479,16 @@ class Volume(object):
 
     def model2index(self, *coords, **kwargs):
         """Converts model coordinates into array indicies
-        Input: 
+        Input:
             *coords: x,y,z model coordinates to be converted. Will accept numpy
                 arrays.  If only one coordinate is specified, it is assumed to
                 be x, and if two are specified, they are assumed to be x,y.
-                To override this choice (i.e. convert just y or z) use the 
+                To override this choice (i.e. convert just y or z) use the
                 axis keyword argument
             axis (default None): The axis that the given model coordinate
-                is from.  Use 0,1,2 or 'x','y','z'.  
+                is from.  Use 0,1,2 or 'x','y','z'.
         Output:
-            A tuple of converted coordinates (or just the coord if only one 
+            A tuple of converted coordinates (or just the coord if only one
             was input)
         Examples:
             XI = volume.model2index(X)
@@ -501,16 +501,16 @@ class Volume(object):
 
     def index2model(self, *coords, **kwargs):
         """Converts array indicies to model coordinates
-        Input: 
+        Input:
             *coords: x,y,z array indicies to be converted. Will accept numpy
                 arrays.  If only one index is specified, it is assumed to
                 be x, and if two are specified, they are assumed to be x,y.
-                To override this choice (i.e. convert just y or z) use the 
+                To override this choice (i.e. convert just y or z) use the
                 axis keyword argument
             axis (default None): The axis that the given model coordinate
-                is from.  Use 0,1,2 or 'x','y','z'.  
+                is from.  Use 0,1,2 or 'x','y','z'.
         Output:
-            A tuple of converted indicies (or just the index if only one was 
+            A tuple of converted indicies (or just the index if only one was
             input)
         Examples:
             X = volume.index2model(XI)
@@ -523,11 +523,11 @@ class Volume(object):
 
     def _modelIndex(self, *coords, **kwargs):
         """
-        Consolidates model2index and index2model. See docstrings of 
+        Consolidates model2index and index2model. See docstrings of
         index2model and model2index for more detail.
         Input:
             value: The model coordinate or volume index to be converted
-            axis (default 0): Which axis the coordinate represents. 
+            axis (default 0): Which axis the coordinate represents.
                 Can be either 0,1,2 or 'X','Y','Z'
             inverse (defalut False): True to convert index to model coords
         Output:
@@ -536,7 +536,7 @@ class Volume(object):
         #-- Again, this looks needlessly complex... ------------------
         # Unfortunately, I can't figure out a more simple method while
         # still retaining the flexibility I want this function to have
-        # Also, I'd really rather not use **kwagrs here, but I have to 
+        # Also, I'd really rather not use **kwagrs here, but I have to
         # use *args first, and I can't have *args and the axis=None.
 
         def convert(value,axis,inverse):
@@ -544,9 +544,9 @@ class Volume(object):
             value = np.asarray(value)
 
             # Select the proper starting point and step value
-            #   The "axis % 3" is to allow some odd but useful stuff... 
+            #   The "axis % 3" is to allow some odd but useful stuff...
             #   E.g. converting Y,Z pairs
-            axis = axis % 3 
+            axis = axis % 3
             mins = [self.xmin, self.ymin, self.zmin]
             Ds = [abs(self.dx), abs(self.dy), abs(self.dz)]
             minimum, d = mins[axis], Ds[axis]
@@ -560,20 +560,20 @@ class Volume(object):
 
         #-- Handle user input -------------------------------------------------
 
-        # Set the default values of axis and inverse 
+        # Set the default values of axis and inverse
         axis = kwargs.get('axis', 0)
         inverse = kwargs.get('inverse', False)
 
         # Make sure we have a valid axis
-        if axis not in [0,1,2,'x','y','z','X','Y','Z']:  
+        if axis not in [0,1,2,'x','y','z','X','Y','Z']:
             raise ValueError('"axis" must be one of 0,1,2 or "x","y","z"')
 
         # Allow both 0,1,2 and 'x','y','z' (or 'X','Y','Z') for axis
-        if isinstance(axis, basestring): 
+        if isinstance(axis, basestring):
             axis = axis.upper()
             axis = {'X':0, 'Y':1, 'Z':2}[axis]
 
-        # Handle calling f(x), f(x,y), f(x,y,z), f(z,axis=2), etc 
+        # Handle calling f(x), f(x,y), f(x,y,z), f(z,axis=2), etc
         converted = [convert(x, i+axis, inverse) for i,x in enumerate(coords)]
 
         # If there's just one value, return it, otherwise return a sequence
@@ -587,7 +587,7 @@ class Volume(object):
         Converts model coordinates to world coordinates.  Accepts either a Nx2
         list/numpy.array or 2 seperate lists/numpy.array's with crossline,
         inline coordinates.  Returns 2 numpy arrays X and Y with world
-        coordinates. If a Nx2 or 2xN array was given, returns a single Nx2 or 
+        coordinates. If a Nx2 or 2xN array was given, returns a single Nx2 or
         2xN array instead of seperate x & y 1D arrays.
         """
         return self._transformCoords(crossline, inline, self.transform)
@@ -617,25 +617,25 @@ class Volume(object):
             return_array = True
             # Assume x is 2xN or Nx2 and slice appropriately
             if 2 in x.shape:
-                if x.shape[0] == 2:    
+                if x.shape[0] == 2:
                     x,y = x[0,:], x[1,:]
-                elif x.shape[1] == 2:  
+                elif x.shape[1] == 2:
                     transpose = True
                     x,y = x[:,0], x[:,1]
                 x = np.squeeze(x)
-            else:  
+            else:
                 raise ValueError('If Y is not given, X must be an'
                                  ' Nx2 or 2xN array!')
         y = np.squeeze(np.asarray(y))
-        
+
         #-- Convert Coordinates -------------------------------------
         try:
             # Make a G-matrix from the input coords
-            dataIn = np.vstack((x,y,np.ones(x.size))) 
+            dataIn = np.vstack((x,y,np.ones(x.size)))
         except ValueError:
             raise ValueError('X and Y inputs must be the same size!!')
         # Output world coords
-        dataOut = np.dot(transform,dataIn)  
+        dataOut = np.dot(transform,dataIn)
 
         #-- Output Data with Same Shape as Input --------------------
         if return_array:
@@ -644,15 +644,15 @@ class Volume(object):
             return dataOut
         else:
             # Return x, y
-            X,Y = dataOut[0,:], dataOut[1,:]  
+            X,Y = dataOut[0,:], dataOut[1,:]
             if X.size == 1:
                 return X[0], Y[0]
             else:
                 return X,Y
-    
+
     @property
     def transform(self):
-        """A 2x3 numpy array describing an affine transformation between 
+        """A 2x3 numpy array describing an affine transformation between
         model and world coordinates. (Read only property. Calculated from
         volume.modelCoords and volume.worldCoords.)"""
         # Detailed explanation of inversion...
@@ -680,7 +680,7 @@ class Volume(object):
 
     @property
     def invtransform(self):
-        """A 2x3 numpy array to transform between world and 
+        """A 2x3 numpy array to transform between world and
         model coordinates. (Read only property. Calculated from
         volume.modelCoords and volume.worldCoords.)"""
         # See explanation in self.transform
@@ -704,9 +704,9 @@ class GeoprobeVolumeFileV2(object):
         volSize = os.stat(self.filename).st_size
         predSize = nx*ny*nz + _headerLength
 
-        if (header['magicNum'] != 43970) or (volSize != predSize): 
+        if (header['magicNum'] != 43970) or (volSize != predSize):
             return False
-        else: 
+        else:
             return True
 
 
@@ -720,7 +720,7 @@ class GeoprobeVolumeFileV2(object):
         return header
 
     def read_data(self):
-        """Reads an entire Geoprobe volume into memory and returns 
+        """Reads an entire Geoprobe volume into memory and returns
         a numpy array contining the volume."""
         header = self.read_header()
         nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
@@ -734,8 +734,8 @@ class GeoprobeVolumeFileV2(object):
         header = self.read_header()
         nx, ny, nz = [header[item] for item in ('_nx', '_ny', '_nz')]
         dat = np.memmap(filename=self.filename, mode='r',
-            offset=_headerLength, order='F', 
-            shape=(nx, ny, nz) 
+            offset=_headerLength, order='F',
+            shape=(nx, ny, nz)
             )
         return dat
 
@@ -808,7 +808,7 @@ class HDFVolumeFile(object):
             x0 = x0 + (data.shape[0] - 1) * dx
             data = data[::-1,:,:]
 
-        self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz), 
+        self.write_header(dict(dx=abs(dx), dy=abs(dy), dz=abs(dz),
                           x0=x0, y0=y0, z0=z0))
         self.dataset = self._file.create_dataset(self.dataset_name, data=data)
 
