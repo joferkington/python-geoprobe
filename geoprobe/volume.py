@@ -556,13 +556,17 @@ class Volume(object):
                 return value * d + minimum
             else: # model2index
                 idx = (value - minimum) / d
-                return idx.astype(int)
+                if int_conversion:
+                    return idx.astype(int)
+                else:
+                    return idx
 
         #-- Handle user input -------------------------------------------------
 
         # Set the default values of axis and inverse
         axis = kwargs.get('axis', 0)
         inverse = kwargs.get('inverse', False)
+        int_conversion = kwargs.get('int_conversion', True)
 
         # Make sure we have a valid axis
         if axis not in [0,1,2,'x','y','z','X','Y','Z']:
