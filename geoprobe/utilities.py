@@ -144,12 +144,12 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     xmin, xmax, ymin, ymax = extents
 
     # Convert extents to volume indicies and select subset of the volume
-    xstart, ystart = xmin - vol.xmin, ymin - vol.ymin
-    xstop, ystop = xmax - vol.xmin, ymax - vol.ymin
-    data = vol.data[xstart:xstop, ystart:ystop, :]
+    i, j = vol.model2index([xmin, xmax], [ymin, ymax])
+    data = vol.data[i[0]:i[1], j[0]:j[1], :]
 
     # Convert extents to horizion grid indicies and select
     # subset of the horizion
+
     hxmin, hxmax, hymin, hymax = hor.grid_extents
     xstart, ystart = xmin - hxmin, ymin - hymin
     xstop, ystop = xmax - hxmin, ymax - hymin
@@ -171,13 +171,18 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     # Using fancy indexing to do this uses tons of memory...
     # As it turns out, simple iteration is much, much more memory
     # efficient, and almost as fast
-    mask = depth.mask      # Need to preserve the mask for later
-    depth = depth.filled() # Iterating through masked arrays is much slower...
+    mask = depth.mask.copy() # Need to preserve the mask for later
+    if not mask.shape:
+        mask = np.zeros(depth.shape, dtype=np.bool)
+    depth = depth.filled()   # Iterating through masked arrays is much slower.
     for i in xrange(nx):
         for j in xrange(ny):
             if depth[i,j] != hor.nodata:
                 # Where are we in data indicies
                 z = depth[i,j] + offset
+                if z < 0:
+                    mask[i,j] = True
+                    continue
                 top = z - upper
                 bottom = z + lower + 1
 
