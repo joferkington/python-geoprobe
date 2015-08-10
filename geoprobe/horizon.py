@@ -96,7 +96,7 @@ class horizon(object):
 
     def _readHorizon(self, filename):
         """Reads a horizon from disk"""
-        self._file = HorizonFile(filename, 'r')
+        self._file = HorizonFile(filename, 'rb')
         self._header = self._file.readHeader()
 
         if self._header == "#GeoProbe Horizon V2.0 ascii\n":
@@ -206,7 +206,7 @@ class horizon(object):
         """
         Write the horizon to a new file ("filename")
         """
-        self._file = HorizonFile(filename, 'w')
+        self._file = HorizonFile(filename, 'wb')
 
         # If self.lines isn't set, default to []
         try:

@@ -192,7 +192,7 @@ class Volume(object):
 
     def write(self, filename):
         """Writes a geoprobe volume to disk."""
-        outfile = self.format_type(filename, 'w')
+        outfile = self.format_type(filename, 'wb')
         outfile.write_header(self.headerValues)
         outfile.write_data(self.data)
 
