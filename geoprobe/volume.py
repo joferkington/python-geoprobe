@@ -132,7 +132,7 @@ class Volume(object):
         self._infile = self.format_type(filename, 'rb')
         self.headerValues = self._infile.read_header()
 
-    def _newVolume(self,data,copyFrom=None,rescale=True):
+    def _newVolume(self,data,copyFrom=None,rescale=True, fix_axes=True):
         """Takes a numpy array and makes a geoprobe volume. This
         volume can then be written to disk using the write() method."""
 
@@ -160,7 +160,8 @@ class Volume(object):
             data -= self.v0
             data /= self.dv
 
-        self.data = self._fixAxes(data)
+        if fix_axes:
+            self.data = self._fixAxes(data)
 
     def _fixAxes(self,data):
         """
@@ -229,7 +230,7 @@ class Volume(object):
 
         # Make a new volume instance and set it's mininum model coords
         vol = type(self)()
-        vol._newVolume(data, copyFrom=self, rescale=False)
+        vol._newVolume(data, copyFrom=self, rescale=False, fix_axes=False)
         vol.xmin, vol.ymin, vol.zmin = xmin, ymin, zmin
 
         return vol
@@ -631,6 +632,8 @@ class Volume(object):
                 raise ValueError('If Y is not given, X must be an'
                                  ' Nx2 or 2xN array!')
         y = np.squeeze(np.asarray(y))
+        shape = x.shape
+        x, y = x.flatten(), y.flatten()
 
         #-- Convert Coordinates -------------------------------------
         try:
@@ -652,7 +655,7 @@ class Volume(object):
             if X.size == 1:
                 return X[0], Y[0]
             else:
-                return X,Y
+                return X.reshape(shape), Y.reshape(shape)
 
     @property
     def transform(self):
