@@ -253,7 +253,7 @@ class Volume(object):
         # Make sure we're dealing with a 3D numpy array
         try:
             self._nx, self._ny, self._nz = newData.shape
-        except ValueError, AttributeError:
+        except (ValueError, AttributeError):
             raise TypeError('Data must be a 3D numpy array')
 
         # We don't update dv and d0 here.  This is to avoid overwriting the
