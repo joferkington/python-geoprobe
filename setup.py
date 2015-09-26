@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'geoprobe',
-    version = '0.3',
+    version = '0.3.1',
     description = "Reads and (partially) writes seismic data in Landmark's Geoprobe format",
     author = 'Joe Kington',
     author_email = 'joferkington@gmail.com',
