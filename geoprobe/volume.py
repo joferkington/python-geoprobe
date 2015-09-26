@@ -132,7 +132,7 @@ class Volume(object):
         self._infile = self.format_type(filename, 'rb')
         self.headerValues = self._infile.read_header()
 
-    def _newVolume(self,data,copyFrom=None,rescale=True, fix_axes=True):
+    def _newVolume(self, data, copyFrom=None, rescale=True, fix_axes=True):
         """Takes a numpy array and makes a geoprobe volume. This
         volume can then be written to disk using the write() method."""
 
@@ -161,9 +161,11 @@ class Volume(object):
             data /= self.dv
 
         if fix_axes:
-            self.data = self._fixAxes(data)
+            data = self._fixAxes(data)
 
-    def _fixAxes(self,data):
+        self._data = data
+
+    def _fixAxes(self, data):
         """
         Reverses the x, y, and z axes if dx, dy, or dz (respectively) are
         negative.  This ensures that self.data[0,0,0] always corresponds
