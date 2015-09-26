@@ -52,6 +52,14 @@ class TestConversions(TestBase):
             self.test_model2index_maxs()
             setattr(self.vol, item, -getattr(self.vol, item))
 
+class TestCrop(TestBase):
+    def test_crop_in_memory(self):
+        self.vol.load()
+        v = self.vol.crop(xmin=2200, xmax=2300, ymin=5000, ymax=5100,
+                          zmin=3000, zmax=3100)
+        vdat = self.vol[2200:2300, 5000:5100, 3000:3100]
+        assert np.allclose(v.data, vdat)
+
 class TestExtraction(TestBase):
     def test_arbitrary_section(self):
         x = [self.vol.xmin, self.vol.xmax]
