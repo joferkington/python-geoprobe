@@ -9,7 +9,7 @@ such, is certainly not complete. However, things seem to work.
 
 Author:
 =======
-Joe Kington <jkington@geology.wisc.edu>
+Joe Kington <joferkington@gmail.com>
 
 Dependencies: 
 =============
