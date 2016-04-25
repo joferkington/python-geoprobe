@@ -38,9 +38,11 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
                     and wrap around)
             voltype (default: None): Explicitly set the type of volume.
                     By default, the volume type will be guessed from the
-                    input file. Valid options are: "hdf", "geoprobe_v2"
+                    input file. Valid options are: "hdf", "geoprobe_v2", and
+                    "voxel_geo".
     """
-    typestrings = {'hdf':HDFVolume, 'geoprobe_v2':GeoprobeVolumeV2}
+    typestrings = {'hdf':HDFVolume, 'geoprobe_v2':GeoprobeVolumeV2,
+                   'voxel_geo':VoxelGeoVolume}
     if voltype is None:
         voltype = formats[0]
     else:
@@ -701,6 +703,7 @@ class Volume(object):
 class GeoprobeVolumeFileV2(object):
     """Low-level operations for reading and writing to Geoprobe Volume format
     version 2.0 seismic data files."""
+    _magic_number = 43970
     def __init__(self, filename, mode):
         self.filename = filename
         self.mode = mode
@@ -713,7 +716,7 @@ class GeoprobeVolumeFileV2(object):
         volSize = os.stat(self.filename).st_size
         predSize = nx*ny*nz + _headerLength
 
-        if (header['magicNum'] != 43970) or (volSize != predSize):
+        if (header['magicNum'] != self._magic_number) or (volSize != predSize):
             return False
         else:
             return True
@@ -768,6 +771,14 @@ class GeoprobeVolumeFileV2(object):
 
     def close(self):
         return self._file.close()
+
+class VoxelGeoVolumeFile(GeoprobeVolumeFileV2):
+    """
+    Appears to be identical to a geoprobe volume, but uses a different magic
+    number. It's possible (and likely?) that there are other differences, but
+    I don't have access to VoxelGeo to test and see.
+    """
+    _magic_number = 43970
 
 class HDFVolumeFile(object):
     """Low level operations for reading and writing to hdf5 files."""
@@ -828,10 +839,13 @@ class HDFVolumeFile(object):
 class GeoprobeVolumeV2(Volume):
     format_type = GeoprobeVolumeFileV2
 
+class VoxelGeoVolume(Volume):
+    format_type = VoxelGeoVolumeFile
+
 class HDFVolume(Volume):
     format_type = HDFVolumeFile
 
-formats = [GeoprobeVolumeV2]
+formats = [GeoprobeVolumeV2, VoxelGeoVolume]
 
 # If h5py is available, add HDFVolume's to the list of available formats
 try:
