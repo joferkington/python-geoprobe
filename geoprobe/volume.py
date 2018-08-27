@@ -6,14 +6,14 @@ import os
 import numpy as np
 
 # Dictonary of header values and offsets for a geoprobe volume
-from _volHeader import headerDef as _headerDef
-from _volHeader import headerLength as _headerLength
+from ._volHeader import headerDef as _headerDef
+from ._volHeader import headerLength as _headerLength
 
 # Common methods
-from common import BinaryFile
-from common import format_headerDef_docs
+from .common import BinaryFile
+from .common import format_headerDef_docs
 
-import utilities
+from . import utilities
 
 # Factory function for creating new Volume objects...
 def volume(input, copyFrom=None, rescale=True, voltype=None):

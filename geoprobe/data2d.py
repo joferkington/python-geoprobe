@@ -1,8 +1,8 @@
 import numpy as np
-from common import BinaryFile
-from common import format_headerDef_docs
-from _2dHeader import headerDef as _headerDef
-from _2dHeader import headerLength as _headerLength
+from .common import BinaryFile
+from .common import format_headerDef_docs
+from ._2dHeader import headerDef as _headerDef
+from ._2dHeader import headerLength as _headerLength
 
 class data2d(object):
     __doc__ = """

@@ -1,7 +1,7 @@
 import numpy as np
 import xml.etree.ElementTree as et
 import xml.dom.minidom as minidom
-import utilities
+from . import utilities
 # Note: matplotlib.delaunay is required for interpolation and triangulation.
 # If it isn't available
 

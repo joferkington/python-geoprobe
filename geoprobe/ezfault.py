@@ -7,8 +7,8 @@ JDK 08/03/09"""
 import numpy as np
 
 # Local files
-import utilities
-from volume import volume
+from . import utilities
+from .volume import volume
 
 class ezfault(object):
     """Simple geoprobe ezfault reader."""

@@ -2,9 +2,9 @@ import numpy as np
 import os
 
 #-- Imports from local files --------------------------------------
-from volume import volume
-from common import BinaryFile
-from utilities import array2geotiff, points2strikeDip
+from .volume import volume
+from .common import BinaryFile
+from .utilities import array2geotiff, points2strikeDip
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
