@@ -10,7 +10,7 @@ from ._volHeader import headerDef as _headerDef
 from ._volHeader import headerLength as _headerLength
 
 # Common methods
-from .common import BinaryFile
+from .common import read_binary, write_binary
 from .common import format_headerDef_docs
 
 from . import utilities
@@ -707,7 +707,7 @@ class GeoprobeVolumeFileV2(object):
     def __init__(self, filename, mode):
         self.filename = filename
         self.mode = mode
-        self._file = BinaryFile(self.filename, self.mode)
+        self._file = open(self.filename, self.mode)
 
     def is_valid(self):
         """Returns a boolean indicating whether this is a valid file."""
@@ -727,7 +727,7 @@ class GeoprobeVolumeFileV2(object):
         header = dict()
         for varname, info in _headerDef.iteritems():
             self._file.seek(info['offset'])
-            value = self._file.readBinary(info['type'])
+            read_binary(self._file, info['type'])
             header[varname] = value
         return header
 
@@ -756,7 +756,7 @@ class GeoprobeVolumeFileV2(object):
         for varname, info in _headerDef.iteritems():
             value = header.get(varname, info['default'])
             self._file.seek(info['offset'])
-            self._file.writeBinary(info['type'], value)
+            write_binary(self._file, info['type'], value)
 
     def write_data(self, data):
         """Writes a geoprobe volume to disk."""

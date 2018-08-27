@@ -3,7 +3,7 @@ import os
 
 #-- Imports from local files --------------------------------------
 from .volume import volume
-from .common import BinaryFile
+from .common import read_binary, write_binary
 from .utilities import array2geotiff, points2strikeDip
 
 #-- Build dtype for points ----------------------------------------
@@ -378,7 +378,7 @@ class horizon(object):
 
 
 #-- This is currently very sloppy code... Need to clean up and document
-class HorizonFile(BinaryFile):
+class HorizonFile(object):
     """Basic geoprobe horizon binary file format reader
 
         Disk layout of Geoprobe horizons
@@ -410,23 +410,23 @@ class HorizonFile(BinaryFile):
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
         # Initalize the file object as normal
-        file.__init__(self, *args, **kwargs)
+        self._file = open(*args, **kwargs)
 
     def readHeader(self):
-        self.seek(0)
-        return self.readline()
+        self._file.seek(0)
+        return self._file.readline()
 
     def readPoints(self):
-        numPoints = self.readBinary(self._surfaceHdrFmt)
+        numPoints = read_binary(self._file, self._surfaceHdrFmt)
         points = np.fromfile(self, count=numPoints, dtype=_point_dtype)
         return points
 
     def readSectionHeader(self):
-        return self.readBinary(self._sectionHdrFmt)
+        return read_binary(self._file, self._sectionHdrFmt)
 
     def readLineHeader(self):
         # TODO: Change this to a numpy array
-        xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
+        xdir,ydir,zdir,ID = read_binary(self._file, self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
     def readAll(self):
@@ -478,19 +478,19 @@ class HorizonFile(BinaryFile):
 
     def writeHeader(self):
         header = "#GeoProbe Horizon V2.0 binary\n"
-        self.seek(0)
-        self.write(header)
+        self._file.seek(0)
+        self._file.write(header)
 
     def writePoints(self, points):
         numPoints = points.size
-        self.writeBinary(self._surfaceHdrFmt, numPoints)
-        points.tofile(self)
+        write_binary(self._file, self._surfaceHdrFmt, numPoints)
+        points.tofile(self._file)
 
     def writeLineHeader(self, line_hdr):
-        self.writeBinary(self._lineHdrFmt, line_hdr)
+        write_binary(self._file, self._lineHdrFmt, line_hdr)
 
     def writeSectionHeader(self, sec_hdr):
-        self.writeBinary(self._sectionHdrFmt, sec_hdr)
+        write_binary(self._file, self._sectionHdrFmt, sec_hdr)
 
     def writeAll(self):
         self.writeHeader()

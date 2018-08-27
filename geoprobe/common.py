@@ -44,48 +44,47 @@ class cached_property(object):
         return value
 
 #-- Raw reading and writing ---------------------------------------------------
-class BinaryFile(file):
+def read_binary(infile, fmt):
     """
-    Automatically packs or unpacks binary data according to a format
-    when reading or writing.
+    Read and unpack a binary value from the file based on string fmt (see the
+    struct module for details).
+        Input:
+            infile: A file-like object to read from.
+            fmt: A ``struct`` format string.
+        Output:
+            A tuple of unpacked data (or a single item if only one item is
+            returned from ``struct.unpack``).
     """
-    def __init__(self, *args, **kwargs):
-        """
-        Initialization is the same as a normal file object
-        %s""" % file.__doc__
-        file.__init__(self, *args, **kwargs)
+    size = struct.calcsize(fmt)
+    data = infile.read(size)
+    # Reading beyond the end of the file just returns ''
+    if len(data) != size:
+        raise EOFError('End of file reached')
+    data = struct.unpack(fmt, data)
 
-    def readBinary(self,fmt):
-        """
-        Read and unpack a binary value from the file based
-        on string fmt (see the struct module for details).
-        """
-        size = struct.calcsize(fmt)
-        data = self.read(size)
-        # Reading beyond the end of the file just returns ''
-        if len(data) != size:
-            raise EOFError('End of file reached')
-        data = struct.unpack(fmt, data)
+    for item in data:
+        # Strip trailing zeros in strings
+        if isinstance(item, basestring):
+            item = item.strip('\x00')
 
-        for item in data:
-            # Strip trailing zeros in strings
-            if isinstance(item, basestring):
-                item = item.strip('\x00')
+    # Unpack the tuple if it only has one value
+    if len(data) == 1: data = data[0]
 
-        # Unpack the tuple if it only has one value
-        if len(data) == 1: data = data[0]
+    return data
 
-        return data
-
-    def writeBinary(self, fmt, dat):
-        """Pack and write data to the file according to string fmt."""
-        # Try expanding input arguments (struct.pack won't take a tuple)
-        try:
-            dat = struct.pack(fmt, *dat)
-        except (TypeError, struct.error):
-            # If it's not a sequence (TypeError), or if it's a
-            # string (struct.error), don't expand.
-            dat = struct.pack(fmt, dat)
-        self.write(dat)
-
-
+def write_binary(outfile, fmt, dat):
+    """
+    Pack and write data to the file according to string fmt.
+        Input:
+            outfile: An open file-like object to write to.
+            fmt: A ``struct`` format string.
+            dat: Data to pack into binary form.
+    """
+    # Try expanding input arguments (struct.pack won't take a tuple)
+    try:
+        dat = struct.pack(fmt, *dat)
+    except (TypeError, struct.error):
+        # If it's not a sequence (TypeError), or if it's a
+        # string (struct.error), don't expand.
+        dat = struct.pack(fmt, dat)
+    outfile.write(dat)

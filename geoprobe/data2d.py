@@ -1,6 +1,5 @@
 import numpy as np
-from .common import BinaryFile
-from .common import format_headerDef_docs
+from .common import format_headerDef_docs, read_binary, write_binary
 from ._2dHeader import headerDef as _headerDef
 from ._2dHeader import headerLength as _headerLength
 
@@ -24,7 +23,7 @@ class data2d(object):
         """
         if isinstance(arg, basestring):
             filename = arg
-            infile = BinaryFile(filename, 'rb')
+            infile = open(filename, 'rb')
             self._read_header(infile)
             self._read_traces(infile)
             infile.close()
@@ -64,7 +63,7 @@ class data2d(object):
 
     def write(self, outfile):
         if isinstance(outfile , basestring):
-            outfile = BinaryFile(outfile, 'wb')
+            outfile = open(outfile, 'wb')
         self._write_header(outfile)
         self._write_traces(outfile)
         outfile.close()
@@ -77,7 +76,7 @@ class data2d(object):
         for varname, info in _headerDef.iteritems():
             offset, fmt = info['offset'], info['type']
             infile.seek(offset)
-            var = infile.readBinary(fmt)
+            var = read_binary(infile, fmt)
             setattr(self, varname, var)
 
     def _write_header(self, outfile):
@@ -85,7 +84,7 @@ class data2d(object):
         for varname, info in _headerDef.iteritems():
             value = getattr(self, varname, info['default'])
             outfile.seek(info['offset'])
-            outfile.writeBinary(info['type'], value)
+            write_binary(outfile, info['type'], value)
 
     def _getHeaderValues(self):
         """
