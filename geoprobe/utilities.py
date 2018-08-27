@@ -2,9 +2,10 @@
 07/2009"""
 
 import numpy as np
+from six import string_types
 
-import volume
-import horizon
+from . import volume
+from . import horizon
 
 def bbox_intersects(bbox1, bbox2):
     """
@@ -68,7 +69,7 @@ def bbox_union(bbox1, bbox2):
 
 def create_isopach(hor1, hor2, extent='intersection'):
     """Create new horizon with the difference between hor1 and hor2."""
-    if isinstance(extent, basestring):
+    if isinstance(extent, string_types):
         if extent.lower() == 'union':
             extent = bbox_union(hor1.grid_extents, hor2.grid_extents)
         elif extent.lower() == 'intersection':

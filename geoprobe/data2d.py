@@ -1,4 +1,6 @@
 import numpy as np
+from six import string_types
+
 from .common import format_headerDef_docs, read_binary, write_binary
 from ._2dHeader import headerDef as _headerDef
 from ._2dHeader import headerLength as _headerLength
@@ -21,7 +23,7 @@ class data2d(object):
         Input:
             filename: The name of the 2D data file
         """
-        if isinstance(arg, basestring):
+        if isinstance(arg, string_types):
             filename = arg
             infile = open(filename, 'rb')
             self._read_header(infile)
@@ -42,7 +44,7 @@ class data2d(object):
         # Set up the header Dictionary
         if copyFrom is not None:
             # Assume the string is the filename of a 2d data file
-            if isinstance(copyFrom, basestring):
+            if isinstance(copyFrom, string_types):
                 copyFrom = data2d(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
@@ -62,7 +64,7 @@ class data2d(object):
             self.endtime = endtime
 
     def write(self, outfile):
-        if isinstance(outfile , basestring):
+        if isinstance(outfile, string_types):
             outfile = open(outfile, 'wb')
         self._write_header(outfile)
         self._write_traces(outfile)

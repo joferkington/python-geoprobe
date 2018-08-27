@@ -1,5 +1,7 @@
 """Recipies and various code utility functions."""
 
+from six import string_types
+
 import struct
 import textwrap
 
@@ -16,7 +18,7 @@ def format_headerDef_docs(headerDef, initial_indent=8, subsequent_indent=12):
     for key in sorted(headerDef.keys()):
         value = headerDef[key]
         default = value['default']
-        if isinstance(default, basestring):
+        if isinstance(default, string_types):
             default = default.strip()
 
         doc = '%s: %s (default=%s)' % (key, value['doc'], repr(default))
@@ -64,7 +66,7 @@ def read_binary(infile, fmt):
 
     for item in data:
         # Strip trailing zeros in strings
-        if isinstance(item, basestring):
+        if isinstance(item, string_types):
             item = item.strip('\x00')
 
     # Unpack the tuple if it only has one value

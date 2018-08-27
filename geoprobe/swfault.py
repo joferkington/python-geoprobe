@@ -1,13 +1,14 @@
 import numpy as np
 import xml.etree.ElementTree as et
 import xml.dom.minidom as minidom
+from six import string_types
 from . import utilities
 # Note: matplotlib.delaunay is required for interpolation and triangulation.
 # If it isn't available
 
 class swfault(object):
     def __init__(self, arg):
-        if isinstance(arg, basestring):
+        if isinstance(arg, string_types):
             # Assume it's a filename
             self._read(arg)
         else:

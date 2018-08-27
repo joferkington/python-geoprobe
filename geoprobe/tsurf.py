@@ -1,3 +1,5 @@
+from six import string_types
+
 class tsurf(object):
     default_name = 'Undefined'
     default_color = (0, 1, 1, 1.0)
@@ -80,7 +82,7 @@ class tsurf(object):
                 value = self.header[key]
             """
             for key, value in self.header.iteritems():
-                if not isinstance(value, basestring):
+                if not isinstance(value, string_types):
                     try:
                         value = ' '.join(repr(item) for item in value)
                     except TypeError:

@@ -1,5 +1,6 @@
 import numpy as np
 import os
+from six import string_types
 
 #-- Imports from local files --------------------------------------
 from .volume import volume
@@ -75,7 +76,7 @@ class horizon(object):
 
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
-        if (len(args) == 1) and isinstance(args[0], basestring):
+        if (len(args) == 1) and isinstance(args[0], string_types):
             self._readHorizon(args[0])
 
         # Otherwise, pass the args on to _make_horizon_from_data for
