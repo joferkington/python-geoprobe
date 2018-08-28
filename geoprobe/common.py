@@ -42,7 +42,7 @@ class cached_property(object):
         if obj is None:
             return self
         value = self._calculate(obj)
-        setattr(obj, self._calculate.func_name, value)
+        setattr(obj, self._calculate.__name__, value)
         return value
 
 #-- Raw reading and writing ---------------------------------------------------
