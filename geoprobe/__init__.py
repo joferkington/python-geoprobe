@@ -16,7 +16,7 @@ As a basic example:
 """
 __author__ = 'Joe Kington <jkington@geology.wisc.edu>'
 __license__ = 'MIT License'
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 
 from .horizon import horizon
