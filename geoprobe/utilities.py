@@ -2,9 +2,10 @@
 07/2009"""
 
 import numpy as np
+import six
 
-import volume
-import horizon
+from . import volume
+from . import horizon
 
 def bbox_intersects(bbox1, bbox2):
     """
@@ -68,7 +69,7 @@ def bbox_union(bbox1, bbox2):
 
 def create_isopach(hor1, hor2, extent='intersection'):
     """Create new horizon with the difference between hor1 and hor2."""
-    if isinstance(extent, basestring):
+    if isinstance(extent, six.string_types):
         if extent.lower() == 'union':
             extent = bbox_union(hor1.grid_extents, hor2.grid_extents)
         elif extent.lower() == 'intersection':
@@ -85,7 +86,7 @@ def create_isopach(hor1, hor2, extent='intersection'):
     grid = hor1.grid - hor2.grid
     mask = ~grid.mask * np.ones_like(grid, dtype=np.bool)
     x, y, z, mask = x.ravel(), y.ravel(), grid.ravel(), mask.ravel()
-    iso = horizon.horizon(x=x[mask], y=y[mask], z=z[mask])
+    iso = horizon(x=x[mask], y=y[mask], z=z[mask])
     iso._grid = grid
     return iso
 
@@ -115,9 +116,9 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     # If filenames are input instead of volume/horizion objects, create
     # the objects
     if type(hor) == type('String'):
-        hor = horizon.horizon(hor)
+        hor = horizon(hor)
     if type(vol) == type('String'):
-        vol = volume.volume(vol)
+        vol = volume(vol)
 
     #Gah, changed the way hor.grid works... Should probably change it back
     depth = hor.grid.T
@@ -175,8 +176,8 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     if not mask.shape:
         mask = np.zeros(depth.shape, dtype=np.bool)
     depth = depth.filled()   # Iterating through masked arrays is much slower.
-    for i in xrange(nx):
-        for j in xrange(ny):
+    for i in six.moves.xrange(nx):
+        for j in six.moves.xrange(ny):
             if depth[i,j] != hor.nodata:
                 # Where are we in data indicies
                 z = depth[i,j] + offset
@@ -352,7 +353,7 @@ def roseDiagram(data, nbins=30, bidirectional=True, title='North'):
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.7], polar=True, axisbg='#d5de9c')
 
     # Change the labeling so that north is at the top
-    plt.thetagrids(range(0,360,45),
+    plt.thetagrids(np.arange(0,360,45),
             ['90','45','0','315','270','225','180','135'])
 
     # Plot a histogram on the polar axes
@@ -498,7 +499,7 @@ def points2strikeDip(x, y, z, vol=None, velocity=None):
     if vol is not None:
         # If given a string, assume it's the filename of a volume
         if type(vol) == type('String'):
-            vol = volume.volume(vol)
+            vol = volume(vol)
         # Convert coords
         x,y = vol.model2world(x, y)
 

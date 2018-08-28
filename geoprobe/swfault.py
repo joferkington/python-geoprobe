@@ -1,13 +1,14 @@
+import six
 import numpy as np
 import xml.etree.ElementTree as et
 import xml.dom.minidom as minidom
-import utilities
+from . import utilities
 # Note: matplotlib.delaunay is required for interpolation and triangulation.
 # If it isn't available
 
 class swfault(object):
     def __init__(self, arg):
-        if isinstance(arg, basestring):
+        if isinstance(arg, six.string_types):
             # Assume it's a filename
             self._read(arg)
         else:
@@ -184,7 +185,7 @@ class SwfaultXMLReader(object):
         def get_xyz(element):
             coords = [element.findall('item/'+key) for key in ['x','y','z']]
             xyz = zip(*[[float(coord.text) for coord in item] for item in coords])
-            return xyz
+            return list(xyz)
 
         fault = self.tree.find('swFault')
         self.name = fault.find('name').text
@@ -267,7 +268,7 @@ class SwfaultXMLWriter(object):
             text = self.doc.createTextNode(text)
             node.appendChild(text)
         if attributes is not None:
-            for key, value in attributes.iteritems():
+            for key, value in six.iteritems(attributes):
                 node.setAttribute(key, value)
         root.appendChild(node)
         return node

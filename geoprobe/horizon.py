@@ -1,15 +1,15 @@
 import numpy as np
 import os
+import six
 
 #-- Imports from local files --------------------------------------
-from volume import volume
-from common import BinaryFile
-from utilities import array2geotiff, points2strikeDip
+from .volume import volume
+from .common import read_binary, write_binary
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
 _point_names =  ('x',  'y',  'z', 'conf', 'type', 'herid', 'tileSize')
-_point_dtype = zip(_point_names, _point_format)
+_point_dtype = list(zip(_point_names, _point_format))
 
 class horizon(object):
     """
@@ -75,7 +75,7 @@ class horizon(object):
 
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
-        if (len(args) == 1) and isinstance(args[0], basestring):
+        if (len(args) == 1) and isinstance(args[0], six.string_types):
             self._readHorizon(args[0])
 
         # Otherwise, pass the args on to _make_horizon_from_data for
@@ -99,9 +99,9 @@ class horizon(object):
         self._file = HorizonFile(filename, 'rb')
         self._header = self._file.readHeader()
 
-        if self._header == "#GeoProbe Horizon V2.0 ascii\n":
+        if self._header == b"#GeoProbe Horizon V2.0 ascii\n":
             raise TypeError('Ascii horizons not currently supported')
-        elif self._header != "#GeoProbe Horizon V2.0 binary\n":
+        elif self._header != b"#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe'\
                             ' horizon')
 
@@ -286,7 +286,7 @@ class horizon(object):
         except AttributeError:
             x, y, z = self.x, self.y, self.z
             xmin, xmax, ymin, ymax = self.grid_extents
-            ny, nx = (ymax - ymin + 1), (xmax - xmin + 1)
+            ny, nx = int(ymax - ymin + 1), int(xmax - xmin + 1)
             grid = self.nodata * np.ones((ny, nx), dtype=np.float32)
             I = np.array(x - xmin, dtype=np.int)
             J = np.array(y - ymin, dtype=np.int)
@@ -329,6 +329,8 @@ class horizon(object):
         Output:
             strike, dip
         """
+        # Delayed import to avoid circular dependency
+        from .utilities import points2strikeDip
         return points2strikeDip(self.x, self.y, self.z,
                                           vol=vol, velocity=velocity)
 
@@ -349,6 +351,9 @@ class horizon(object):
                 is specified, and vol.dz is negative, this defaults to -1.
                 Otherwise this defaults to 1.
         """
+        # Delayed import to avoid circular dependency
+        from .utilities import array2geotiff
+
         if vol is not None:
             if type(vol) == type('string'):
                 vol = volume(vol)
@@ -378,7 +383,7 @@ class horizon(object):
 
 
 #-- This is currently very sloppy code... Need to clean up and document
-class HorizonFile(BinaryFile):
+class HorizonFile(object):
     """Basic geoprobe horizon binary file format reader
 
         Disk layout of Geoprobe horizons
@@ -410,23 +415,23 @@ class HorizonFile(BinaryFile):
     def __init__(self, *args, **kwargs):
         """Accepts the same argument set as a standard python file object"""
         # Initalize the file object as normal
-        file.__init__(self, *args, **kwargs)
+        self._file = open(*args, **kwargs)
 
     def readHeader(self):
-        self.seek(0)
-        return self.readline()
+        self._file.seek(0)
+        return self._file.readline()
 
     def readPoints(self):
-        numPoints = self.readBinary(self._surfaceHdrFmt)
-        points = np.fromfile(self, count=numPoints, dtype=_point_dtype)
+        numPoints = read_binary(self._file, self._surfaceHdrFmt)
+        points = np.fromfile(self._file, count=numPoints, dtype=_point_dtype)
         return points
 
     def readSectionHeader(self):
-        return self.readBinary(self._sectionHdrFmt)
+        return read_binary(self._file, self._sectionHdrFmt)
 
     def readLineHeader(self):
         # TODO: Change this to a numpy array
-        xdir,ydir,zdir,ID = self.readBinary(self._lineHdrFmt)
+        xdir,ydir,zdir,ID = read_binary(self._file, self._lineHdrFmt)
         return xdir, ydir, zdir, ID
 
     def readAll(self):
@@ -451,7 +456,7 @@ class HorizonFile(BinaryFile):
         # Read lines section
         line_info = [None]
         self.numlines = self.readSectionHeader()
-        for i in xrange(self.numlines):
+        for i in six.moves.range(self.numlines):
             line_info.append(self.readLineHeader())
             currentPoints = self.readPoints()
             temp_points.append(currentPoints)
@@ -478,19 +483,19 @@ class HorizonFile(BinaryFile):
 
     def writeHeader(self):
         header = "#GeoProbe Horizon V2.0 binary\n"
-        self.seek(0)
-        self.write(header)
+        self._file.seek(0)
+        self._file.write(header)
 
     def writePoints(self, points):
         numPoints = points.size
-        self.writeBinary(self._surfaceHdrFmt, numPoints)
-        points.tofile(self)
+        write_binary(self._file, self._surfaceHdrFmt, numPoints)
+        points.tofile(self._file)
 
     def writeLineHeader(self, line_hdr):
-        self.writeBinary(self._lineHdrFmt, line_hdr)
+        write_binary(self._file, self._lineHdrFmt, line_hdr)
 
     def writeSectionHeader(self, sec_hdr):
-        self.writeBinary(self._sectionHdrFmt, sec_hdr)
+        write_binary(self._file, self._sectionHdrFmt, sec_hdr)
 
     def writeAll(self):
         self.writeHeader()

@@ -1,8 +1,9 @@
 import numpy as np
-from common import BinaryFile
-from common import format_headerDef_docs
-from _2dHeader import headerDef as _headerDef
-from _2dHeader import headerLength as _headerLength
+import six
+
+from .common import format_headerDef_docs, read_binary, write_binary
+from ._2dHeader import headerDef as _headerDef
+from ._2dHeader import headerLength as _headerLength
 
 class data2d(object):
     __doc__ = """
@@ -22,9 +23,9 @@ class data2d(object):
         Input:
             filename: The name of the 2D data file
         """
-        if isinstance(arg, basestring):
+        if isinstance(arg, six.string_types):
             filename = arg
-            infile = BinaryFile(filename, 'rb')
+            infile = open(filename, 'rb')
             self._read_header(infile)
             self._read_traces(infile)
             infile.close()
@@ -43,7 +44,7 @@ class data2d(object):
         # Set up the header Dictionary
         if copyFrom is not None:
             # Assume the string is the filename of a 2d data file
-            if isinstance(copyFrom, basestring):
+            if isinstance(copyFrom, six.string_types):
                 copyFrom = data2d(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
@@ -52,7 +53,7 @@ class data2d(object):
                                 ' 2d data object')
         else:
             # Set default attributes
-            for varname, info in _headerDef.iteritems():
+            for varname, info in six.iteritems(_headerDef):
                 setattr(self, varname, info['default'])
             self._numtraces, self._numsamples = data.shape
 
@@ -63,8 +64,8 @@ class data2d(object):
             self.endtime = endtime
 
     def write(self, outfile):
-        if isinstance(outfile , basestring):
-            outfile = BinaryFile(outfile, 'wb')
+        if isinstance(outfile, six.string_types):
+            outfile = open(outfile, 'wb')
         self._write_header(outfile)
         self._write_traces(outfile)
         outfile.close()
@@ -74,18 +75,18 @@ class data2d(object):
         Read the values stored in the file header and set each one as
         an attribue of the data2d object.
         """
-        for varname, info in _headerDef.iteritems():
+        for varname, info in six.iteritems(_headerDef):
             offset, fmt = info['offset'], info['type']
             infile.seek(offset)
-            var = infile.readBinary(fmt)
+            var = read_binary(infile, fmt)
             setattr(self, varname, var)
 
     def _write_header(self, outfile):
         """Write the values in self.headerValues to "outfile"."""
-        for varname, info in _headerDef.iteritems():
+        for varname, info in six.iteritems(_headerDef):
             value = getattr(self, varname, info['default'])
             outfile.seek(info['offset'])
-            outfile.writeBinary(info['type'], value)
+            write_binary(outfile, info['type'], value)
 
     def _getHeaderValues(self):
         """
@@ -101,8 +102,8 @@ class data2d(object):
             values[key] = getattr(self, key, default)
         return values
 
-    def _setHeaderValues(self, input):
-        for key, value in input.iteritems():
+    def _setHeaderValues(self, input_val):
+        for key, value in six.iteritems(input_val):
             # Only set things in input that are normally in the header
             if key in _headerDef:
                 setattr(self, key, value)

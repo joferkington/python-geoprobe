@@ -1,3 +1,5 @@
+import six
+
 class tsurf(object):
     default_name = 'Undefined'
     default_color = (0, 1, 1, 1.0)
@@ -61,7 +63,7 @@ class tsurf(object):
         self.x, self.y, self.z = zip(*self.vertices)
 
     def _init_from_xyz(self, x, y, z, triangles):
-        self.vertices = zip(x, y, z)
+        self.vertices = list(zip(x, y, z))
         self.x, self.y, self.z = x, y, z
         self.triangles = triangles
         self.color = self.default_color
@@ -79,8 +81,8 @@ class tsurf(object):
                         'intersect', 'intercolor']:
                 value = self.header[key]
             """
-            for key, value in self.header.iteritems():
-                if not isinstance(value, basestring):
+            for key, value in six.iteritems(self.header):
+                if not isinstance(value, six.string_types):
                     try:
                         value = ' '.join(repr(item) for item in value)
                     except TypeError:

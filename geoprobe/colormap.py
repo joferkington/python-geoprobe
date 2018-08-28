@@ -1,3 +1,4 @@
+import six
 import numpy as np
 
 class colormap(object):
@@ -9,18 +10,18 @@ class colormap(object):
 
     def _parse_infile(self):
         infile = open(self.filename, 'r')
-        header = infile.next()
+        header = next(infile)
         if header.startswith('#'):
-            _ = infile.next()
-        self.num_keys = int(infile.next().strip())
+            _ = next(infile)
+        self.num_keys = int(next(infile).strip())
         keys = []
-        for i in xrange(self.num_keys):
-            keys.append(infile.next().strip().split())
+        for i in range(self.num_keys):
+            keys.append(next(infile).strip().split())
         self.keys = np.array(keys, dtype=np.float)
-        num_colors = int(infile.next().strip())
+        num_colors = int(next(infile).strip())
         colors = []
-        for i in xrange(num_colors):
-            colors.append(infile.next().strip().split())
+        for i in range(num_colors):
+            colors.append(next(infile).strip().split())
         self.lut = np.array(colors, dtype=np.float)
         dtype = {'names':['red', 'green', 'blue', 'alpha', 'keys'],
                  'formats':5 * [np.float]}
