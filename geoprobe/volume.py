@@ -14,8 +14,6 @@ from ._volHeader import headerLength as _headerLength
 from .common import read_binary, write_binary
 from .common import format_headerDef_docs
 
-from . import utilities
-
 # Factory function for creating new Volume objects...
 def volume(input, copyFrom=None, rescale=True, voltype=None):
     """
@@ -458,6 +456,9 @@ class Volume(object):
                 (in depth/time)
             *coords*: Either "model" or "world", specifying whether *x* and *y*
                 are given in model or world coordinates."""
+        # Delayed import to avoid circular import
+        from . import utilities
+
         if coords == 'world':
             x, y = self.world2model(x, y)
         elif coords != 'model':

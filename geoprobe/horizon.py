@@ -5,7 +5,6 @@ from six import string_types
 #-- Imports from local files --------------------------------------
 from .volume import volume
 from .common import read_binary, write_binary
-from .utilities import array2geotiff, points2strikeDip
 
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
@@ -330,6 +329,8 @@ class horizon(object):
         Output:
             strike, dip
         """
+        # Delayed import to avoid circular dependency
+        from .utilities import points2strikeDip
         return points2strikeDip(self.x, self.y, self.z,
                                           vol=vol, velocity=velocity)
 
@@ -350,6 +351,9 @@ class horizon(object):
                 is specified, and vol.dz is negative, this defaults to -1.
                 Otherwise this defaults to 1.
         """
+        # Delayed import to avoid circular dependency
+        from .utilities import array2geotiff
+
         if vol is not None:
             if type(vol) == type('string'):
                 vol = volume(vol)

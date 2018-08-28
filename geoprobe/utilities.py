@@ -86,7 +86,7 @@ def create_isopach(hor1, hor2, extent='intersection'):
     grid = hor1.grid - hor2.grid
     mask = ~grid.mask * np.ones_like(grid, dtype=np.bool)
     x, y, z, mask = x.ravel(), y.ravel(), grid.ravel(), mask.ravel()
-    iso = horizon.horizon(x=x[mask], y=y[mask], z=z[mask])
+    iso = horizon(x=x[mask], y=y[mask], z=z[mask])
     iso._grid = grid
     return iso
 
@@ -116,9 +116,9 @@ def extractWindow(hor, vol, upper=0, lower=None, offset=0, region=None,
     # If filenames are input instead of volume/horizion objects, create
     # the objects
     if type(hor) == type('String'):
-        hor = horizon.horizon(hor)
+        hor = horizon(hor)
     if type(vol) == type('String'):
-        vol = volume.volume(vol)
+        vol = volume(vol)
 
     #Gah, changed the way hor.grid works... Should probably change it back
     depth = hor.grid.T
@@ -499,7 +499,7 @@ def points2strikeDip(x, y, z, vol=None, velocity=None):
     if vol is not None:
         # If given a string, assume it's the filename of a volume
         if type(vol) == type('String'):
-            vol = volume.volume(vol)
+            vol = volume(vol)
         # Convert coords
         x,y = vol.model2world(x, y)
 
