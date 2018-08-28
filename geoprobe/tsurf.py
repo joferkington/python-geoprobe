@@ -1,4 +1,4 @@
-from six import string_types
+import six
 
 class tsurf(object):
     default_name = 'Undefined'
@@ -81,8 +81,8 @@ class tsurf(object):
                         'intersect', 'intercolor']:
                 value = self.header[key]
             """
-            for key, value in self.header.iteritems():
-                if not isinstance(value, string_types):
+            for key, value in six.iteritems(self.header):
+                if not isinstance(value, six.string_types):
                     try:
                         value = ' '.join(repr(item) for item in value)
                     except TypeError:

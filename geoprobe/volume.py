@@ -4,7 +4,7 @@ __author__    = "Joe Kington <jkington@wisc.edu>"
 
 import os
 import numpy as np
-from six import string_types
+import six
 
 # Dictonary of header values and offsets for a geoprobe volume
 from ._volHeader import headerDef as _headerDef
@@ -49,7 +49,7 @@ def volume(input, copyFrom=None, rescale=True, voltype=None):
             voltype = typestrings[voltype]
 
     # What were we given as input?
-    if isinstance(input, string_types):
+    if isinstance(input, six.string_types):
         # Assume strings are filenames of a geoprobe array
         for vol_format in formats:
             if _check_validity(vol_format, input):
@@ -142,7 +142,7 @@ class Volume(object):
         #Set up the header Dictionary
         if copyFrom is not None:
             # Assume the string is the filname of a geoprobe volume
-            if isinstance(copyFrom, string_types):
+            if isinstance(copyFrom, six.string_types):
                 copyFrom = volume(copyFrom)
             try:
                 self.headerValues = copyFrom.headerValues
@@ -151,7 +151,7 @@ class Volume(object):
                                 ' geoprobe volume object')
         else:
             # Set default attributes
-            for varname, info in _headerDef.iteritems():
+            for varname, info in six.iteritems(_headerDef):
                 setattr(self, varname, info['default'])
             (self.originalnx, self.originalny, self.originalnz) = data.shape
 
@@ -290,10 +290,10 @@ class Volume(object):
             values[key] = getattr(self, key, default)
         return values
 
-    def _setHeaderValues(self, input):
+    def _setHeaderValues(self, input_val):
         # This needs to raise an error if set via headerValues['x'] = y!
         # Don't know how to do it easily, though...
-        for key, value in input.iteritems():
+        for key, value in six.iteritems(input_val):
             # Only set things in input that are normally in the header
             if key in _headerDef:
                 setattr(self, key, value)
@@ -580,7 +580,7 @@ class Volume(object):
             raise ValueError('"axis" must be one of 0,1,2 or "x","y","z"')
 
         # Allow both 0,1,2 and 'x','y','z' (or 'X','Y','Z') for axis
-        if isinstance(axis, string_types):
+        if isinstance(axis, six.string_types):
             axis = axis.upper()
             axis = {'X':0, 'Y':1, 'Z':2}[axis]
 
@@ -727,9 +727,9 @@ class GeoprobeVolumeFileV2(object):
     def read_header(self):
         """Reads and returns the header of a geoprobe volume."""
         header = dict()
-        for varname, info in _headerDef.iteritems():
+        for varname, info in six.iteritems(_headerDef):
             self._file.seek(info['offset'])
-            read_binary(self._file, info['type'])
+            value = read_binary(self._file, info['type'])
             header[varname] = value
         return header
 
@@ -755,7 +755,7 @@ class GeoprobeVolumeFileV2(object):
 
     def write_header(self, header):
         """Write the values in the dict "header" to the file."""
-        for varname, info in _headerDef.iteritems():
+        for varname, info in six.iteritems(_headerDef):
             value = header.get(varname, info['default'])
             self._file.seek(info['offset'])
             write_binary(self._file, info['type'], value)
@@ -810,7 +810,7 @@ class HDFVolumeFile(object):
         return self.dataset
 
     def write_header(self, header):
-        for key, value in header.iteritems():
+        for key, value in six.iteritems(header):
             self._file.attrs[key] = value
 
     def write_data(self, data):

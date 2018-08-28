@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from six import string_types
+import six
 
 #-- Imports from local files --------------------------------------
 from .volume import volume
@@ -9,7 +9,7 @@ from .common import read_binary, write_binary
 #-- Build dtype for points ----------------------------------------
 _point_format = ('>f', '>f', '>f', '>f',  '>B',   '>B',    '>B')
 _point_names =  ('x',  'y',  'z', 'conf', 'type', 'herid', 'tileSize')
-_point_dtype = zip(_point_names, _point_format)
+_point_dtype = list(zip(_point_names, _point_format))
 
 class horizon(object):
     """
@@ -75,7 +75,7 @@ class horizon(object):
 
         # If __init__ is just passed a string, assume it's a filename
         # and make a horizon object by reading from disk
-        if (len(args) == 1) and isinstance(args[0], string_types):
+        if (len(args) == 1) and isinstance(args[0], six.string_types):
             self._readHorizon(args[0])
 
         # Otherwise, pass the args on to _make_horizon_from_data for
@@ -99,9 +99,9 @@ class horizon(object):
         self._file = HorizonFile(filename, 'rb')
         self._header = self._file.readHeader()
 
-        if self._header == "#GeoProbe Horizon V2.0 ascii\n":
+        if self._header == b"#GeoProbe Horizon V2.0 ascii\n":
             raise TypeError('Ascii horizons not currently supported')
-        elif self._header != "#GeoProbe Horizon V2.0 binary\n":
+        elif self._header != b"#GeoProbe Horizon V2.0 binary\n":
             raise TypeError('This does not appear to be a valid geoprobe'\
                             ' horizon')
 
@@ -286,7 +286,7 @@ class horizon(object):
         except AttributeError:
             x, y, z = self.x, self.y, self.z
             xmin, xmax, ymin, ymax = self.grid_extents
-            ny, nx = (ymax - ymin + 1), (xmax - xmin + 1)
+            ny, nx = int(ymax - ymin + 1), int(xmax - xmin + 1)
             grid = self.nodata * np.ones((ny, nx), dtype=np.float32)
             I = np.array(x - xmin, dtype=np.int)
             J = np.array(y - ymin, dtype=np.int)
@@ -423,7 +423,7 @@ class HorizonFile(object):
 
     def readPoints(self):
         numPoints = read_binary(self._file, self._surfaceHdrFmt)
-        points = np.fromfile(self, count=numPoints, dtype=_point_dtype)
+        points = np.fromfile(self._file, count=numPoints, dtype=_point_dtype)
         return points
 
     def readSectionHeader(self):
@@ -456,7 +456,7 @@ class HorizonFile(object):
         # Read lines section
         line_info = [None]
         self.numlines = self.readSectionHeader()
-        for i in xrange(self.numlines):
+        for i in six.moves.range(self.numlines):
             line_info.append(self.readLineHeader())
             currentPoints = self.readPoints()
             temp_points.append(currentPoints)
