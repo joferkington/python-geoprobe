@@ -27,16 +27,16 @@ def plot(vol):
     """Plot the first inline and first crossline in "vol", a geoprobe.volume
     instance."""
     # Plot the first inline in the volume
-    plt.figure()
-    plt.imshow(vol.XSlice(vol.xmin))
+    fig, ax = plt.subplots()
+    ax.imshow(vol.XSlice(vol.xmin))
     # Note: instead of vol.XSlice, we could have used vol.data[0,:,:].T
-    plt.title('Inline %i' % vol.xmin)
+    ax.set(title='Inline %i' % vol.xmin)
 
     # Plot the first crossline in the volume
-    plt.figure()
-    plt.imshow(vol.YSlice(vol.ymin))
+    fig, ax = plt.subplots()
+    ax.imshow(vol.YSlice(vol.ymin))
     # Note: instead of vol.YSlice, we could have used vol.data[:,0,:].T
-    plt.title('Crossline %i' % vol.ymin)
+    ax.set(title='Crossline %i' % vol.ymin)
 
     plt.show()
 

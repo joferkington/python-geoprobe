@@ -32,28 +32,23 @@ def plot(hor):
     """Plot the "filled" z-values and "manual picks" in the geoprobe.horizon
     instance"""
     #-- Plot the "filled" values ----------------------------------------------
-    plt.figure()
+    fig, ax = plt.subplots()
 
     # hor.grid is a 2D array of the Z-values stored in the horizon
-    plt.imshow(hor.grid, cmap=plt.cm.jet_r,
-            extent=(hor.xmin, hor.xmax, hor.ymax, hor.ymin))
-
-    #-- Plot the "manual picks" -----------------------------------------------
-    plt.hold(True)
+    im = ax.imshow(hor.grid, cmap=plt.cm.jet_r,
+                   extent=(hor.xmin, hor.xmax, hor.ymax, hor.ymin))
 
     # Here, "line" is a numpy structured array with fields 'x', 'y', 'z', etc.
     # "line_info" is a 4-tuple of (xdir, ydir, zdir, ID) (and is unused here)
     for line_info, line in hor.lines:
-        plt.plot(line['x'], line['y'], 'g-')
+        ax.plot(line['x'], line['y'], 'g-')
 
     #-- Labels, titles, etc ---------------------------------------------------
-    cb = plt.colorbar(orientation='horizontal')
+    cb = fig.colorbar(im, orientation='horizontal')
     cb.set_label('Depth in meters below sea level')
 
-    plt.axis('image')
-    plt.title('An example horizon file')
-    plt.xlabel('Inline')
-    plt.ylabel('Crossline')
+    ax.axis('image')
+    ax.set(title='An example horizon file', xlabel='Inline', ylabel='Crossline')
 
     plt.show()
 
