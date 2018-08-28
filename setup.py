@@ -10,4 +10,12 @@ setup(
     url = 'https://github.com/joferkington/python-geoprobe',
     packages = find_packages(),
     install_requires = ['numpy', 'six'],
+    classifiers=(
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering",
+        ),
 )
