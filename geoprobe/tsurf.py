@@ -5,7 +5,7 @@ class tsurf(object):
     default_color = (0, 1, 1, 1.0)
     def __init__(self, *args, **kwargs):
         """Accepts either a single filename or 4 arguments: x, y, z, triangles.
-        keyword argumets are: "color" and "name"
+        keyword arguments are: "color" and "name"
 
         If a filename is given, the tsurf is read from the file.
 
